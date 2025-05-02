@@ -1,0 +1,1 @@
+{"version":3,"file":"api.js","sources":["api/api.js"],"sourcesContent":["import http from \"./http.js\";\r\n\r\n// 首页\r\nexport const getBanner = (url,) => {\r\n    return http('/api/getBanner')\r\n }"],"names":["http"],"mappings":";;AAGY,MAAC,YAAY,CAAC,QAAS;AAC/B,SAAOA,SAAAA,KAAK,gBAAgB;AAChC;;"}

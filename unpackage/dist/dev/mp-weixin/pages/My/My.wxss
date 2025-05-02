@@ -1,0 +1,121 @@
+/**
+ * 这里是uni-app内置的常用样式变量
+ *
+ * uni-app 官方扩展插件及插件市场（https://ext.dcloud.net.cn）上很多三方插件均使用了这些样式变量
+ * 如果你是插件开发者，建议你使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ *
+ */
+/**
+ * 如果你是App开发者（插件使用者），你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ *
+ * 如果你的项目同样使用了scss预处理，你也可以直接在你的 scss 代码中使用如下变量，同时无需 import 这个文件
+ */
+/* 颜色变量 */
+/* 行为相关颜色 */
+/* 文字基本颜色 */
+/* 背景颜色 */
+/* 边框颜色 */
+/* 尺寸变量 */
+/* 文字尺寸 */
+/* 图片尺寸 */
+/* Border Radius */
+/* 水平间距 */
+/* 垂直间距 */
+/* 透明度 */
+/* 文章场景相关 */
+/* 引入uView的全局SCSS主题文件 */
+.my-container.data-v-8f9a99c0 {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+.my-container .user-info-section.data-v-8f9a99c0 {
+  background: linear-gradient(to right, #4bb0ff, #61e4ff);
+  padding: 40rpx 30rpx;
+  margin-bottom: 20rpx;
+}
+.my-container .user-info-section .user-profile.data-v-8f9a99c0 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.my-container .user-info-section .user-profile .user-avatar.data-v-8f9a99c0 {
+  width: 150rpx;
+  height: 150rpx;
+  border-radius: 50%;
+  border: 4rpx solid #fff;
+  margin-bottom: 20rpx;
+}
+.my-container .user-info-section .user-profile .user-name.data-v-8f9a99c0 {
+  font-size: 36rpx;
+  color: #fff;
+  font-weight: bold;
+}
+.my-container .user-info-section .login-section.data-v-8f9a99c0 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.my-container .user-info-section .login-section .default-avatar.data-v-8f9a99c0 {
+  width: 150rpx;
+  height: 150rpx;
+  border-radius: 50%;
+  border: 4rpx solid #fff;
+  margin-bottom: 20rpx;
+}
+.my-container .user-info-section .login-section .login-btns.data-v-8f9a99c0 {
+  display: flex;
+  gap: 20rpx;
+}
+.my-container .user-info-section .login-section .login-btns .login-btn.data-v-8f9a99c0,
+.my-container .user-info-section .login-section .login-btns .register-btn.data-v-8f9a99c0 {
+  background-color: #fff;
+  color: #4bb0ff;
+  font-size: 28rpx;
+  font-weight: bold;
+  padding: 15rpx 40rpx;
+  border-radius: 30rpx;
+  border: none;
+}
+.my-container .options-section.data-v-8f9a99c0 {
+  padding: 0 20rpx;
+}
+.my-container .options-section .option-group.data-v-8f9a99c0 {
+  background-color: #fff;
+  border-radius: 15rpx;
+  margin-bottom: 20rpx;
+  overflow: hidden;
+}
+.my-container .options-section .option-group .option-item.data-v-8f9a99c0 {
+  display: flex;
+  align-items: center;
+  padding: 30rpx 20rpx;
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
+}
+.my-container .options-section .option-group .option-item.data-v-8f9a99c0:last-child {
+  border-bottom: none;
+}
+.my-container .options-section .option-group .option-item .option-icon.data-v-8f9a99c0 {
+  width: 50rpx;
+  height: 50rpx;
+  margin-right: 20rpx;
+}
+.my-container .options-section .option-group .option-item .option-text.data-v-8f9a99c0 {
+  flex: 1;
+  font-size: 30rpx;
+  color: #333;
+}
+.my-container .options-section .option-group .option-item .arrow-icon.data-v-8f9a99c0 {
+  width: 30rpx;
+  height: 30rpx;
+}
+.my-container .options-section .logout-btn.data-v-8f9a99c0 {
+  background-color: #fff;
+  color: #ff4b4b;
+  text-align: center;
+  padding: 30rpx 0;
+  border-radius: 15rpx;
+  font-size: 32rpx;
+  margin-top: 30rpx;
+  font-weight: bold;
+}

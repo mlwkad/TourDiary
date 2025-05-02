@@ -1,0 +1,1 @@
+{"version":3,"file":"dispatchRequest.js","sources":["uni_modules/uview-plus/libs/luch-request/core/dispatchRequest.js"],"sourcesContent":["import adapter from '../adapters/index'\r\n\r\nexport default (config) => adapter(config)\r\n"],"names":["adapter"],"mappings":";;AAEA,MAAA,kBAAe,CAAC,WAAWA,sDAAAA,QAAQ,MAAM;;"}

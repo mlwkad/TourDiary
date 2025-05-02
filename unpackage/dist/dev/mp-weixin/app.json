@@ -1,0 +1,43 @@
+{
+  "pages": [
+    "pages/dev/dev",
+    "pages/index/index",
+    "pages/My/My",
+    "pages/Release/Release",
+    "pages/login/login",
+    "pages/register/register"
+  ],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "uni-app",
+    "navigationBarBackgroundColor": "#F8F8F8",
+    "backgroundColor": "#F8F8F8"
+  },
+  "tabBar": {
+    "color": "#999",
+    "selectedColor": "#1296db",
+    "backgroundColor": "",
+    "borderStyle": "black",
+    "list": [
+      {
+        "text": "首页",
+        "pagePath": "pages/index/index",
+        "iconPath": "static/tabBar/home.png",
+        "selectedIconPath": "static/tabBar/selectedHome.png"
+      },
+      {
+        "text": "发布",
+        "pagePath": "pages/Release/Release",
+        "iconPath": "static/tabBar/release.png",
+        "selectedIconPath": "static/tabBar/released.png"
+      },
+      {
+        "text": "我的",
+        "pagePath": "pages/My/My",
+        "iconPath": "static/tabBar/my.png",
+        "selectedIconPath": "static/tabBar/selectedMy.png"
+      }
+    ]
+  },
+  "usingComponents": {}
+}

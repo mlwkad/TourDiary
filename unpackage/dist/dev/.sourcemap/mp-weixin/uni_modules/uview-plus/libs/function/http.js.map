@@ -1,0 +1,1 @@
+{"version":3,"file":"http.js","sources":["uni_modules/uview-plus/libs/function/http.js"],"sourcesContent":["// 全局挂载引入http相关请求拦截插件\nimport Request from '../luch-request'\nconst http = new Request()\nexport default http\n"],"names":["Request"],"mappings":";;AAEK,MAAC,OAAO,IAAIA,oDAAO,QAAA;;"}
