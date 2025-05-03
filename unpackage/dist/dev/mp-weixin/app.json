@@ -1,5 +1,6 @@
 {
   "pages": [
+    "pages/detail/detail",
     "pages/dev/dev",
     "pages/index/index",
     "pages/My/My",
@@ -38,6 +39,14 @@
         "selectedIconPath": "static/tabBar/selectedMy.png"
       }
     ]
+  },
+  "requiredPrivateInfos": [
+    "chooseLocation"
+  ],
+  "permission": {
+    "scope.userLocation": {
+      "desc": "您的位置信息将用于选择旅游位置"
+    }
   },
   "usingComponents": {}
 }

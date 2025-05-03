@@ -4,6 +4,12 @@
         "pages.json": {
             "tabBar": "路由配置",
             "easycom": "uview配置 P4"
+        },
+        "manifest.json": {
+            "mp-weixin.requiredPrivateInfos": "获取位置信息",
+            "app-plus.distribute.ios.privacyDescription": "请求位置权限时的说明文本",
+            "app-plus.distribute.sdkConfigs.geolocation.system.__platform__": "哪些平台使用位置配置",
+            "mp-weixin.permission": "获取位置信息 声明"
         }
     },
     "dependencies": {

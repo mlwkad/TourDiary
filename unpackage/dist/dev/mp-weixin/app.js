@@ -3,6 +3,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
 const common_vendor = require("./common/vendor.js");
 const uni_modules_uviewPlus_index = require("./uni_modules/uview-plus/index.js");
 if (!Math) {
+  "./pages/detail/detail.js";
   "./pages/dev/dev.js";
   "./pages/index/index.js";
   "./pages/My/My.js";

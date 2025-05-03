@@ -47,11 +47,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-
-const username = ref<string>('');
-const password = ref<string>('');
-const confirmPassword = ref<string>('');
+import { ref } from 'vue'
+import { signUp } from '../../api/api'
+const username = ref<string>('')
+const password = ref<string>('')
+const confirmPassword = ref<string>('')
 
 // 注册处理
 const handleRegister = () => {
@@ -59,91 +59,106 @@ const handleRegister = () => {
         uni.showToast({
             title: '请填写完整信息',
             icon: 'none'
-        });
-        return;
+        })
+        return
+    }
+
+    if (username.value.length < 3) {
+        uni.showToast({
+            title: '用户名长度应大于3小于20位',
+            icon: 'none'
+        })
+        return
     }
 
     if (password.value !== confirmPassword.value) {
         uni.showToast({
             title: '两次密码输入不一致',
             icon: 'none'
-        });
-        return;
+        })
+        return
     }
 
-    // 这里应调用实际的注册API
-    // 模拟注册成功
     uni.showLoading({
         title: '注册中...'
-    });
+    })
 
-    setTimeout(() => {
-        uni.hideLoading();
+    const userInfo = {
+        nickName: username.value,
+        avatarUrl: '/static/666.jpg',
+        userId: ''
+    };
 
-        // 模拟注册成功，自动登录并存储用户信息
-        const userInfo = {
-            nickName: username.value,
-            avatarUrl: '/static/666.jpg',
-            userId: 'reg' + Date.now()
-        };
+    try {
+        signUp({
+            userName: username.value,
+            passWord: password.value
+        }).then(async res => {
+            console.log(res)
 
-        uni.setStorageSync('token', 'sample-token');
-        uni.setStorageSync('userInfo', JSON.stringify(userInfo));
-
-        uni.showToast({
-            title: '注册成功',
-            icon: 'success'
-        });
-
-        setTimeout(() => {
-            uni.navigateBack({
-                delta: 2  // 返回两层，跳过登录页回到我的页面
-            });
-        }, 1500);
-    }, 1500);
-};
+            userInfo.nickName = username.value
+            userInfo.avatarUrl = '/static/666.jpg'
+            userInfo.userId = res.userID
+            uni.setStorageSync('token', 'sample-token')
+            uni.setStorageSync('userInfo', JSON.stringify(userInfo))
+            uni.hideLoading()
+            await new Promise(resolve => {
+                uni.showToast({
+                    title: '注册成功',
+                    icon: 'success'
+                })
+                setTimeout(() => {
+                    resolve()
+                }, 1000)
+            })
+            uni.navigateBack()
+        })
+    } catch (error) {
+        console.log(error)
+    }
+}
 
 // 微信注册
 const wechatRegister = () => {
     uni.showLoading({
         title: '注册中...'
-    });
+    })
 
     // 模拟微信注册
     setTimeout(() => {
-        uni.hideLoading();
+        uni.hideLoading()
 
         const userInfo = {
             nickName: '微信用户',
             avatarUrl: '/static/666.jpg',
             userId: 'wx' + Date.now()
-        };
+        }
 
         uni.setStorageSync('token', 'wx-token');
-        uni.setStorageSync('userInfo', JSON.stringify(userInfo));
+        uni.setStorageSync('userInfo', JSON.stringify(userInfo))
 
         uni.showToast({
             title: '注册成功',
             icon: 'success'
-        });
+        })
 
         setTimeout(() => {
             uni.navigateBack({
                 delta: 2  // 返回两层，跳过登录页回到我的页面
-            });
-        }, 1500);
-    }, 1500);
+            })
+        }, 1500)
+    }, 1500)
 };
 
 // 返回上一页
 const goBack = () => {
-    uni.navigateBack();
-};
+    uni.navigateBack()
+}
 
 // 跳转到登录页
 const goToLogin = () => {
-    uni.navigateBack();
-};
+    uni.navigateBack()
+}
 </script>
 
 <style lang="scss" scoped>
@@ -182,8 +197,8 @@ const goToLogin = () => {
             position: relative;
 
             .avatar {
-                width: 150rpx;
-                height: 150rpx;
+                width: 180rpx;
+                height: 180rpx;
                 border-radius: 50%;
                 border: 4rpx solid #4bb0ff;
             }

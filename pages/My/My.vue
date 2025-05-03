@@ -4,7 +4,10 @@
 		<view class="user-info-section" :class="{ 'logged-in': isLoggedIn }">
 			<view v-if="isLoggedIn" class="user-profile">
 				<image class="user-avatar" :src="userInfo.avatarUrl || '/static/666.jpg'" mode="aspectFill"></image>
-				<view class="user-name">{{ userInfo.nickName || '微信用户' }}</view>
+				<view class="user-name">
+					{{ userInfo.nickName || '666' }}
+					<image class="changeInfoIcon" src="/static/public/change.png" @click="isShow = true"></image>
+				</view>
 			</view>
 			<view v-else class="login-section">
 				<image class="default-avatar" src="/static/666.jpg" mode="aspectFill"></image>
@@ -56,12 +59,32 @@
 			</view>
 		</view>
 	</view>
+	<view class="changeInfo" v-if="isShow">
+		<view class="changeInfo-top">
+			<view class="changeInfo-top-title">修改您的头像、昵称</view>
+			<image class="changeInfo-top-close" src="/static/public/close.png" @click="isShow = false"></image>
+		</view>
+		<view class="changeInfo-avatar">
+			头像:
+			<!-- open-type="chooseAvatar" 选择怎么设置头像 -->
+			<button class="changeInfo-avatar-title" open-type="chooseAvatar" @chooseavatar="chooseavatar">
+				<image class="changeInfo-avatar-title-image" :src="userInfo.avatarUrl" mode="widthFix"></image>
+			</button>
+		</view>
+		<view class="changeInfo-nickname">
+			<view class="changeInfo-nickname-title">昵称:</view>
+			<!-- type="nickname" 自动获取微信昵称 -->
+			<input class="changeInfo-nickname-input" type="nickname" :placeholder='userInfo.nickName' />
+		</view>
+		<button class="changeInfo-ensure">确定</button>
+	</view>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
-import { onLoad } from '@dcloudio/uni-app'
+import { onLoad, onShow } from '@dcloudio/uni-app'
 
+let isShow = ref<boolean>(false)
 // 用户信息
 const isLoggedIn = ref<boolean>(false);
 const userInfo = reactive({
@@ -72,13 +95,13 @@ const userInfo = reactive({
 
 // 检查登录状态
 const checkLoginStatus = () => {
-	const token = uni.getStorageSync('token');
+	const token = uni.getStorageSync('token')
 	if (token) {
-		isLoggedIn.value = true;
+		isLoggedIn.value = true
 		// 从本地获取用户信息
-		const savedUserInfo = uni.getStorageSync('userInfo');
+		const savedUserInfo = uni.getStorageSync('userInfo')
 		if (savedUserInfo) {
-			Object.assign(userInfo, JSON.parse(savedUserInfo));
+			Object.assign(userInfo, JSON.parse(savedUserInfo))
 		}
 	}
 };
@@ -90,8 +113,8 @@ const handleLogin = () => {
 		// 切页动效,默认右侧滑入
 		// animationType: 'slide-in-bottom',
 		// animationDuration: 300
-	});
-};
+	})
+}
 
 // 注册处理
 const handleRegister = () => {
@@ -108,9 +131,9 @@ const handleLogout = () => {
 		success: (res) => {
 			if (res.confirm) {
 				// 清除登录信息
-				uni.removeStorageSync('token');
-				uni.removeStorageSync('userInfo');
-				isLoggedIn.value = false;
+				uni.removeStorageSync('token')
+				uni.removeStorageSync('userInfo')
+				isLoggedIn.value = false
 				Object.assign(userInfo, {
 					nickName: '',
 					avatarUrl: '',
@@ -125,6 +148,10 @@ const handleLogout = () => {
 	});
 };
 
+// 更改头像
+const chooseavatar = () => {
+}
+
 // 页面导航
 const navigateTo = (page: string) => {
 	if (!isLoggedIn.value) {
@@ -133,7 +160,7 @@ const navigateTo = (page: string) => {
 			content: '请先登录',
 			success: (res) => {
 				if (res.confirm) {
-					handleLogin();
+					handleLogin()
 				}
 			}
 		});
@@ -157,6 +184,11 @@ const navigateTo = (page: string) => {
 onLoad(() => {
 	checkLoginStatus();
 });
+
+// 页面显示时检查登录状态，处理从登录页返回的情况
+onShow(() => {
+	checkLoginStatus();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -176,8 +208,8 @@ onLoad(() => {
 			align-items: center;
 
 			.user-avatar {
-				width: 150rpx;
-				height: 150rpx;
+				width: 180rpx;
+				height: 180rpx;
 				border-radius: 50%;
 				border: 4rpx solid #fff;
 				margin-bottom: 20rpx;
@@ -187,6 +219,15 @@ onLoad(() => {
 				font-size: 36rpx;
 				color: #fff;
 				font-weight: bold;
+				display: flex;
+				align-items: center;
+				gap: 15rpx;
+
+				.changeInfoIcon {
+					transform: translateY(3rpx);
+					width: 35rpx;
+					height: 35rpx;
+				}
 			}
 		}
 
@@ -196,8 +237,8 @@ onLoad(() => {
 			align-items: center;
 
 			.default-avatar {
-				width: 150rpx;
-				height: 150rpx;
+				width: 180rpx;
+				height: 180rpx;
 				border-radius: 50%;
 				border: 4rpx solid #fff;
 				margin-bottom: 20rpx;
@@ -270,5 +311,101 @@ onLoad(() => {
 			font-weight: bold;
 		}
 	}
+}
+
+.changeInfo {
+	width: 100%;
+	height: fit-content;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	background-color: #ffffff;
+	padding-top: 15rpx;
+	border-radius: 20rpx 20rpx 0 0;
+	box-shadow: 0 -5rpx 10px rgba(128, 128, 128, 0.433);
+	animation: hua 0.3s ease-in-out forwards;
+
+	@keyframes hua {
+		0% {
+			transform: translateY(50%);
+			opacity: 0;
+		}
+
+		100% {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	&-top {
+		display: flex;
+		align-items: center;
+		position: relative;
+		justify-content: center;
+		padding-bottom: 15rpx;
+
+		&-title {
+			font-size: 45rpx;
+			transform: translateX();
+		}
+
+		&-close {
+			position: absolute;
+			top: 50%;
+			right: 5%;
+			transform: translateY(-60%);
+			width: 20rpx;
+			height: 20rpx;
+		}
+	}
+
+	&-avatar {
+		display: flex;
+		align-items: center;
+		height: 100rpx;
+		border-top: solid 1rpx rgba(128, 128, 128, 0.449);
+		padding-left: 45rpx;
+
+		&-title {
+			margin: 0;
+			margin-left: 45rpx;
+			padding: 0;
+			height: 70rpx;
+
+			&-image {
+				width: 70rpx;
+				height: 70rpx;
+			}
+		}
+
+
+	}
+
+	&-nickname {
+		display: flex;
+		align-items: center;
+		height: 100rpx;
+		border-top: solid 1rpx rgba(128, 128, 128, 0.421);
+		border-bottom: solid 1rpx rgba(128, 128, 128, 0.421);
+		padding-left: 45rpx;
+
+		// &-title {}
+
+		&-input {
+			padding-left: 45rpx;
+		}
+	}
+
+	&-ensure {
+		background-color: rgb(52, 179, 52);
+		border-radius: 24rpx;
+		width: 40%;
+		margin: 0 auto;
+		margin-top: 15rpx;
+		margin-bottom: 15rpx;
+		border: solid 2px rgba(242, 246, 242, 0.629);
+		color: white;
+	}
+
 }
 </style>

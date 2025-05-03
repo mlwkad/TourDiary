@@ -1,6 +1,7 @@
 "use strict";
 const common_vendor = require("../../common/vendor.js");
 const common_assets = require("../../common/assets.js");
+const api_api = require("../../api/api.js");
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "login",
   setup(__props) {
@@ -17,55 +18,89 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       common_vendor.index.showLoading({
         title: "登录中..."
       });
-      setTimeout(() => {
-        common_vendor.index.hideLoading();
-        const userInfo = {
-          nickName: username.value,
-          avatarUrl: "/static/666.jpg",
-          userId: "12345"
-        };
-        common_vendor.index.setStorageSync("token", "sample-token");
-        common_vendor.index.setStorageSync("userInfo", JSON.stringify(userInfo));
-        common_vendor.index.showToast({
-          title: "登录成功",
-          icon: "success"
-        });
-        setTimeout(() => {
+      const userInfo = {
+        nickName: username.value,
+        avatarUrl: "/static/666.jpg",
+        userId: "12345"
+      };
+      try {
+        api_api.checkLogin({
+          userName: username.value,
+          passWord: password.value
+        }).then(async (res) => {
+          await new Promise((resolve) => {
+            common_vendor.index.hideLoading();
+            common_vendor.index.showToast({
+              title: "登录成功",
+              icon: "success"
+            });
+            setTimeout(() => {
+              resolve();
+            }, 1e3);
+          });
+          common_vendor.index.__f__("log", "at pages/login/login.vue:84", res);
+          userInfo.userId = res.userID;
+          userInfo.nickName = username.value;
+          userInfo.avatarUrl = "/static/666.jpg";
+          await common_vendor.index.setStorageSync("token", "sample-token");
+          await common_vendor.index.setStorageSync("userInfo", JSON.stringify(userInfo));
           common_vendor.index.navigateBack();
-        }, 1500);
-      }, 1500);
+        }).catch((err) => {
+          common_vendor.index.__f__("log", "at pages/login/login.vue:93", err);
+        });
+      } catch (e) {
+        common_vendor.index.__f__("log", "at pages/login/login.vue:96", e);
+      }
     };
-    const wechatLogin = () => {
-      common_vendor.index.showLoading({
-        title: "登录中..."
-      });
-      common_vendor.index.getUserInfo({
-        success(data) {
-          common_vendor.index.__f__("log", "at pages/login/login.vue:101", "data", data);
-        }
-      });
-      common_vendor.index.getUserProfile({
-        success(data) {
-          common_vendor.index.__f__("log", "at pages/login/login.vue:107", "AAAdata", data);
-        }
-      });
-      setTimeout(() => {
-        common_vendor.index.hideLoading();
-        const userInfo = {
-          nickName: "微信用户",
-          avatarUrl: "/static/666.jpg",
-          userId: "wx12345"
-        };
-        common_vendor.index.setStorageSync("token", "wx-token");
-        common_vendor.index.setStorageSync("userInfo", JSON.stringify(userInfo));
-        common_vendor.index.showToast({
-          title: "登录成功",
-          icon: "success"
+    const wechatLogin = async () => {
+      try {
+        const modalRes = await new Promise((resolve) => {
+          common_vendor.index.showModal({
+            title: "温馨提示",
+            content: "需要您授权获取个人信息",
+            success: resolve
+          });
         });
-        setTimeout(() => {
-          common_vendor.index.navigateBack();
-        }, 1500);
-      }, 1500);
+        if (!modalRes.confirm)
+          return;
+        const userProfileRes = await new Promise((resolve, reject) => {
+          common_vendor.index.getUserProfile({
+            desc: "需要获取您的微信昵称和头像",
+            success: resolve,
+            fail: reject
+          });
+        }).catch((err) => {
+          common_vendor.index.__f__("log", "at pages/login/login.vue:120", "获取用户信息失败", err);
+          common_vendor.index.showToast({ title: "获取用户信息失败", icon: "none" });
+          throw new Error("用户拒绝授权");
+        });
+        const { encryptedData, iv } = userProfileRes;
+        const loginRes = await new Promise((resolve) => {
+          common_vendor.index.login({ success: resolve });
+        });
+        try {
+          const sessionKeyRes = await api_api.getSessionKey("", { code: loginRes });
+          const userInfoRes = await api_api.getWXUserInfo("", {
+            encryptedData,
+            iv,
+            sessionKey: sessionKeyRes.sessionKey
+          }, "POST");
+          const userInfo = {
+            nickName: userInfoRes.nickName,
+            avatarUrl: userInfoRes.avatarUrl,
+            userId: ""
+          };
+          common_vendor.index.setStorageSync("token", "wx-token");
+          common_vendor.index.setStorageSync("userInfo", JSON.stringify(userInfo));
+          common_vendor.index.showToast({ title: "登录成功", icon: "success" });
+          setTimeout(() => common_vendor.index.navigateBack(), 1e3);
+        } catch (error) {
+          common_vendor.index.__f__("error", "at pages/login/login.vue:151", "微信登录失败", error);
+          common_vendor.index.showToast({ title: "登录失败，请稍后重试", icon: "none" });
+        }
+      } catch (error) {
+        common_vendor.index.__f__("error", "at pages/login/login.vue:155", "微信登录过程异常", error);
+      }
     };
     const forgetPassword = () => {
       common_vendor.index.showToast({
@@ -83,9 +118,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     };
     return (_ctx, _cache) => {
       return {
-        a: common_assets._imports_0,
+        a: common_assets._imports_0$1,
         b: common_vendor.o(goBack),
-        c: common_assets._imports_1$1,
+        c: common_assets._imports_1,
         d: username.value,
         e: common_vendor.o(($event) => username.value = $event.detail.value),
         f: password.value,

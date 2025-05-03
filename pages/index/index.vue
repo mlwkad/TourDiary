@@ -9,14 +9,14 @@
 	</view>
 	<view class="home-waterfall">
 		<view class="home-waterfall-box" v-for="(i, index) in 2" :key="index">
-			<view class="home-waterfall-content" v-for="j in allInfo[i - 1]" :key="j.name">
+			<view class="home-waterfall-content" v-for="j in allInfo[i - 1]" :key="j.name" @click="goDetail(j)">
 				<!--优先填满宽度,同时保证高宽比例,高度>容器高度=溢出,可设置overflow隐藏,反之填不满-->
 				<image class="waterfall-img" src="/static/666.jpg" mode="widthFix"></image>
 				<view class="waterfall-title">{{ j.title }}</view>
 				<view class="person-info">
 					<!--裁剪图片以保证图片完全填满容器,同时保证高宽比例,溢出就裁剪,填不满就放大-->
 					<image class="waterfall-avatar" src="/static/666.jpg" mode="aspectFill"></image>
-					<view class="waterfall-name">{{ j.name }}</view>
+					<view class="waterfall-name">{{ j.userName }}</view>
 				</view>
 			</view>
 		</view>
@@ -25,30 +25,22 @@
 </template>
 
 <script setup lang="ts">
-import { getBanner } from '../../api/api';
-import { onLoad, onReachBottom, onPageScroll } from '@dcloudio/uni-app'
+import { getAllReleases } from '../../api/api'
+import { onLoad, onReachBottom, onPageScroll, onShow } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 let searchContent = ref<string>('')
 let goTop = ref<boolean>(false)
-const allInfo = ref<any>([
-	[{ img: '#', title: '阿爸四阿萨德阿萨德阿萨德阿萨德阿萨德', avatar: '#', name: 1 },
-	{ img: '#', title: 'as dasasc avevva sdcva scasc asc', avatar: '#', name: 2 },
-	{ img: '#', title: 123, avatar: '#', name: 3 },
-	{ img: '#', title: 123, avatar: '#', name: 4 },
-	{ img: '#', title: 123, avatar: '#', name: 5 },
-	{ img: '#', title: 123, avatar: '#', name: 6 },
-	{ img: '#', title: 123, avatar: '#', name: 7 }],
-	[{ img: '#', title: 123, avatar: '#', name: 8 },
-	{ img: '#', title: 123, avatar: '#', name: 9 }]])
+const allInfo = ref<any>([[], []])
 
 const goSearch = () => {
 
 }
-// onLoad(() => {
-// 	getBanner().then(res => {
-// 		console.log(res.data)
-// 	})
-// })
+
+const goDetail = (info) => {
+	uni.navigateTo({
+		url: `/pages/detail/detail?info=${encodeURIComponent(JSON.stringify(info))}`
+	})
+}
 
 const goTopFunc = () => {
 	uni.pageScrollTo({
@@ -56,6 +48,28 @@ const goTopFunc = () => {
 		duration: 300
 	})
 }
+
+// onLoad(() => {
+// 	getAllReleases(50, 0).then(res => {
+// 		allInfo.value[0] = res.releases
+// 		console.log(res)
+// 	})
+// 	getAllReleases(50, 1).then(res => {
+// 		allInfo.value[1] = res.releases
+// 		console.log(res)
+// 	})
+// })
+
+onShow(() => {
+	getAllReleases(50, 0).then(res => {
+		allInfo.value[0] = res.releases
+		// console.log(res)
+	})
+	getAllReleases(50, 1).then(res => {
+		allInfo.value[1] = res.releases
+		// console.log(res)
+	})
+})
 
 onReachBottom(() => {
 

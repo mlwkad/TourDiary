@@ -56,8 +56,8 @@
   position: relative;
 }
 .register-container .register-form .avatar-container .avatar.data-v-bac4a35d {
-  width: 150rpx;
-  height: 150rpx;
+  width: 180rpx;
+  height: 180rpx;
   border-radius: 50%;
   border: 4rpx solid #4bb0ff;
 }

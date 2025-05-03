@@ -1,6 +1,12 @@
 {
 	"pages": [
 		{
+			"path": "pages/detail/detail",
+			"style": {
+				"navigationBarTitleText": "旅游详情"
+			}
+		},
+		{
 			"path": "pages/dev/dev",
 			"style": {
 				"navigationBarTitleText": "开发调试"

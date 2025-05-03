@@ -1,6 +1,7 @@
 "use strict";
 const common_vendor = require("../../common/vendor.js");
 const common_assets = require("../../common/assets.js");
+const api_api = require("../../api/api.js");
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "register",
   setup(__props) {
@@ -15,6 +16,13 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         });
         return;
       }
+      if (username.value.length < 3) {
+        common_vendor.index.showToast({
+          title: "用户名长度应大于3小于20位",
+          icon: "none"
+        });
+        return;
+      }
       if (password.value !== confirmPassword.value) {
         common_vendor.index.showToast({
           title: "两次密码输入不一致",
@@ -25,26 +33,37 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       common_vendor.index.showLoading({
         title: "注册中..."
       });
-      setTimeout(() => {
-        common_vendor.index.hideLoading();
-        const userInfo = {
-          nickName: username.value,
-          avatarUrl: "/static/666.jpg",
-          userId: "reg" + Date.now()
-        };
-        common_vendor.index.setStorageSync("token", "sample-token");
-        common_vendor.index.setStorageSync("userInfo", JSON.stringify(userInfo));
-        common_vendor.index.showToast({
-          title: "注册成功",
-          icon: "success"
-        });
-        setTimeout(() => {
-          common_vendor.index.navigateBack({
-            delta: 2
-            // 返回两层，跳过登录页回到我的页面
+      const userInfo = {
+        nickName: username.value,
+        avatarUrl: "/static/666.jpg",
+        userId: ""
+      };
+      try {
+        api_api.signUp({
+          userName: username.value,
+          passWord: password.value
+        }).then(async (res) => {
+          common_vendor.index.__f__("log", "at pages/register/register.vue:97", res);
+          userInfo.nickName = username.value;
+          userInfo.avatarUrl = "/static/666.jpg";
+          userInfo.userId = res.userID;
+          common_vendor.index.setStorageSync("token", "sample-token");
+          common_vendor.index.setStorageSync("userInfo", JSON.stringify(userInfo));
+          common_vendor.index.hideLoading();
+          await new Promise((resolve) => {
+            common_vendor.index.showToast({
+              title: "注册成功",
+              icon: "success"
+            });
+            setTimeout(() => {
+              resolve();
+            }, 1e3);
           });
-        }, 1500);
-      }, 1500);
+          common_vendor.index.navigateBack();
+        });
+      } catch (error) {
+        common_vendor.index.__f__("log", "at pages/register/register.vue:117", error);
+      }
     };
     const wechatRegister = () => {
       common_vendor.index.showLoading({
@@ -79,9 +98,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     };
     return (_ctx, _cache) => {
       return {
-        a: common_assets._imports_0,
+        a: common_assets._imports_0$1,
         b: common_vendor.o(goBack),
-        c: common_assets._imports_1$1,
+        c: common_assets._imports_1,
         d: username.value,
         e: common_vendor.o(($event) => username.value = $event.detail.value),
         f: password.value,

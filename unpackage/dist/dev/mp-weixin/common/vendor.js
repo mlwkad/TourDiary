@@ -6022,7 +6022,7 @@ function populateParameters(fromRes, toRes) {
   let _SDKVersion = SDKVersion;
   const hostLanguage = (language || "").replace(/_/g, "-");
   const parameters = {
-    appId: "",
+    appId: "__UNI__0DCF1DE",
     appName: "旅游日记uniapp",
     appVersion: "1.0.0",
     appVersionCode: "100",
@@ -6171,7 +6171,7 @@ const getAppBaseInfo = {
       hostName: _hostName,
       hostSDKVersion: SDKVersion,
       hostTheme: theme,
-      appId: "",
+      appId: "__UNI__0DCF1DE",
       appName: "旅游日记uniapp",
       appVersion: "1.0.0",
       appVersionCode: "100",
@@ -6922,7 +6922,7 @@ function isConsoleWritable() {
 function initRuntimeSocketService() {
   const hosts = "10.163.133.75,127.0.0.1";
   const port = "8090";
-  const id = "mp-weixin_bQYTgS";
+  const id = "mp-weixin_EPxsQh";
   const lazy = typeof swan !== "undefined";
   let restoreError = lazy ? () => {
   } : initOnError();
@@ -7871,6 +7871,7 @@ const createSubpackageApp = initCreateSubpackageApp();
 const createHook = (lifecycle) => (hook, target = getCurrentInstance()) => {
   !isInSSRComponentSetup && injectHook(lifecycle, hook, target);
 };
+const onShow = /* @__PURE__ */ createHook(ON_SHOW);
 const onLoad = /* @__PURE__ */ createHook(ON_LOAD);
 const onPageScroll = /* @__PURE__ */ createHook(ON_PAGE_SCROLL);
 const onReachBottom = /* @__PURE__ */ createHook(ON_REACH_BOTTOM);
@@ -7885,6 +7886,7 @@ exports.o = o;
 exports.onLoad = onLoad;
 exports.onPageScroll = onPageScroll;
 exports.onReachBottom = onReachBottom;
+exports.onShow = onShow;
 exports.reactive = reactive;
 exports.ref = ref;
 exports.t = t;

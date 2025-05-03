@@ -40,10 +40,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from 'vue'
+import { getSessionKey, getWXUserInfo, checkLogin } from '../../api/api';
 
-const username = ref<string>('');
-const password = ref<string>('');
+const username = ref<string>('')
+const password = ref<string>('')
 
 // 登录处理
 const handleLogin = () => {
@@ -51,106 +52,129 @@ const handleLogin = () => {
         uni.showToast({
             title: '请输入用户名和密码',
             icon: 'none'
-        });
-        return;
+        })
+        return
     }
 
-    // 这里应调用实际的登录API
-    // 模拟登录成功
     uni.showLoading({
         title: '登录中...'
-    });
-
-    setTimeout(() => {
-        uni.hideLoading();
-
-        // 模拟登录成功，存储用户信息
-        const userInfo = {
-            nickName: username.value,
-            avatarUrl: '/static/666.jpg',
-            userId: '12345'
-        };
-
-        uni.setStorageSync('token', 'sample-token');
-        uni.setStorageSync('userInfo', JSON.stringify(userInfo));
-
-        uni.showToast({
-            title: '登录成功',
-            icon: 'success'
-        });
-
-        setTimeout(() => {
-            uni.navigateBack();
-        }, 1500);
-    }, 1500);
-};
-
-// 微信登录
-const wechatLogin = () => {
-    uni.showLoading({
-        title: '登录中...'
-    });
-
-    // 在以前，uni.getUserInfo 可以直接弹出授权框，用户授权后就能获取其信息(包含基础数据和 encryptedData、iv 等加密数据)。
-    // 但为了更好地保护用户隐私，自 2021 年 4 月 13 日起，微信调整了规则
-    // 若用户未授权过，调用 uni.getUserInfo 不会弹出授权弹窗，而是直接进入 fail 回调。
-    // 所以现在要先通过 uni.getUserProfile 让用户主动授权,该方法也能拿到基础数据,不能拿加密数据。
-
-    uni.getUserInfo({
-        success(data) {
-            console.log('data', data)
-        }
     })
 
-    uni.getUserProfile({
-        success(data) {
-            console.log('AAAdata', data)
-        }
-    })
+    const userInfo = {
+        nickName: username.value,
+        avatarUrl: '/static/666.jpg',
+        userId: '12345'
+    }
 
-    // 模拟微信登录
-    setTimeout(() => {
-        uni.hideLoading();
-
-        const userInfo = {
-            nickName: '微信用户',
-            avatarUrl: '/static/666.jpg',
-            userId: 'wx12345'
-        };
-
-        uni.setStorageSync('token', 'wx-token');
-        uni.setStorageSync('userInfo', JSON.stringify(userInfo));
-
-        uni.showToast({
-            title: '登录成功',
-            icon: 'success'
-        });
-
-        setTimeout(() => {
-            uni.navigateBack();
-        }, 1500);
-    }, 1500);
+    try {
+        checkLogin({
+            userName: username.value,
+            passWord: password.value
+        }).then(async res => {
+            await new Promise(resolve => {
+                uni.hideLoading()
+                uni.showToast({
+                    title: '登录成功',
+                    icon: 'success'
+                })
+                setTimeout(() => {
+                    resolve()
+                }, 1000)
+            })
+            console.log(res)
+            userInfo.userId = res.userID
+            userInfo.nickName = username.value
+            userInfo.avatarUrl = '/static/666.jpg'
+            // 随便设置一个token
+            await uni.setStorageSync('token', 'sample-token')
+            await uni.setStorageSync('userInfo', JSON.stringify(userInfo))
+            uni.navigateBack()
+        }).catch(err => {
+            console.log(err)
+        })
+    } catch (e) {
+        console.log(e)
+    }
 };
+
+// 用户鉴权
+const wechatLogin = async () => {
+    try {
+        const modalRes = await new Promise(resolve => {
+            uni.showModal({
+                title: '温馨提示',
+                content: '需要您授权获取个人信息',
+                success: resolve
+            })
+        })
+
+        if (!modalRes.confirm) return
+
+        const userProfileRes = await new Promise((resolve, reject) => {
+            uni.getUserProfile({
+                desc: '需要获取您的微信昵称和头像',
+                success: resolve,
+                fail: reject
+            })
+        }).catch(err => {
+            console.log('获取用户信息失败', err)
+            uni.showToast({ title: '获取用户信息失败', icon: 'none' })
+            throw new Error('用户拒绝授权')
+        })
+
+        const { encryptedData, iv } = userProfileRes
+
+        const loginRes = await new Promise(resolve => {
+            uni.login({ success: resolve })
+        })
+
+        try {
+            const sessionKeyRes = await getSessionKey('', { code: loginRes })
+            const userInfoRes = await getWXUserInfo('', {
+                encryptedData,
+                iv,
+                sessionKey: sessionKeyRes.sessionKey
+            }, 'POST')
+
+            const userInfo = {
+                nickName: userInfoRes.nickName,
+                avatarUrl: userInfoRes.avatarUrl,
+                userId: ''
+            }
+
+            uni.setStorageSync('token', 'wx-token')
+            uni.setStorageSync('userInfo', JSON.stringify(userInfo))
+
+            uni.showToast({ title: '登录成功', icon: 'success' })
+            setTimeout(() => uni.navigateBack(), 1000)
+        } catch (error) {
+            console.error('微信登录失败', error)
+            uni.showToast({ title: '登录失败，请稍后重试', icon: 'none' })
+        }
+    } catch (error) {
+        console.error('微信登录过程异常', error)
+    }
+}
 
 // 忘记密码
 const forgetPassword = () => {
     uni.showToast({
         title: '忘记密码功能暂未开放',
         icon: 'none'
-    });
-};
+    })
+}
 
 // 返回上一页
 const goBack = () => {
-    uni.navigateBack();
-};
+    uni.navigateBack()
+}
 
 // 跳转到注册页
 const goToRegister = () => {
     uni.navigateTo({
         url: '/pages/register/register'
-    });
-};
+    })
+}
 </script>
 
 <style lang="scss" scoped>
@@ -187,8 +211,8 @@ const goToRegister = () => {
             margin: 30rpx 0 50rpx;
 
             .avatar {
-                width: 150rpx;
-                height: 150rpx;
+                width: 180rpx;
+                height: 180rpx;
                 border-radius: 50%;
                 border: 4rpx solid #4bb0ff;
             }
