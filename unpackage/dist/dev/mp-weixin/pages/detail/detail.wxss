@@ -36,6 +36,14 @@
   width: 100%;
   height: 100%;
 }
+.detail-swiper .swiper-nothing.data-v-eca06f3c {
+  width: 50%;
+  height: 80%;
+  transform: translateX(49%);
+}
+.detail-swiper .swiper-nothing-title.data-v-eca06f3c {
+  transform: translateX(38%);
+}
 .detail-top.data-v-eca06f3c {
   display: flex;
   justify-content: space-between;

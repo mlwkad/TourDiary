@@ -2,7 +2,7 @@
 const common_vendor = require("../../common/vendor.js");
 const common_assets = require("../../common/assets.js");
 const api_api = require("../../api/api.js");
-const _sfc_main = {
+const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "detail",
   setup(__props) {
     const info = common_vendor.ref({
@@ -32,8 +32,16 @@ const _sfc_main = {
           });
         });
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/detail/detail.vue:95", e);
+        common_vendor.index.__f__("log", "at pages/detail/detail.vue:116", e);
       }
+    };
+    const previewImage = (images, current) => {
+      common_vendor.index.previewImage({
+        urls: images,
+        // [url1,url2] 图片地址数组  
+        current: images[current]
+        // 当前显示的图片索引
+      });
     };
     common_vendor.onLoad((options) => {
       try {
@@ -41,41 +49,63 @@ const _sfc_main = {
           const decodedInfo = JSON.parse(decodeURIComponent(options.info));
           info.value = decodedInfo;
         } else {
-          common_vendor.index.__f__("log", "at pages/detail/detail.vue:104", "没拿到信息");
+          common_vendor.index.__f__("log", "at pages/detail/detail.vue:132", "没拿到信息");
         }
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/detail/detail.vue:107", e);
+        common_vendor.index.__f__("log", "at pages/detail/detail.vue:135", e);
       }
     });
     return (_ctx, _cache) => {
-      return {
-        a: common_vendor.f(info.value.pictures, (item, index, i0) => {
+      return common_vendor.e({
+        a: info.value.pictures.length === 0 && info.value.videos.length === 0
+      }, info.value.pictures.length === 0 && info.value.videos.length === 0 ? {
+        b: common_assets._imports_0$1
+      } : info.value.pictures.length === 0 && info.value.videos.length > 0 ? {
+        d: common_vendor.f(info.value.videos, (item, index, i0) => {
           return {
-            a: "pic-" + index
+            a: "vid-" + index
+          };
+        })
+      } : info.value.pictures.length > 0 && info.value.videos.length === 0 ? {
+        f: common_vendor.f(info.value.pictures, (item, index, i0) => {
+          return {
+            a: common_vendor.o(($event) => previewImage(info.value.pictures, index), "pic-" + index),
+            b: "pic-" + index
           };
         }),
-        b: common_assets._imports_0,
-        c: common_vendor.f(info.value.videos, (item, index, i0) => {
+        g: common_assets._imports_1
+      } : {
+        h: common_vendor.f(info.value.videos, (item, index, i0) => {
           return {
             a: "vid-" + index
           };
         }),
-        d: common_vendor.t(info.value.title),
-        e: common_vendor.o(liked),
-        f: common_assets._imports_1,
-        g: common_vendor.t(info.value.userName),
-        h: common_vendor.t(info.value.content),
-        i: common_vendor.t(info.value.location),
-        j: common_assets._imports_2,
-        k: common_vendor.t(info.value.money),
-        l: common_assets._imports_3,
-        m: common_vendor.t(info.value.personNum),
-        n: common_assets._imports_4,
-        o: common_vendor.t(info.value.playTime)
-      };
+        i: common_vendor.f(info.value.pictures, (item, index, i0) => {
+          return {
+            a: common_vendor.o(($event) => previewImage(info.value.pictures, index), "pic-" + index),
+            b: "pic-" + index
+          };
+        }),
+        j: common_assets._imports_1
+      }, {
+        c: info.value.pictures.length === 0 && info.value.videos.length > 0,
+        e: info.value.pictures.length > 0 && info.value.videos.length === 0,
+        k: common_vendor.t(info.value.title),
+        l: common_vendor.o(liked),
+        m: common_assets._imports_0,
+        n: common_vendor.t(info.value.userName),
+        o: common_vendor.t(info.value.content),
+        p: common_vendor.t(info.value.location),
+        q: common_assets._imports_3,
+        r: common_vendor.t(info.value.money),
+        s: common_assets._imports_4,
+        t: common_vendor.t(info.value.personNum),
+        v: common_assets._imports_5,
+        w: common_vendor.t(info.value.playTime)
+      });
     };
   }
-};
+});
 const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-eca06f3c"]]);
 wx.createPage(MiniProgramPage);
 //# sourceMappingURL=../../../.sourcemap/mp-weixin/pages/detail/detail.js.map

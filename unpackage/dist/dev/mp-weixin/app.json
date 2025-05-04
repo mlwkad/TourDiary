@@ -6,7 +6,11 @@
     "pages/My/My",
     "pages/Release/Release",
     "pages/login/login",
-    "pages/register/register"
+    "pages/register/register",
+    "pages/collection/collection",
+    "pages/notes/notes",
+    "pages/notes/note-detail",
+    "pages/notes/note-edit"
   ],
   "window": {
     "navigationBarTextStyle": "black",

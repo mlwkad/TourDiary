@@ -1,0 +1,112 @@
+/**
+ * 这里是uni-app内置的常用样式变量
+ *
+ * uni-app 官方扩展插件及插件市场（https://ext.dcloud.net.cn）上很多三方插件均使用了这些样式变量
+ * 如果你是插件开发者，建议你使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ *
+ */
+/**
+ * 如果你是App开发者（插件使用者），你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ *
+ * 如果你的项目同样使用了scss预处理，你也可以直接在你的 scss 代码中使用如下变量，同时无需 import 这个文件
+ */
+/* 颜色变量 */
+/* 行为相关颜色 */
+/* 文字基本颜色 */
+/* 背景颜色 */
+/* 边框颜色 */
+/* 尺寸变量 */
+/* 文字尺寸 */
+/* 图片尺寸 */
+/* Border Radius */
+/* 水平间距 */
+/* 垂直间距 */
+/* 透明度 */
+/* 文章场景相关 */
+/* 引入uView的全局SCSS主题文件 */
+.note-detail-container.data-v-d2ee1004 {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f8f8f8;
+  display: flex;
+  flex-direction: column;
+}
+.note-detail-container .content-area.data-v-d2ee1004 {
+  flex: 1;
+  padding: 30rpx;
+}
+.note-detail-container .content-area .note-main.data-v-d2ee1004 {
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+.note-detail-container .content-area .note-main .note-header.data-v-d2ee1004 {
+  margin-bottom: 30rpx;
+}
+.note-detail-container .content-area .note-main .note-header .note-title.data-v-d2ee1004 {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+.note-detail-container .content-area .note-main .note-header .note-meta.data-v-d2ee1004 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 20rpx;
+}
+.note-detail-container .content-area .note-main .note-header .note-meta .note-location.data-v-d2ee1004 {
+  display: flex;
+  align-items: center;
+  font-size: 26rpx;
+  color: #999;
+}
+.note-detail-container .content-area .note-main .note-header .note-meta .note-location .location-icon.data-v-d2ee1004 {
+  width: 24rpx;
+  height: 24rpx;
+  margin-right: 6rpx;
+}
+.note-detail-container .content-area .note-main .note-header .note-meta .note-date.data-v-d2ee1004 {
+  font-size: 26rpx;
+  color: #999;
+}
+.note-detail-container .content-area .note-main .note-content.data-v-d2ee1004 {
+  font-size: 30rpx;
+  color: #333;
+  line-height: 1.8;
+  margin-bottom: 30rpx;
+  white-space: pre-wrap;
+}
+.note-detail-container .content-area .note-main .note-images.data-v-d2ee1004 {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+.note-detail-container .content-area .note-main .note-images .note-image.data-v-d2ee1004 {
+  width: 100%;
+  border-radius: 8rpx;
+}
+.note-detail-container .bottom-toolbar.data-v-d2ee1004 {
+  display: flex;
+  height: 100rpx;
+  background-color: #fff;
+  border-top: 1rpx solid #f0f0f0;
+}
+.note-detail-container .bottom-toolbar .toolbar-item.data-v-d2ee1004 {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.note-detail-container .bottom-toolbar .toolbar-item image.data-v-d2ee1004 {
+  width: 40rpx;
+  height: 40rpx;
+  margin-bottom: 8rpx;
+}
+.note-detail-container .bottom-toolbar .toolbar-item text.data-v-d2ee1004 {
+  font-size: 24rpx;
+  color: #666;
+}

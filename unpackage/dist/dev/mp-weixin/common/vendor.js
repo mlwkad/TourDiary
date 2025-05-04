@@ -6922,7 +6922,7 @@ function isConsoleWritable() {
 function initRuntimeSocketService() {
   const hosts = "10.163.133.75,127.0.0.1";
   const port = "8090";
-  const id = "mp-weixin_EPxsQh";
+  const id = "mp-weixin_HmYn2H";
   const lazy = typeof swan !== "undefined";
   let restoreError = lazy ? () => {
   } : initOnError();
@@ -7873,6 +7873,7 @@ const createHook = (lifecycle) => (hook, target = getCurrentInstance()) => {
 };
 const onShow = /* @__PURE__ */ createHook(ON_SHOW);
 const onLoad = /* @__PURE__ */ createHook(ON_LOAD);
+const onBackPress = /* @__PURE__ */ createHook(ON_BACK_PRESS);
 const onPageScroll = /* @__PURE__ */ createHook(ON_PAGE_SCROLL);
 const onReachBottom = /* @__PURE__ */ createHook(ON_REACH_BOTTOM);
 exports._export_sfc = _export_sfc;
@@ -7883,6 +7884,7 @@ exports.f = f;
 exports.index = index;
 exports.isRef = isRef;
 exports.o = o;
+exports.onBackPress = onBackPress;
 exports.onLoad = onLoad;
 exports.onPageScroll = onPageScroll;
 exports.onReachBottom = onReachBottom;
@@ -7891,4 +7893,5 @@ exports.reactive = reactive;
 exports.ref = ref;
 exports.t = t;
 exports.unref = unref;
+exports.watch = watch;
 //# sourceMappingURL=../../.sourcemap/mp-weixin/common/vendor.js.map

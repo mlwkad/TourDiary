@@ -36,7 +36,7 @@
 				<text class="label required">位置</text>
 				<view class="location-picker" @click="chooseLocation">
 					<text>{{ formData.location || '点击选择位置' }}</text>
-					<text class="location-icon">📍</text>
+					<text class="location-icon"></text>
 				</view>
 				<text v-if="errors.location" class="error-text">{{ errors.location }}</text>
 			</view>

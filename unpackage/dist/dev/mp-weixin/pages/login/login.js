@@ -118,9 +118,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     };
     return (_ctx, _cache) => {
       return {
-        a: common_assets._imports_0$1,
+        a: common_assets._imports_0$3,
         b: common_vendor.o(goBack),
-        c: common_assets._imports_1,
+        c: common_assets._imports_0,
         d: username.value,
         e: common_vendor.o(($event) => username.value = $event.detail.value),
         f: password.value,

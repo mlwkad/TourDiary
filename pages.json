@@ -43,6 +43,30 @@
 				"navigationBarTitleText": "注册",
 				"navigationStyle": "custom"
 			}
+		},
+		{
+			"path": "pages/collection/collection",
+			"style": {
+				"navigationBarTitleText": "我的收藏"
+			}
+		},
+		{
+			"path": "pages/notes/notes",
+			"style": {
+				"navigationBarTitleText": "我的笔记"
+			}
+		},
+		{
+			"path": "pages/notes/note-detail",
+			"style": {
+				"navigationBarTitleText": "笔记详情"
+			}
+		},
+		{
+			"path": "pages/notes/note-edit",
+			"style": {
+				"navigationBarTitleText": "编辑笔记"
+			}
 		}
 	],
 	"easycom": {

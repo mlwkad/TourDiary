@@ -60,6 +60,11 @@ export const getAllReleases = (limit = 50, offset = 0) => {
     return http(`/api/releases`, { limit, offset })
 }
 
+// 搜索相关内容
+export const searchReleases = (data) => {
+    return http('/api/releases/search', data, 'POST')
+}
+
 // 获取发布内容详情
 export const getReleaseDetail = (releaseID) => {
     return http(`/api/release/${releaseID}`)

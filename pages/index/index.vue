@@ -7,6 +7,14 @@
 			<view class="home-input-go" @click="goSearch">搜索</view>
 		</view>
 	</view>
+	<view class="home-choose" v-if="isShowChoose">
+		<view class="home-user" :style="{ backgroundColor: choose === false ? '#4bb0ff' : '#bebebf' }"
+			@click="choose = false, allInfo = allInfoByUserName">
+			用户</view>
+		<view class="home-release" :style="{ backgroundColor: choose === true ? '#4bb0ff' : '#bebebf' }"
+			@click="choose = true, allInfo = allInfoByTitle">
+			游记</view>
+	</view>
 	<view class="home-waterfall">
 		<view class="home-waterfall-box" v-for="(i, index) in 2" :key="index">
 			<view class="home-waterfall-content" v-for="j in allInfo[i - 1]" :key="j.name" @click="goDetail(j)">
@@ -25,15 +33,50 @@
 </template>
 
 <script setup lang="ts">
-import { getAllReleases } from '../../api/api'
+import { getAllReleases, searchReleases } from '../../api/api'
 import { onLoad, onReachBottom, onPageScroll, onShow } from '@dcloudio/uni-app'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 let searchContent = ref<string>('')
 let goTop = ref<boolean>(false)
+let choose = ref<boolean>(false)
+let isShowChoose = ref<boolean>(false)
+
 const allInfo = ref<any>([[], []])
+const allInfoByUserName = ref<any>([[], []])
+const allInfoByTitle = ref<any>([[], []])
+
+watch(searchContent, (newVal) => {
+	if (!newVal) {
+		getAllReleases(50, 0).then(res => {
+			allInfo.value[0] = res.releases
+		})
+		getAllReleases(50, 1).then(res => {
+			allInfo.value[1] = res.releases
+		})
+		isShowChoose.value = false
+	} else { }
+})
 
 const goSearch = () => {
-
+	if (!searchContent.value) return
+	searchReleases(
+		{ userName: searchContent.value, title: searchContent.value }
+	).then(res => {
+		isShowChoose.value = true
+		if (res.byUserName.length === 1) {
+			allInfoByUserName.value[0] = res.byUserName
+		} else {
+			allInfoByUserName.value[0] = res.byUserName.slice(0, res.byUserName.length / 2)
+			allInfoByUserName.value[1] = res.byUserName.slice(res.byUserName.length / 2, res.byUserName.length)
+		}
+		allInfo.value = allInfoByUserName.value
+		if (res.byTitle.length === 1) {
+			allInfoByTitle.value[0] = res.byTitle
+		} else {
+			allInfoByTitle.value[0] = res.byTitle.slice(0, res.byTitle.length / 2)
+			allInfoByTitle.value[1] = res.byTitle.slice(res.byTitle.length / 2, res.byTitle.length)
+		}
+	})
 }
 
 const goDetail = (info) => {
@@ -129,25 +172,49 @@ onPageScroll((e) => {
 	}
 }
 
+.home-choose {
+	display: flex;
+	padding: 12rpx 12rpx 12rpx 22rpx;
+	gap: 25rpx;
+
+	.home-user {
+		padding: 12rpx;
+		margin-bottom: 20rpx;
+		border-radius: 12rpx;
+		// background: linear-gradient(to right, #4bb0ff, #61e4ff);
+		color: #fff;
+		font-size: 30rpx;
+	}
+
+	.home-release {
+		border-radius: 12rpx;
+		padding: 12rpx;
+		margin-bottom: 20rpx;
+		// background: linear-gradient(to right, #4bb0ff, #61e4ff);
+		color: #fff;
+		font-size: 30rpx;
+	}
+}
+
 .home-waterfall {
 	margin: 0 auto;
 	width: 95%;
 	display: flex;
 	height: 100%;
-	gap: 17rpx;
+	gap: 25rpx;
 
 	&-box {
 		flex: 1;
 		display: flex;
 		flex-direction: column;
-		gap: 15rpx;
+		gap: 25rpx;
 
 		.home-waterfall-content {
 			width: 100%;
 			height: fit-content;
-			border: solid 1px black;
 			border-radius: 12rpx;
 			padding-bottom: 12rpx;
+			box-shadow: 0 0 10rpx 0 rgba(0, 0, 0, 0.389);
 
 			.waterfall-img {
 				width: 100%;

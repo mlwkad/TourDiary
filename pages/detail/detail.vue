@@ -1,12 +1,33 @@
 <template>
     <view class="detail-container">
         <!-- 轮播图展示pictures和videos -->
-        <swiper class="detail-swiper" indicator-dots autoplay :interval="3000" :duration="500" circular>
-            <swiper-item v-for="(item, index) in info.pictures" :key="'pic-' + index">
-                <image class="swiper-image" src="/static/555.jpg" mode="aspectFill"></image>
+        <swiper class="detail-swiper" v-if="(info.pictures.length === 0) && (info.videos.length === 0)" indicator-dots
+            autoplay :interval="3000" :duration="500" circular>
+            <swiper-item>
+                <image class="swiper-nothing" src="/static/public/nothing.png" mode="aspectFill"></image>
+                <view class="swiper-nothing-title">暂无相关内容</view>
             </swiper-item>
+        </swiper>
+        <swiper class="detail-swiper" v-else-if="(info.pictures.length === 0) && (info.videos.length > 0)"
+            indicator-dots autoplay :interval="3000" :duration="500" circular>
             <swiper-item v-for="(item, index) in info.videos" :key="'vid-' + index">
                 <video class="swiper-video" src=""></video>
+            </swiper-item>
+        </swiper>
+        <swiper class="detail-swiper" v-else-if="(info.pictures.length > 0) && (info.videos.length === 0)"
+            indicator-dots autoplay :interval="3000" :duration="500" circular>
+            <swiper-item v-for="(item, index) in info.pictures" :key="'pic-' + index">
+                <image class="swiper-image" src="/static/555.jpg" @click="previewImage(info.pictures, index)"
+                    mode="aspectFill"></image>
+            </swiper-item>
+        </swiper>
+        <swiper class="detail-swiper" v-else indicator-dots autoplay :interval="3000" :duration="500" circular>
+            <swiper-item v-for="(item, index) in info.videos" :key="'vid-' + index">
+                <video class="swiper-video" src=""></video>
+            </swiper-item>
+            <swiper-item v-for="(item, index) in info.pictures" :key="'pic-' + index">
+                <image class="swiper-image" src="/static/555.jpg" @click="previewImage(info.pictures, index)"
+                    mode="aspectFill"></image>
             </swiper-item>
         </swiper>
         <view class="detail-top">
@@ -59,7 +80,7 @@
     </view>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
 import { onLoad } from '@dcloudio/uni-app'
 import { addLiked } from '../../api/api';
@@ -95,6 +116,13 @@ const liked = () => {
     } catch (e) { console.log(e) }
 }
 
+const previewImage = (images: string[], current: number) => {
+    uni.previewImage({
+        urls: images,  // [url1,url2] 图片地址数组  
+        current: images[current]  // 当前显示的图片索引
+    })
+}
+
 onLoad((options) => {
     try {
         if (options.info) {
@@ -122,6 +150,16 @@ onLoad((options) => {
     .swiper-video {
         width: 100%;
         height: 100%;
+    }
+
+    .swiper-nothing {
+        width: 50%;
+        height: 80%;
+        transform: translateX(49%);
+    }
+
+    .swiper-nothing-title {
+        transform: translateX(38%);
     }
 }
 
