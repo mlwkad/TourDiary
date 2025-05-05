@@ -9,7 +9,6 @@
     "pages/register/register",
     "pages/collection/collection",
     "pages/notes/notes",
-    "pages/notes/note-detail",
     "pages/notes/note-edit"
   ],
   "window": {

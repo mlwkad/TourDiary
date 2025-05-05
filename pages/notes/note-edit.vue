@@ -10,22 +10,71 @@
                 <text v-else class="placeholder">添加位置</text>
             </view>
 
-            <textarea class="note-content-input" placeholder="写下你的旅行记录..." v-model="note.content" maxlength="5000"
-                auto-height />
+            <view class="detail-info">
+                <view class="info-item">
+                    <image src="/static/public/money.png" class="info-icon"></image>
+                    <input class="info-icon-content" v-model="note.money" />元
+                </view>
+
+                <view class="info-item">
+                    <image src="/static/public/person.png" class="info-icon"></image>
+                    <input class="info-icon-content" v-model="note.personNum" />人
+                </view>
+
+                <view class="info-item">
+                    <image src="/static/public/time.png" class="info-icon"></image>
+                    <input class="info-icon-content" v-model="note.playTime" />分钟
+                </view>
+            </view>
+
+            <view class="note-content-input">
+                <textarea class="note-content-input-content" placeholder="写下你的旅行记录..." v-model="note.content"
+                    maxlength="5000" auto-height />
+            </view>
 
             <view class="image-section">
                 <view class="image-list">
-                    <view class="image-item" v-for="(img, index) in note.images" :key="index">
+                    <view class="image-item" v-for="(img, index) in note.pictures" :key="index">
                         <image class="preview-image" :src="img" mode="aspectFill"></image>
                         <view class="delete-btn" @click="removeImage(index)">
                             <image src="/static/public/close.png" mode="aspectFit"></image>
                         </view>
                     </view>
-                    <view class="add-image-btn" @click="chooseImage" v-if="note.images.length < 9">
+                    <view class="add-image-btn" @click="chooseImage" v-if="note.pictures.length < 9">
                         <text>+</text>
                         <text class="add-text">添加图片</text>
                     </view>
                 </view>
+            </view>
+
+            <view class="video-section" v-if="note.videos && note.videos.length > 0">
+                <view class="video-container">
+                    <video class="preview-video" :src="note.videos[0]" controls></video>
+                    <view class="delete-btn" @click="removeVideo">
+                        <image src="/static/public/close.png" mode="aspectFit"></image>
+                    </view>
+                </view>
+
+                <view class="video-cover-section">
+                    <text class="section-title">视频封面</text>
+                    <view class="cover-container">
+                        <view class="cover-preview-wrapper" v-if="note.cover">
+                            <image class="cover-preview" :src="note.cover" mode="aspectFill"></image>
+                            <view class="delete-btn" @click="removeCover">
+                                <image src="/static/public/close.png" mode="aspectFit"></image>
+                            </view>
+                        </view>
+                        <view class="add-cover-btn" @click="chooseVideoCover" v-if="!note.cover">
+                            <text>+</text>
+                            <text style="font-size:28rpx;">添加封面</text>
+                        </view>
+                    </view>
+                </view>
+            </view>
+
+            <view class="add-video-btn" @click="chooseVideo" v-if="!note.videos || note.videos.length === 0">
+                <text class="add-icon">+</text>
+                <text class="add-text" style="color: grey;">添加视频</text>
             </view>
         </scroll-view>
 
@@ -35,11 +84,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive } from 'vue';
 import { onLoad, onBackPress } from '@dcloudio/uni-app';
-
-// 状态
-const isEdit = ref(false);
+import { updateRelease } from '../../api/api';
 
 // 笔记数据
 const note = reactive({
@@ -47,30 +94,36 @@ const note = reactive({
     title: '',
     content: '',
     location: '',
-    date: '',
-    isFavorite: false,
-    images: [] as string[]
+    createdAt: '',
+    playTime: '',
+    money: '',
+    personNum: '',
+    pictures: [] as string[],
+    videos: [] as string[],
+    cover: ''
 });
 
 // 获取笔记详情
-const getNoteDetail = (id: string) => {
+const getNoteDetail = (info: any) => {
     // 这里应该是从API获取数据，现在用模拟数据
-    setTimeout(() => {
-        Object.assign(note, {
-            id: id,
-            title: '桂林游记',
-            content: '今天游览了桂林的象鼻山和七星公园，风景如画，令人心旷神怡。象鼻山位于桂林市漓江与桃花江汇流处，因山形酷似一头伸鼻饮水的大象而得名，是桂林山水的标志性景观。\n\n七星公园是桂林最大的综合性公园，因园内有七座山峰，恰似北斗七星而得名。公园内有桂海碑林、七星岩、蛇山、华夏奇石馆、花桥、童子拜观音等景点。尤其是华夏奇石馆内的奇石，形态各异，令人叹为观止。\n\n漓江水清澈见底，两岸的喀斯特地貌景观壮观秀丽，船行其上，恍如画中。整个旅程给人一种身临仙境的感觉，不虚此行。',
-            location: '广西桂林',
-            date: '2023-10-15',
-            isFavorite: true,
-            images: ['/static/666.jpg', '/static/666.jpg', '/static/666.jpg']
-        });
-    }, 500);
-};
+    Object.assign(note, {
+        id: info.releaseID,
+        title: info.title,
+        content: info.content,
+        location: info.location,
+        createdAt: info.createdAt,
+        pictures: info.pictures,
+        playTime: info.playTime,
+        money: info.money,
+        personNum: info.personNum,
+        videos: info.videos,
+        cover: info.cover || ''
+    })
+}
 
 // 处理后退按钮
 onBackPress(() => {
-    if (note.title || note.content || note.images.length > 0) {
+    if (note.title || note.content || note.pictures.length > 0) {
         uni.showModal({
             title: '提示',
             content: '是否放弃此次编辑？',
@@ -103,20 +156,12 @@ const saveNote = () => {
         return;
     }
 
-    // 设置当前日期
-    if (!note.date) {
-        const now = new Date();
-        note.date = now.getFullYear() + '-' +
-            String(now.getMonth() + 1).padStart(2, '0') + '-' +
-            String(now.getDate()).padStart(2, '0');
-    }
-
     // 这里应该调用API保存笔记
     uni.showLoading({
         title: '保存中'
     });
 
-    setTimeout(() => {
+    updateRelease(note.id, note).then(res => {
         uni.hideLoading();
         uni.showToast({
             title: '保存成功',
@@ -126,7 +171,13 @@ const saveNote = () => {
         setTimeout(() => {
             uni.navigateBack();
         }, 1000);
-    }, 1000);
+    }).catch(e => {
+        uni.hideLoading();
+        uni.showToast({
+            title: '保存失败',
+            icon: 'error'
+        });
+    });
 };
 
 // 选择位置
@@ -145,31 +196,62 @@ const chooseLocation = () => {
 // 选择图片
 const chooseImage = () => {
     uni.chooseImage({
-        count: 9 - note.images.length,
+        count: 9 - note.pictures.length,
         sizeType: ['compressed'],
         sourceType: ['album', 'camera'],
         success: (res) => {
             // 这里应该上传图片到服务器，目前直接使用本地路径
-            note.images = [...note.images, ...res.tempFilePaths];
+            note.pictures = [...note.pictures, ...res.tempFilePaths];
         }
     });
 };
 
 // 移除图片
 const removeImage = (index: number) => {
-    note.images.splice(index, 1);
+    note.pictures.splice(index, 1);
+};
+
+// 选择视频
+const chooseVideo = () => {
+    uni.chooseVideo({
+        count: 1,
+        sourceType: ['album', 'camera'],
+        success: (res) => {
+            // 这里应该上传视频到服务器，目前直接使用本地路径
+            note.videos = [res.tempFilePath];
+        }
+    });
+};
+
+// 移除视频
+const removeVideo = () => {
+    note.videos = [];
+};
+
+// 选择视频封面
+const chooseVideoCover = () => {
+    uni.chooseImage({
+        count: 1,
+        sizeType: ['compressed'],
+        sourceType: ['album', 'camera'],
+        success: (res) => {
+            // 这里应该上传视频封面到服务器，目前直接使用本地路径
+            note.cover = res.tempFilePaths[0];
+        }
+    });
+};
+
+// 移除视频封面
+const removeCover = () => {
+    note.cover = '';
 };
 
 onLoad((options) => {
-    if (options.id) {
-        isEdit.value = true;
-        getNoteDetail(options.id);
+    if (options.info) {
+        const info = JSON.parse(decodeURIComponent(options.info));
+        getNoteDetail(info);
         uni.setNavigationBarTitle({
             title: '编辑笔记'
-        });
-    } else {
-        uni.setNavigationBarTitle({
-            title: '新建笔记'
         });
     }
 });
@@ -188,6 +270,8 @@ onLoad((options) => {
     .edit-area {
         flex: 1;
         padding: 30rpx;
+        margin-left: 5rpx;
+        width: 98%;
 
         .note-title-input {
             font-size: 36rpx;
@@ -220,13 +304,45 @@ onLoad((options) => {
             }
         }
 
+        .detail-info {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            padding: 30rpx 0;
+            width: 90%;
+            gap: 15rpx;
+            border-bottom: 1rpx solid #eee;
+
+            .info-item {
+                display: flex;
+                align-items: center;
+                margin-top: 15rpx;
+
+                .info-icon {
+                    width: 40rpx;
+                    height: 40rpx;
+                    margin-right: 10rpx;
+
+                    &-content {
+                        border-bottom: 1rpx solid grey;
+                        width: 150rpx;
+                        padding: 0 15rpx;
+                    }
+                }
+            }
+        }
+
         .note-content-input {
-            width: 100%;
+            width: 90%;
             font-size: 30rpx;
             line-height: 1.8;
             min-height: 300rpx;
             padding: 20rpx 0;
-            margin-bottom: 30rpx;
+            margin-bottom: 20rpx;
+
+            &-content {
+                width: 100%;
+            }
         }
 
         .image-section {
@@ -288,6 +404,131 @@ onLoad((options) => {
                         font-size: 28rpx;
                     }
                 }
+            }
+        }
+
+        .video-section {
+            padding: 20rpx 0;
+            width: 210rpx;
+            height: 210rpx;
+
+            .video-container {
+                position: relative;
+                margin-bottom: 20rpx;
+
+                .preview-video {
+                    width: 100%;
+                    height: 210rpx;
+                    border-radius: 8rpx;
+                }
+
+                .delete-btn {
+                    position: absolute;
+                    top: -10rpx;
+                    right: -10rpx;
+                    width: 40rpx;
+                    height: 40rpx;
+                    background-color: rgba(0, 0, 0, 0.5);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    image {
+                        width: 24rpx;
+                        height: 24rpx;
+                    }
+                }
+            }
+
+            .video-cover-section {
+                padding: 20rpx 0;
+
+                .section-title {
+                    font-size: 32rpx;
+                    font-weight: bold;
+                    margin-bottom: 20rpx;
+                }
+
+                .cover-container {
+                    display: flex;
+                    align-items: center;
+                    gap: 20rpx;
+
+                    .cover-preview-wrapper {
+                        position: relative;
+                        width: 210rpx;
+                        height: 210rpx;
+                    }
+
+                    .cover-preview {
+                        width: 210rpx;
+                        height: 210rpx;
+                        border-radius: 8rpx;
+                    }
+
+                    .delete-btn {
+                        position: absolute;
+                        top: -10rpx;
+                        right: -10rpx;
+                        width: 40rpx;
+                        height: 40rpx;
+                        background-color: rgba(0, 0, 0, 0.5);
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+
+                        image {
+                            width: 24rpx;
+                            height: 24rpx;
+                        }
+                    }
+
+                    .add-cover-btn {
+                        width: 210rpx;
+                        height: 210rpx;
+                        border: 1rpx dashed #ddd;
+                        border-radius: 8rpx;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+
+                        text {
+                            font-size: 50rpx;
+                            color: #ddd;
+                            line-height: 1;
+                            margin-bottom: 10rpx;
+                        }
+
+                        .add-text {
+                            font-size: 28rpx;
+                        }
+                    }
+                }
+            }
+        }
+
+        .add-video-btn {
+            width: 210rpx;
+            height: 210rpx;
+            border: 1rpx dashed #ddd;
+            border-radius: 8rpx;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            .add-icon {
+                font-size: 50rpx;
+                color: #ddd;
+                line-height: 1;
+                margin-bottom: 10rpx;
+            }
+
+            .add-text {
+                font-size: 28rpx;
             }
         }
     }

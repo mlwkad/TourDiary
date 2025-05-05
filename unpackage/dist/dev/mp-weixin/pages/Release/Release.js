@@ -14,7 +14,8 @@ const _sfc_main = {
       content: "",
       location: "",
       pictures: [],
-      videos: []
+      videos: [],
+      cover: ""
     });
     const errors = common_vendor.reactive({
       title: "",
@@ -88,7 +89,6 @@ const _sfc_main = {
         title: "发布中..."
       });
       api_api.createRelease(submitData).then(async (res) => {
-        common_vendor.index.__f__("log", "at pages/Release/Release.vue:197", res);
         common_vendor.index.hideLoading();
         await new Promise((resolve) => {
           common_vendor.index.showToast({
@@ -99,7 +99,7 @@ const _sfc_main = {
         });
         resetForm();
       }).catch((e) => {
-        common_vendor.index.__f__("log", "at pages/Release/Release.vue:212", e);
+        common_vendor.index.__f__("log", "at pages/Release/Release.vue:225", e);
       });
     };
     const resetForm = () => {
@@ -113,7 +113,8 @@ const _sfc_main = {
         content: "",
         location: "",
         pictures: [],
-        videos: []
+        videos: [],
+        cover: ""
       });
       for (let key in errors) {
         errors[key] = "";
@@ -140,6 +141,17 @@ const _sfc_main = {
     };
     const deleteVideo = (index) => {
       formData.videos.splice(index, 1);
+    };
+    const chooseVideoCover = () => {
+      common_vendor.index.chooseImage({
+        count: 1,
+        success: (res) => {
+          formData.cover = res.tempFilePaths[0];
+        }
+      });
+    };
+    const deleteVideoCover = () => {
+      formData.cover = "";
     };
     const chooseLocation = () => {
       common_vendor.index.getSetting({
@@ -168,7 +180,7 @@ const _sfc_main = {
           }
         },
         fail: (err) => {
-          common_vendor.index.__f__("log", "at pages/Release/Release.vue:301", "获取设置失败", err);
+          common_vendor.index.__f__("log", "at pages/Release/Release.vue:330", "获取设置失败", err);
           showManualLocationInput();
         }
       });
@@ -180,7 +192,7 @@ const _sfc_main = {
             formData.location = res.name;
           },
           fail: (err) => {
-            common_vendor.index.__f__("log", "at pages/Release/Release.vue:316", "选择位置失败", err);
+            common_vendor.index.__f__("log", "at pages/Release/Release.vue:345", "选择位置失败", err);
             if (err.errMsg && err.errMsg.includes("requiredPrivateInfos")) {
               common_vendor.index.showToast({
                 title: "位置服务未配置",
@@ -191,7 +203,7 @@ const _sfc_main = {
           }
         });
       } catch (e) {
-        common_vendor.index.__f__("error", "at pages/Release/Release.vue:328", "调用选择位置接口失败", e);
+        common_vendor.index.__f__("error", "at pages/Release/Release.vue:357", "调用选择位置接口失败", e);
         showManualLocationInput();
       }
     };
@@ -209,7 +221,7 @@ const _sfc_main = {
     };
     const goToMyNotes = () => {
       common_vendor.index.navigateTo({
-        url: "/pages/MyNotes/MyNotes"
+        url: "/pages/notes/notes"
       });
     };
     common_vendor.onShow(() => {
@@ -223,7 +235,7 @@ const _sfc_main = {
           });
         }
       } catch (e) {
-        common_vendor.index.__f__("error", "at pages/Release/Release.vue:384", "获取用户信息失败", e);
+        common_vendor.index.__f__("error", "at pages/Release/Release.vue:413", "获取用户信息失败", e);
       }
     });
     return (_ctx, _cache) => {
@@ -287,7 +299,18 @@ const _sfc_main = {
       }, formData.videos.length === 0 ? {
         F: common_vendor.o(chooseVideo)
       } : {}, {
-        G: common_vendor.o(submitForm)
+        G: formData.videos.length > 0
+      }, formData.videos.length > 0 ? common_vendor.e({
+        H: formData.cover
+      }, formData.cover ? {
+        I: formData.cover,
+        J: common_vendor.o(deleteVideoCover)
+      } : {}, {
+        K: !formData.cover
+      }, !formData.cover ? {
+        L: common_vendor.o(chooseVideoCover)
+      } : {}) : {}, {
+        M: common_vendor.o(submitForm)
       });
     };
   }

@@ -73,6 +73,19 @@
 				</view>
 			</view>
 
+			<view class="form-item" v-if="formData.videos.length > 0">
+				<text class="label">视频封面</text>
+				<view class="upload-area">
+					<view class="upload-preview" v-if="formData.cover">
+						<image class="preview-image" :src="formData.cover" mode="aspectFill"></image>
+						<text class="delete-icon" @click="deleteVideoCover">×</text>
+					</view>
+					<view class="upload-btn" @click="chooseVideoCover" v-if="!formData.cover">
+						<text class="upload-icon">+</text>
+					</view>
+				</view>
+			</view>
+
 			<button class="submit-btn" @click="submitForm">发布日记</button>
 		</view>
 	</view>
@@ -93,7 +106,8 @@ const formData = reactive({
 	content: '',
 	location: '',
 	pictures: [],
-	videos: []
+	videos: [],
+	cover: ''
 });
 
 // 错误信息
@@ -194,7 +208,6 @@ const submitForm = () => {
 	});
 
 	createRelease(submitData).then(async res => {
-		console.log(res)
 		uni.hideLoading()
 		await new Promise((resolve) => {
 			uni.showToast({
@@ -227,7 +240,8 @@ const resetForm = () => {
 		content: '',
 		location: '',
 		pictures: [],
-		videos: []
+		videos: [],
+		cover: ''
 	});
 
 	// 清空错误信息
@@ -264,6 +278,21 @@ const chooseVideo = () => {
 // 删除视频
 const deleteVideo = (index) => {
 	formData.videos.splice(index, 1);
+};
+
+// 选择视频封面
+const chooseVideoCover = () => {
+	uni.chooseImage({
+		count: 1,
+		success: (res) => {
+			formData.cover = res.tempFilePaths[0];
+		}
+	});
+};
+
+// 删除视频封面
+const deleteVideoCover = () => {
+	formData.cover = '';
 };
 
 // 选择位置
@@ -347,7 +376,7 @@ const showManualLocationInput = () => {
 // 跳转到我的笔记
 const goToMyNotes = () => {
 	uni.navigateTo({
-		url: '/pages/MyNotes/MyNotes'
+		url: '/pages/notes/notes'
 	});
 };
 
@@ -389,8 +418,34 @@ onShow(() => {
 <style scoped lang="scss">
 .release-container {
 	padding: 30rpx;
-	background-color: #f8f8f8;
+	background: linear-gradient(to bottom, #f0f5ff, #ffffff);
 	min-height: 100vh;
+	position: relative;
+
+	&::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 400rpx;
+		background: linear-gradient(135deg, rgba(52, 148, 230, 0.15), rgba(236, 110, 173, 0.1));
+		z-index: -1;
+		border-radius: 0 0 30% 30%;
+	}
+
+	&::after {
+		content: '';
+		position: absolute;
+		top: 20%;
+		right: 10%;
+		width: 100rpx;
+		height: 100rpx;
+		border-radius: 50%;
+		background: linear-gradient(135deg, rgba(236, 110, 173, 0.2), rgba(52, 148, 230, 0.1));
+		filter: blur(30rpx);
+		z-index: -1;
+	}
 
 	.header {
 		display: flex;
@@ -399,86 +454,141 @@ onShow(() => {
 		margin-bottom: 40rpx;
 
 		.title {
-			font-size: 36rpx;
+			font-size: 40rpx;
 			font-weight: bold;
-			color: #333;
+			background: linear-gradient(90deg, #3494E6, #EC6EAD);
+			-webkit-background-clip: text;
+			background-clip: text;
+			color: transparent;
+			text-shadow: 1rpx 1rpx 2rpx rgba(0, 0, 0, 0.1);
 		}
 
 		.my-notes-btn {
-			background-color: #ff9500;
+			background: linear-gradient(135deg, #3494E6, #EC6EAD);
 			color: #fff;
 			padding: 15rpx 30rpx;
 			border-radius: 30rpx;
 			font-size: 28rpx;
-			box-shadow: 0 5rpx 15rpx rgba(255, 149, 0, 0.3);
+			box-shadow: 0 5rpx 15rpx rgba(52, 148, 230, 0.3);
+			transition: all 0.3s ease;
+
+			&:active {
+				transform: scale(0.95);
+				box-shadow: 0 2rpx 8rpx rgba(52, 148, 230, 0.2);
+			}
 		}
 	}
 
 	.form-container {
-		background-color: #fff;
+		background-color: rgba(255, 255, 255, 0.9);
 		border-radius: 20rpx;
 		padding: 30rpx;
-		box-shadow: 0 5rpx 15rpx rgba(0, 0, 0, 0.05);
+		box-shadow: 0 0 15rpx 0 rgba(0, 0, 0, 0.1);
+		backdrop-filter: blur(5rpx);
+		border: 1px solid rgba(255, 255, 255, 0.6);
+		position: relative;
+		overflow: hidden;
 
 		.form-item {
 			margin-bottom: 40rpx;
-			width: 90%;
+			width: 100%;
 
 			.label {
 				display: block;
 				font-size: 28rpx;
-				color: #666;
+				color: #555;
 				margin-bottom: 15rpx;
+				font-weight: 500;
+				position: relative;
+				display: inline-block;
+
+				&::after {
+					content: '';
+					position: absolute;
+					bottom: -5rpx;
+					left: 0;
+					width: 30rpx;
+					height: 2rpx;
+					background: linear-gradient(90deg, #3494E6, transparent);
+				}
 
 				&:nth-child(2) {
 					margin-left: 15rpx;
 				}
 
 				&.required:after {
-					content: '*';
-					color: #ff4d4f;
+					content: '';
+					color: #EC6EAD;
 					margin-left: 10rpx;
+					background: none;
+					height: auto;
+					width: auto;
 				}
 			}
 
 			.input {
-				width: 100%;
-				border: 1rpx solid #e0e0e0;
-				border-radius: 10rpx;
+				width: 95%;
+				border: 1rpx solid rgba(52, 148, 230, 0.2);
+				border-radius: 15rpx;
 				padding: 20rpx;
 				font-size: 28rpx;
-				background-color: #f9f9f9;
+				background-color: rgba(255, 255, 255, 0.8);
+				transition: all 0.3s ease;
+				box-shadow: inset 0 2rpx 5rpx rgba(0, 0, 0, 0.05);
+
+				&:focus {
+					border-color: #3494E6;
+					box-shadow: 0 0 10rpx rgba(52, 148, 230, 0.2);
+				}
 			}
 
 			.textarea {
 				height: 240rpx;
-				width: 100%;
-				border: 1rpx solid #e0e0e0;
-				border-radius: 10rpx;
+				width: 95%;
+				border: 1rpx solid rgba(52, 148, 230, 0.2);
+				border-radius: 15rpx;
 				padding: 20rpx;
 				font-size: 28rpx;
-				background-color: #f9f9f9;
+				background-color: rgba(255, 255, 255, 0.8);
+				transition: all 0.3s ease;
+				box-shadow: inset 0 2rpx 5rpx rgba(0, 0, 0, 0.05);
+
+				&:focus {
+					border-color: #3494E6;
+					box-shadow: 0 0 10rpx rgba(52, 148, 230, 0.2);
+				}
 			}
 
 			.error-text {
-				color: #ff4d4f;
+				color: #EC6EAD;
 				font-size: 24rpx;
 				margin-top: 10rpx;
+				background-color: rgba(236, 110, 173, 0.1);
+				padding: 6rpx 12rpx;
+				border-radius: 10rpx;
+				display: inline-block;
 			}
 
 			.location-picker {
 				display: flex;
 				justify-content: space-between;
 				align-items: center;
-				width: 100%;
-				border: 1rpx solid #e0e0e0;
-				border-radius: 10rpx;
+				width: 95%;
+				border: 1rpx solid rgba(52, 148, 230, 0.2);
+				border-radius: 15rpx;
 				padding: 20rpx;
 				font-size: 28rpx;
-				background-color: #f9f9f9;
+				background-color: rgba(255, 255, 255, 0.8);
+				transition: all 0.3s ease;
+
+				&:active {
+					background-color: rgba(52, 148, 230, 0.05);
+				}
 
 				.location-icon {
 					margin-left: 10rpx;
+					font-size: 32rpx;
+					color: #3494E6;
 				}
 			}
 
@@ -493,8 +603,14 @@ onShow(() => {
 					margin-right: 20rpx;
 					margin-bottom: 20rpx;
 					position: relative;
-					border-radius: 10rpx;
+					border-radius: 15rpx;
 					overflow: hidden;
+					box-shadow: 0 3rpx 10rpx rgba(0, 0, 0, 0.1);
+					transition: all 0.3s ease;
+
+					&:active {
+						transform: scale(0.98);
+					}
 
 					.preview-image,
 					.preview-video {
@@ -508,25 +624,38 @@ onShow(() => {
 						right: 5rpx;
 						width: 40rpx;
 						height: 40rpx;
-						background-color: rgba(0, 0, 0, 0.5);
+						background-color: rgba(236, 110, 173, 0.8);
 						color: #fff;
 						border-radius: 50%;
 						display: flex;
 						justify-content: center;
 						align-items: center;
 						font-size: 24rpx;
+						transition: all 0.3s ease;
+
+						&:active {
+							transform: scale(0.9);
+							background-color: rgba(236, 110, 173, 1);
+						}
 					}
 				}
 
 				.upload-btn {
 					width: 180rpx;
 					height: 180rpx;
-					border: 2rpx dashed #ddd;
-					border-radius: 10rpx;
+					border: 2rpx dashed rgba(52, 148, 230, 0.4);
+					border-radius: 15rpx;
 					display: flex;
 					justify-content: center;
 					align-items: center;
-					color: #999;
+					color: #3494E6;
+					background-color: rgba(52, 148, 230, 0.05);
+					transition: all 0.3s ease;
+
+					&:active {
+						background-color: rgba(52, 148, 230, 0.1);
+						transform: scale(0.98);
+					}
 
 					.upload-icon {
 						font-size: 60rpx;
@@ -539,7 +668,7 @@ onShow(() => {
 			display: flex;
 			flex-wrap: wrap;
 			margin: 0 -10rpx 20rpx;
-			width: 98%;
+			width: 100%;
 
 			.form-item-half {
 				flex: 1;
@@ -548,47 +677,80 @@ onShow(() => {
 				.label {
 					display: block;
 					font-size: 28rpx;
-					color: #666;
+					color: #555;
 					margin-bottom: 15rpx;
 					white-space: nowrap;
+					font-weight: 500;
+					position: relative;
+					display: inline-block;
+
+					&::after {
+						content: '';
+						position: absolute;
+						bottom: -5rpx;
+						left: 0;
+						width: 30rpx;
+						height: 2rpx;
+						background: linear-gradient(90deg, #3494E6, transparent);
+					}
 
 					&:nth-child(2) {
 						margin-left: 25rpx;
 					}
 
 					&.required:after {
-						content: '*';
-						color: #ff4d4f;
+						content: '';
+						color: #EC6EAD;
 						margin-left: 10rpx;
+						background: none;
+						height: auto;
+						width: auto;
 					}
 				}
 
 				.input-short {
 					width: 70%;
-					border: 1rpx solid #e0e0e0;
-					border-radius: 10rpx;
+					border: 1rpx solid rgba(52, 148, 230, 0.2);
+					border-radius: 15rpx;
 					padding: 20rpx;
 					font-size: 28rpx;
-					background-color: #f9f9f9;
+					background-color: rgba(255, 255, 255, 0.8);
+					transition: all 0.3s ease;
+					box-shadow: inset 0 2rpx 5rpx rgba(0, 0, 0, 0.05);
+
+					&:focus {
+						border-color: #3494E6;
+						box-shadow: 0 0 10rpx rgba(52, 148, 230, 0.2);
+					}
 				}
 
 				.error-text {
-					color: #ff4d4f;
+					color: #EC6EAD;
 					font-size: 24rpx;
 					margin-top: 10rpx;
+					background-color: rgba(236, 110, 173, 0.1);
+					padding: 6rpx 12rpx;
+					border-radius: 10rpx;
+					display: inline-block;
 				}
 			}
 		}
 
 		.submit-btn {
-			background: linear-gradient(to right, #ff9500, #ff5e3a);
+			background: linear-gradient(to right, #3494E6, #EC6EAD);
 			color: #fff;
 			border: none;
 			border-radius: 50rpx;
-			padding: 25rpx 0;
+			padding: 0;
 			font-size: 32rpx;
 			margin-top: 30rpx;
-			box-shadow: 0 10rpx 20rpx rgba(255, 94, 58, 0.2);
+			box-shadow: 0 10rpx 20rpx rgba(52, 148, 230, 0.3);
+			transition: all 0.3s ease;
+
+			&:active {
+				transform: scale(0.98);
+				box-shadow: 0 5rpx 10rpx rgba(52, 148, 230, 0.2);
+			}
 		}
 	}
 }

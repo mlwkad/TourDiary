@@ -1,34 +1,40 @@
 "use strict";
 const common_vendor = require("../../common/vendor.js");
 const common_assets = require("../../common/assets.js");
+const api_api = require("../../api/api.js");
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "note-edit",
   setup(__props) {
-    const isEdit = common_vendor.ref(false);
     const note = common_vendor.reactive({
       id: "",
       title: "",
       content: "",
       location: "",
-      date: "",
-      isFavorite: false,
-      images: []
+      createdAt: "",
+      playTime: "",
+      money: "",
+      personNum: "",
+      pictures: [],
+      videos: [],
+      cover: ""
     });
-    const getNoteDetail = (id) => {
-      setTimeout(() => {
-        Object.assign(note, {
-          id,
-          title: "桂林游记",
-          content: "今天游览了桂林的象鼻山和七星公园，风景如画，令人心旷神怡。象鼻山位于桂林市漓江与桃花江汇流处，因山形酷似一头伸鼻饮水的大象而得名，是桂林山水的标志性景观。\n\n七星公园是桂林最大的综合性公园，因园内有七座山峰，恰似北斗七星而得名。公园内有桂海碑林、七星岩、蛇山、华夏奇石馆、花桥、童子拜观音等景点。尤其是华夏奇石馆内的奇石，形态各异，令人叹为观止。\n\n漓江水清澈见底，两岸的喀斯特地貌景观壮观秀丽，船行其上，恍如画中。整个旅程给人一种身临仙境的感觉，不虚此行。",
-          location: "广西桂林",
-          date: "2023-10-15",
-          isFavorite: true,
-          images: ["/static/666.jpg", "/static/666.jpg", "/static/666.jpg"]
-        });
-      }, 500);
+    const getNoteDetail = (info) => {
+      Object.assign(note, {
+        id: info.releaseID,
+        title: info.title,
+        content: info.content,
+        location: info.location,
+        createdAt: info.createdAt,
+        pictures: info.pictures,
+        playTime: info.playTime,
+        money: info.money,
+        personNum: info.personNum,
+        videos: info.videos,
+        cover: info.cover || ""
+      });
     };
     common_vendor.onBackPress(() => {
-      if (note.title || note.content || note.images.length > 0) {
+      if (note.title || note.content || note.pictures.length > 0) {
         common_vendor.index.showModal({
           title: "提示",
           content: "是否放弃此次编辑？",
@@ -57,14 +63,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         });
         return;
       }
-      if (!note.date) {
-        const now = /* @__PURE__ */ new Date();
-        note.date = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-" + String(now.getDate()).padStart(2, "0");
-      }
       common_vendor.index.showLoading({
         title: "保存中"
       });
-      setTimeout(() => {
+      api_api.updateRelease(note.id, note).then((res) => {
         common_vendor.index.hideLoading();
         common_vendor.index.showToast({
           title: "保存成功",
@@ -73,7 +75,13 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         setTimeout(() => {
           common_vendor.index.navigateBack();
         }, 1e3);
-      }, 1e3);
+      }).catch((e) => {
+        common_vendor.index.hideLoading();
+        common_vendor.index.showToast({
+          title: "保存失败",
+          icon: "error"
+        });
+      });
     };
     const chooseLocation = () => {
       common_vendor.index.chooseLocation({
@@ -81,33 +89,54 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           note.location = res.name || res.address;
         },
         fail: (err) => {
-          common_vendor.index.__f__("error", "at pages/notes/note-edit.vue:140", "选择位置失败", err);
+          common_vendor.index.__f__("error", "at pages/notes/note-edit.vue:191", "选择位置失败", err);
         }
       });
     };
     const chooseImage = () => {
       common_vendor.index.chooseImage({
-        count: 9 - note.images.length,
+        count: 9 - note.pictures.length,
         sizeType: ["compressed"],
         sourceType: ["album", "camera"],
         success: (res) => {
-          note.images = [...note.images, ...res.tempFilePaths];
+          note.pictures = [...note.pictures, ...res.tempFilePaths];
         }
       });
     };
     const removeImage = (index) => {
-      note.images.splice(index, 1);
+      note.pictures.splice(index, 1);
+    };
+    const chooseVideo = () => {
+      common_vendor.index.chooseVideo({
+        count: 1,
+        sourceType: ["album", "camera"],
+        success: (res) => {
+          note.videos = [res.tempFilePath];
+        }
+      });
+    };
+    const removeVideo = () => {
+      note.videos = [];
+    };
+    const chooseVideoCover = () => {
+      common_vendor.index.chooseImage({
+        count: 1,
+        sizeType: ["compressed"],
+        sourceType: ["album", "camera"],
+        success: (res) => {
+          note.cover = res.tempFilePaths[0];
+        }
+      });
+    };
+    const removeCover = () => {
+      note.cover = "";
     };
     common_vendor.onLoad((options) => {
-      if (options.id) {
-        isEdit.value = true;
-        getNoteDetail(options.id);
+      if (options.info) {
+        const info = JSON.parse(decodeURIComponent(options.info));
+        getNoteDetail(info);
         common_vendor.index.setNavigationBarTitle({
           title: "编辑笔记"
-        });
-      } else {
-        common_vendor.index.setNavigationBarTitle({
-          title: "新建笔记"
         });
       }
     });
@@ -115,27 +144,55 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       return common_vendor.e({
         a: note.title,
         b: common_vendor.o(($event) => note.title = $event.detail.value),
-        c: common_assets._imports_0$2,
+        c: common_assets._imports_0$3,
         d: note.location
       }, note.location ? {
         e: common_vendor.t(note.location)
       } : {}, {
         f: common_vendor.o(chooseLocation),
-        g: note.content,
-        h: common_vendor.o(($event) => note.content = $event.detail.value),
-        i: common_vendor.f(note.images, (img, index, i0) => {
+        g: common_assets._imports_1,
+        h: note.money,
+        i: common_vendor.o(($event) => note.money = $event.detail.value),
+        j: common_assets._imports_2,
+        k: note.personNum,
+        l: common_vendor.o(($event) => note.personNum = $event.detail.value),
+        m: common_assets._imports_3,
+        n: note.playTime,
+        o: common_vendor.o(($event) => note.playTime = $event.detail.value),
+        p: note.content,
+        q: common_vendor.o(($event) => note.content = $event.detail.value),
+        r: common_vendor.f(note.pictures, (img, index, i0) => {
           return {
             a: img,
             b: common_vendor.o(($event) => removeImage(index), index),
             c: index
           };
         }),
-        j: common_assets._imports_1$1,
-        k: note.images.length < 9
-      }, note.images.length < 9 ? {
-        l: common_vendor.o(chooseImage)
+        s: common_assets._imports_4,
+        t: note.pictures.length < 9
+      }, note.pictures.length < 9 ? {
+        v: common_vendor.o(chooseImage)
       } : {}, {
-        m: common_vendor.o(saveNote)
+        w: note.videos && note.videos.length > 0
+      }, note.videos && note.videos.length > 0 ? common_vendor.e({
+        x: note.videos[0],
+        y: common_assets._imports_4,
+        z: common_vendor.o(removeVideo),
+        A: note.cover
+      }, note.cover ? {
+        B: note.cover,
+        C: common_assets._imports_4,
+        D: common_vendor.o(removeCover)
+      } : {}, {
+        E: !note.cover
+      }, !note.cover ? {
+        F: common_vendor.o(chooseVideoCover)
+      } : {}) : {}, {
+        G: !note.videos || note.videos.length === 0
+      }, !note.videos || note.videos.length === 0 ? {
+        H: common_vendor.o(chooseVideo)
+      } : {}, {
+        I: common_vendor.o(saveNote)
       });
     };
   }

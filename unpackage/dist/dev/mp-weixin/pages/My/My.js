@@ -94,7 +94,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }, isLoggedIn.value ? {
         b: userInfo.avatarUrl || "/static/666.jpg",
         c: common_vendor.t(userInfo.nickName || "666"),
-        d: common_assets._imports_2,
+        d: common_assets._imports_0$5,
         e: common_vendor.o(($event) => common_vendor.isRef(isShow) ? isShow.value = true : isShow = true)
       } : {
         f: common_assets._imports_0,
@@ -102,20 +102,20 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         h: common_vendor.o(handleRegister)
       }, {
         i: isLoggedIn.value ? 1 : "",
-        j: common_assets._imports_0$2,
-        k: common_assets._imports_0$3,
+        j: common_assets._imports_0$3,
+        k: common_assets._imports_0$4,
         l: common_vendor.o(($event) => navigateTo("collection")),
-        m: common_assets._imports_0$2,
-        n: common_assets._imports_0$3,
+        m: common_assets._imports_0$3,
+        n: common_assets._imports_0$4,
         o: common_vendor.o(($event) => navigateTo("notes")),
-        p: common_assets._imports_0$2,
-        q: common_assets._imports_0$3,
+        p: common_assets._imports_0$3,
+        q: common_assets._imports_0$4,
         r: common_vendor.o(($event) => navigateTo("following")),
-        s: common_assets._imports_0$2,
-        t: common_assets._imports_0$3,
+        s: common_assets._imports_0$3,
+        t: common_assets._imports_0$4,
         v: common_vendor.o(($event) => navigateTo("settings")),
-        w: common_assets._imports_0$2,
-        x: common_assets._imports_0$3,
+        w: common_assets._imports_0$3,
+        x: common_assets._imports_0$4,
         y: common_vendor.o(($event) => navigateTo("feedback")),
         z: isLoggedIn.value
       }, isLoggedIn.value ? {
@@ -123,7 +123,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       } : {}, {
         B: common_vendor.unref(isShow)
       }, common_vendor.unref(isShow) ? {
-        C: common_assets._imports_1$1,
+        C: common_assets._imports_4,
         D: common_vendor.o(($event) => common_vendor.isRef(isShow) ? isShow.value = false : isShow = false),
         E: userInfo.avatarUrl,
         F: common_vendor.o(chooseavatar),

@@ -36,6 +36,8 @@
 .note-edit-container .edit-area.data-v-aecc2c28 {
   flex: 1;
   padding: 30rpx;
+  margin-left: 5rpx;
+  width: 98%;
 }
 .note-edit-container .edit-area .note-title-input.data-v-aecc2c28 {
   font-size: 36rpx;
@@ -63,13 +65,40 @@
 .note-edit-container .edit-area .location-selector .placeholder.data-v-aecc2c28 {
   color: #999;
 }
+.note-edit-container .edit-area .detail-info.data-v-aecc2c28 {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding: 30rpx 0;
+  width: 90%;
+  gap: 15rpx;
+  border-bottom: 1rpx solid #eee;
+}
+.note-edit-container .edit-area .detail-info .info-item.data-v-aecc2c28 {
+  display: flex;
+  align-items: center;
+  margin-top: 15rpx;
+}
+.note-edit-container .edit-area .detail-info .info-item .info-icon.data-v-aecc2c28 {
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 10rpx;
+}
+.note-edit-container .edit-area .detail-info .info-item .info-icon-content.data-v-aecc2c28 {
+  border-bottom: 1rpx solid grey;
+  width: 150rpx;
+  padding: 0 15rpx;
+}
 .note-edit-container .edit-area .note-content-input.data-v-aecc2c28 {
-  width: 100%;
+  width: 90%;
   font-size: 30rpx;
   line-height: 1.8;
   min-height: 300rpx;
   padding: 20rpx 0;
-  margin-bottom: 30rpx;
+  margin-bottom: 20rpx;
+}
+.note-edit-container .edit-area .note-content-input-content.data-v-aecc2c28 {
+  width: 100%;
 }
 .note-edit-container .edit-area .image-section.data-v-aecc2c28 {
   padding: 20rpx 0;
@@ -122,6 +151,113 @@
   margin-bottom: 10rpx;
 }
 .note-edit-container .edit-area .image-section .image-list .add-image-btn .add-text.data-v-aecc2c28 {
+  font-size: 28rpx;
+}
+.note-edit-container .edit-area .video-section.data-v-aecc2c28 {
+  padding: 20rpx 0;
+  width: 210rpx;
+  height: 210rpx;
+}
+.note-edit-container .edit-area .video-section .video-container.data-v-aecc2c28 {
+  position: relative;
+  margin-bottom: 20rpx;
+}
+.note-edit-container .edit-area .video-section .video-container .preview-video.data-v-aecc2c28 {
+  width: 100%;
+  height: 210rpx;
+  border-radius: 8rpx;
+}
+.note-edit-container .edit-area .video-section .video-container .delete-btn.data-v-aecc2c28 {
+  position: absolute;
+  top: -10rpx;
+  right: -10rpx;
+  width: 40rpx;
+  height: 40rpx;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.note-edit-container .edit-area .video-section .video-container .delete-btn image.data-v-aecc2c28 {
+  width: 24rpx;
+  height: 24rpx;
+}
+.note-edit-container .edit-area .video-section .video-cover-section.data-v-aecc2c28 {
+  padding: 20rpx 0;
+}
+.note-edit-container .edit-area .video-section .video-cover-section .section-title.data-v-aecc2c28 {
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-bottom: 20rpx;
+}
+.note-edit-container .edit-area .video-section .video-cover-section .cover-container.data-v-aecc2c28 {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+.note-edit-container .edit-area .video-section .video-cover-section .cover-container .cover-preview-wrapper.data-v-aecc2c28 {
+  position: relative;
+  width: 210rpx;
+  height: 210rpx;
+}
+.note-edit-container .edit-area .video-section .video-cover-section .cover-container .cover-preview.data-v-aecc2c28 {
+  width: 210rpx;
+  height: 210rpx;
+  border-radius: 8rpx;
+}
+.note-edit-container .edit-area .video-section .video-cover-section .cover-container .delete-btn.data-v-aecc2c28 {
+  position: absolute;
+  top: -10rpx;
+  right: -10rpx;
+  width: 40rpx;
+  height: 40rpx;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.note-edit-container .edit-area .video-section .video-cover-section .cover-container .delete-btn image.data-v-aecc2c28 {
+  width: 24rpx;
+  height: 24rpx;
+}
+.note-edit-container .edit-area .video-section .video-cover-section .cover-container .add-cover-btn.data-v-aecc2c28 {
+  width: 210rpx;
+  height: 210rpx;
+  border: 1rpx dashed #ddd;
+  border-radius: 8rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.note-edit-container .edit-area .video-section .video-cover-section .cover-container .add-cover-btn text.data-v-aecc2c28 {
+  font-size: 50rpx;
+  color: #ddd;
+  line-height: 1;
+  margin-bottom: 10rpx;
+}
+.note-edit-container .edit-area .video-section .video-cover-section .cover-container .add-cover-btn .add-text.data-v-aecc2c28 {
+  font-size: 28rpx;
+}
+.note-edit-container .edit-area .add-video-btn.data-v-aecc2c28 {
+  width: 210rpx;
+  height: 210rpx;
+  border: 1rpx dashed #ddd;
+  border-radius: 8rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.note-edit-container .edit-area .add-video-btn .add-icon.data-v-aecc2c28 {
+  font-size: 50rpx;
+  color: #ddd;
+  line-height: 1;
+  margin-bottom: 10rpx;
+}
+.note-edit-container .edit-area .add-video-btn .add-text.data-v-aecc2c28 {
   font-size: 28rpx;
 }
 .note-edit-container .save-button.data-v-aecc2c28 {

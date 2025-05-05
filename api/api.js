@@ -85,6 +85,11 @@ export const deleteRelease = (releaseID, userID) => {
     return http(`/api/release/${releaseID}`, { userID }, 'DELETE')
 }
 
+// 更新状态
+export const updateState = (releaseID, data) => {
+    return http(`/api/release/${releaseID}/state`, data, "PUT")
+}
+
 // 上传文件
 export const uploadFiles = (filePaths) => {
     return new Promise((resolve, reject) => {

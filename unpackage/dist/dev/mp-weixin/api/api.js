@@ -37,9 +37,19 @@ const getReleaseDetail = (releaseID) => {
 const createRelease = (data) => {
   return api_http.http("/api/release", data, "POST");
 };
+const updateRelease = (releaseID, data) => {
+  return api_http.http(`/api/release/${releaseID}`, data, "PUT");
+};
+const deleteRelease = (releaseID, userID) => {
+  return api_http.http(`/api/release/${releaseID}`, { userID }, "DELETE");
+};
+const updateState = (releaseID, data) => {
+  return api_http.http(`/api/release/${releaseID}/state`, data, "PUT");
+};
 exports.addLiked = addLiked;
 exports.checkLogin = checkLogin;
 exports.createRelease = createRelease;
+exports.deleteRelease = deleteRelease;
 exports.getAllReleases = getAllReleases;
 exports.getReleaseDetail = getReleaseDetail;
 exports.getSessionKey = getSessionKey;
@@ -49,4 +59,6 @@ exports.getWXUserInfo = getWXUserInfo;
 exports.removeLiked = removeLiked;
 exports.searchReleases = searchReleases;
 exports.signUp = signUp;
+exports.updateRelease = updateRelease;
+exports.updateState = updateState;
 //# sourceMappingURL=../../.sourcemap/mp-weixin/api/api.js.map

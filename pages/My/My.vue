@@ -68,7 +68,7 @@
 			头像:
 			<!-- open-type="chooseAvatar" 选择怎么设置头像 -->
 			<button class="changeInfo-avatar-title" open-type="chooseAvatar" @chooseavatar="chooseavatar">
-				<image class="changeInfo-avatar-title-image" :src="userInfo.avatarUrl" mode="widthFix"></image>
+				<image class="changeInfo-avatar-title-image" :src="userInfo.avatarUrl" mode="aspectFill"></image>
 			</button>
 		</view>
 		<view class="changeInfo-nickname">
@@ -195,12 +195,40 @@ onShow(() => {
 .my-container {
 	width: 100%;
 	min-height: 100vh;
-	background-color: #f5f5f5;
+	background: linear-gradient(to bottom, #f0f5ff, #ffffff);
+	position: relative;
+
+	&::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 400rpx;
+		background: linear-gradient(135deg, rgba(52, 148, 230, 0.15), rgba(236, 110, 173, 0.1));
+		z-index: -1;
+		border-radius: 0 0 30% 30%;
+	}
+
+	&::after {
+		content: '';
+		position: absolute;
+		top: 20%;
+		right: 10%;
+		width: 100rpx;
+		height: 100rpx;
+		border-radius: 50%;
+		background: linear-gradient(135deg, rgba(236, 110, 173, 0.2), rgba(52, 148, 230, 0.1));
+		filter: blur(30rpx);
+		z-index: -1;
+	}
 
 	.user-info-section {
-		background: linear-gradient(to right, #4bb0ff, #61e4ff);
-		padding: 40rpx 30rpx;
-		margin-bottom: 20rpx;
+		background: linear-gradient(to right, #3494E6, #EC6EAD);
+		padding: 60rpx 30rpx;
+		margin-bottom: 30rpx;
+		border-radius: 0 0 30rpx 30rpx;
+		box-shadow: 0 10rpx 20rpx rgba(0, 0, 0, 0.1);
 
 		.user-profile {
 			display: flex;
@@ -213,6 +241,12 @@ onShow(() => {
 				border-radius: 50%;
 				border: 4rpx solid #fff;
 				margin-bottom: 20rpx;
+				box-shadow: 0 5rpx 15rpx rgba(0, 0, 0, 0.2);
+				transition: all 0.3s ease;
+
+				&:active {
+					transform: scale(1.05);
+				}
 			}
 
 			.user-name {
@@ -222,11 +256,17 @@ onShow(() => {
 				display: flex;
 				align-items: center;
 				gap: 15rpx;
+				text-shadow: 0 2rpx 5rpx rgba(0, 0, 0, 0.2);
 
 				.changeInfoIcon {
 					transform: translateY(3rpx);
 					width: 35rpx;
 					height: 35rpx;
+					transition: all 0.3s ease;
+
+					&:active {
+						transform: translateY(3rpx) rotate(15deg);
+					}
 				}
 			}
 		}
@@ -242,6 +282,7 @@ onShow(() => {
 				border-radius: 50%;
 				border: 4rpx solid #fff;
 				margin-bottom: 20rpx;
+				box-shadow: 0 5rpx 15rpx rgba(0, 0, 0, 0.2);
 			}
 
 			.login-btns {
@@ -251,12 +292,25 @@ onShow(() => {
 				.login-btn,
 				.register-btn {
 					background-color: #fff;
-					color: #4bb0ff;
+					color: #3494E6;
 					font-size: 28rpx;
 					font-weight: bold;
 					padding: 15rpx 40rpx;
 					border-radius: 30rpx;
 					border: none;
+					box-shadow: 0 5rpx 15rpx rgba(0, 0, 0, 0.1);
+					transition: all 0.3s ease;
+
+					&:active {
+						transform: scale(0.95);
+						box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+					}
+				}
+
+				.register-btn {
+					background-color: rgba(255, 255, 255, 0.2);
+					color: #fff;
+					box-shadow: 0 5rpx 15rpx rgba(0, 0, 0, 0.1);
 				}
 			}
 		}
@@ -266,16 +320,24 @@ onShow(() => {
 		padding: 0 20rpx;
 
 		.option-group {
-			background-color: #fff;
-			border-radius: 15rpx;
+			background-color: rgba(255, 255, 255, 0.9);
+			border-radius: 20rpx;
 			margin-bottom: 20rpx;
 			overflow: hidden;
+			box-shadow: 0 5rpx 15rpx rgba(0, 0, 0, 0.05);
+			backdrop-filter: blur(5rpx);
+			border: 1px solid rgba(255, 255, 255, 0.6);
 
 			.option-item {
 				display: flex;
 				align-items: center;
 				padding: 30rpx 20rpx;
 				border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
+				transition: all 0.3s ease;
+
+				&:active {
+					background-color: rgba(52, 148, 230, 0.05);
+				}
 
 				&:last-child {
 					border-bottom: none;
@@ -291,24 +353,34 @@ onShow(() => {
 					flex: 1;
 					font-size: 30rpx;
 					color: #333;
+					font-weight: 500;
 				}
 
 				.arrow-icon {
 					width: 30rpx;
 					height: 30rpx;
+					transform: rotate(180deg);
+					opacity: 0.6;
 				}
 			}
 		}
 
 		.logout-btn {
-			background-color: #fff;
-			color: #ff4b4b;
+			background: linear-gradient(135deg, #ff7676, #f54242);
+			color: #fff;
 			text-align: center;
 			padding: 30rpx 0;
-			border-radius: 15rpx;
+			border-radius: 20rpx;
 			font-size: 32rpx;
 			margin-top: 30rpx;
 			font-weight: bold;
+			box-shadow: 0 5rpx 15rpx rgba(255, 118, 118, 0.3);
+			transition: all 0.3s ease;
+
+			&:active {
+				transform: scale(0.98);
+				box-shadow: 0 2rpx 8rpx rgba(255, 118, 118, 0.2);
+			}
 		}
 	}
 }
@@ -319,11 +391,14 @@ onShow(() => {
 	position: fixed;
 	bottom: 0;
 	left: 0;
-	background-color: #ffffff;
+	background-color: rgba(255, 255, 255, 0.95);
 	padding-top: 15rpx;
-	border-radius: 20rpx 20rpx 0 0;
-	box-shadow: 0 -5rpx 10px rgba(128, 128, 128, 0.433);
+	border-radius: 30rpx 30rpx 0 0;
+	box-shadow: 0 -5rpx 20rpx rgba(0, 0, 0, 0.1);
 	animation: hua 0.3s ease-in-out forwards;
+	backdrop-filter: blur(10rpx);
+	border-top: 1px solid rgba(255, 255, 255, 0.8);
+	z-index: 100;
 
 	@keyframes hua {
 		0% {
@@ -342,20 +417,25 @@ onShow(() => {
 		align-items: center;
 		position: relative;
 		justify-content: center;
-		padding-bottom: 15rpx;
+		padding-bottom: 20rpx;
 
 		&-title {
-			font-size: 45rpx;
-			transform: translateX();
+			font-size: 36rpx;
+			font-weight: 600;
+			background: linear-gradient(90deg, #3494E6, #EC6EAD);
+			-webkit-background-clip: text;
+			background-clip: text;
+			color: transparent;
 		}
 
 		&-close {
 			position: absolute;
 			top: 50%;
 			right: 5%;
-			transform: translateY(-60%);
-			width: 20rpx;
-			height: 20rpx;
+			transform: translateY(-50%);
+			width: 30rpx;
+			height: 30rpx;
+			padding: 15rpx;
 		}
 	}
 
@@ -363,49 +443,64 @@ onShow(() => {
 		display: flex;
 		align-items: center;
 		height: 100rpx;
-		border-top: solid 1rpx rgba(128, 128, 128, 0.449);
+		border-top: solid 1rpx rgba(52, 148, 230, 0.2);
 		padding-left: 45rpx;
+		font-size: 30rpx;
+		color: #555;
 
 		&-title {
 			margin: 0;
 			margin-left: 45rpx;
 			padding: 0;
 			height: 70rpx;
+			width: 70rpx;
+			background: none;
 
-			&-image {
-				width: 70rpx;
-				height: 70rpx;
+			&::after {
+				border: none;
+			}
+
+			.changeInfo-avatar-title-image {
+				width: 100%;
+				height: 100%;
+				border-radius: 50%;
 			}
 		}
-
-
 	}
 
 	&-nickname {
 		display: flex;
 		align-items: center;
 		height: 100rpx;
-		border-top: solid 1rpx rgba(128, 128, 128, 0.421);
-		border-bottom: solid 1rpx rgba(128, 128, 128, 0.421);
+		border-top: solid 1rpx rgba(52, 148, 230, 0.2);
+		border-bottom: solid 1rpx rgba(52, 148, 230, 0.2);
 		padding-left: 45rpx;
-
-		// &-title {}
+		font-size: 30rpx;
+		color: #555;
 
 		&-input {
 			padding-left: 45rpx;
+			height: 70rpx;
+			font-size: 28rpx;
 		}
 	}
 
 	&-ensure {
-		background-color: rgb(52, 179, 52);
-		border-radius: 24rpx;
-		width: 40%;
-		margin: 0 auto;
-		margin-top: 15rpx;
-		margin-bottom: 15rpx;
-		border: solid 2px rgba(242, 246, 242, 0.629);
-		color: white;
-	}
+		background: linear-gradient(to right, #3494E6, #EC6EAD);
+		color: #fff;
+		border-radius: 50rpx;
+		width: 60%;
+		margin: 30rpx auto;
+		border: none;
+		padding: 20rpx 0;
+		font-size: 30rpx;
+		box-shadow: 0 5rpx 15rpx rgba(52, 148, 230, 0.3);
+		transition: all 0.3s ease;
 
+		&:active {
+			transform: scale(0.98);
+			box-shadow: 0 2rpx 8rpx rgba(52, 148, 230, 0.2);
+		}
+	}
 }
 </style>

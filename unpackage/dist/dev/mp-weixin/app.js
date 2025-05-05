@@ -12,7 +12,6 @@ if (!Math) {
   "./pages/register/register.js";
   "./pages/collection/collection.js";
   "./pages/notes/notes.js";
-  "./pages/notes/note-detail.js";
   "./pages/notes/note-edit.js";
 }
 const _sfc_main = {
