@@ -96,8 +96,11 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const chooseImage = () => {
       common_vendor.index.chooseImage({
         count: 9 - note.pictures.length,
+        // 还能选几张
         sizeType: ["compressed"],
+        // 压缩后的图片 或 original:原图
         sourceType: ["album", "camera"],
+        // 可以来自相册 相机
         success: (res) => {
           note.pictures = [...note.pictures, ...res.tempFilePaths];
         }
@@ -144,7 +147,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       return common_vendor.e({
         a: note.title,
         b: common_vendor.o(($event) => note.title = $event.detail.value),
-        c: common_assets._imports_0$3,
+        c: common_assets._imports_3,
         d: note.location
       }, note.location ? {
         e: common_vendor.t(note.location)
@@ -153,10 +156,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         g: common_assets._imports_1,
         h: note.money,
         i: common_vendor.o(($event) => note.money = $event.detail.value),
-        j: common_assets._imports_2,
+        j: common_assets._imports_2$1,
         k: note.personNum,
         l: common_vendor.o(($event) => note.personNum = $event.detail.value),
-        m: common_assets._imports_3,
+        m: common_assets._imports_1$1,
         n: note.playTime,
         o: common_vendor.o(($event) => note.playTime = $event.detail.value),
         p: note.content,

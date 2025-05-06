@@ -61,6 +61,18 @@
 			"style": {
 				"navigationBarTitleText": "编辑笔记"
 			}
+		},
+		{
+			"path": "pages/follow/list",
+			"style": {
+				"navigationBarTitleText": "关注列表"
+			}
+		},
+		{
+			"path": "pages/follow/works",
+			"style": {
+				"navigationBarTitleText": "游记"
+			}
 		}
 	],
 	"easycom": {

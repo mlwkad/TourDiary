@@ -38,17 +38,34 @@
             <!-- 标题部分 -->
             <view class="detail-title">
                 <text class="animated-text">{{ info.title }}</text>
-                <view class="detail-liked" @click="liked">
-                    <text class="like-text">收藏</text>
-                    <text class="like-icon">♥</text>
+                <view class="action-buttons">
+                    <view class="detail-liked" @click="liked">
+                        <text class="like-text">收藏</text>
+                        <text class="like-icon" :style="{ color: isLiked ? 'red' : 'white' }">♥</text>
+                    </view>
+                    <view class="detail-share" @click="shareContent">
+                        <text class="share-text">分享</text>
+                        <text class="share-icon">↗</text>
+                    </view>
                 </view>
             </view>
-            <!-- 用户信息部分 -->
-            <view class="user-info">
-                <image class="user-avatar" src="/static/666.jpg" mode="aspectFill"></image>
-                <text class="user-name">{{ info.userName }}</text>
+        </view>
+
+        <!-- 发布者信息部分 -->
+        <view class="publisher-container">
+            <view class="publisher-info">
+                <image class="user-avatar" src="/static/666.jpg" mode="aspectFill" @click="goUserPages"></image>
+                <view class="user-details">
+                    <text class="user-name" @click="goUserPages">{{ info.userName }}</text>
+                    <text class="publish-time" @click="goUserPages">发布于 {{ info.createdAt.slice(0, 10) }}</text>
+                </view>
+                <view class="follow-btn" @click="followPublisher">
+                    <text class="follow-icon">+</text>
+                    <text>关注</text>
+                </view>
             </view>
         </view>
+
         <!-- 内容详情部分 -->
         <view class="detail-content">
             <view class="section-heading">旅行详情</view>
@@ -93,7 +110,11 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
 import { onLoad } from '@dcloudio/uni-app'
-import { addLiked } from '../../api/api';
+import { addLiked, getUserInfo, follow, unfollow } from '../../api/api';
+import { unix } from 'dayjs';
+
+const isLiked = ref<boolean>(false)
+const isFollow = ref<boolean>(false)
 
 // 初始化info对象
 const info = ref({
@@ -109,24 +130,66 @@ const info = ref({
     releaseID: "release3",
     title: "广州一日游",
     updatedAt: "2025-05-03T11:28:49.000Z",
-    userID: "user2",
+    userID: "",
     userName: "testuser2",
     videos: []
 });
 
-// 默认视频封面图
-const defaultVideoPoster = ref('/static/555.jpg');
-
-const liked = () => {
+const liked = async () => {
     const userId = JSON.parse(uni.getStorageSync('userInfo')).userId
     try {
-        addLiked(userId, info.value.releaseID).then(res => {
+        await addLiked(userId, info.value.releaseID).then(res => {
             uni.showToast({
                 title: res.message,
                 icon: 'none'
             })
         })
+        getUserInfo(userId).then(res => {
+            isLiked.value = JSON.parse(res.liked).includes(info.value.releaseID)
+            // isFollow.value = res.follow.includes(info.value.userID)
+        })
     } catch (e) { console.log(e) }
+}
+
+// 用户详情页
+const goUserPages = () => {
+    uni.navigateTo({
+        url: `/pages/follow/works?userID=${info.value.userID}`
+    })
+}
+
+// 分享功能
+const shareContent = () => {
+    uni.showShareMenu({
+        withShareTicket: true,
+        menus: ['shareAppMessage', 'shareTimeline']
+    })
+
+    // 显示分享成功的提示
+    uni.showToast({
+        title: '分享成功',
+        icon: 'success',
+        duration: 2000
+    })
+}
+
+// 关注发布者功能
+const followPublisher = () => {
+    const userId = JSON.parse(uni.getStorageSync('userInfo')).userId
+    uni.showModal({
+        title: '关注提示',
+        content: `确定要关注"${info.value.userName}"吗？`,
+        success: (res) => {
+            if (res.confirm) {
+                follow(userId, { followUserID: info.value.userID }).then(res => {
+                    uni.showToast({
+                        title: '关注成功',
+                        icon: 'success'
+                    })
+                })
+            }
+        }
+    })
 }
 
 const previewImage = (images: string[], current: number) => {
@@ -136,13 +199,19 @@ const previewImage = (images: string[], current: number) => {
     })
 }
 
-onLoad((options) => {
+onLoad(async (options) => {
     try {
         if (options.info) {
-            const decodedInfo = JSON.parse(decodeURIComponent(options.info))
-            info.value = decodedInfo
-        } else {
-            console.log('没拿到信息')
+            const decodedInfo = await JSON.parse(decodeURIComponent(options.info))
+            info.value = await decodedInfo
+        }
+        // 获取收藏列表
+        if (info.value.userID) {
+            const userId = JSON.parse(uni.getStorageSync('userInfo')).userId
+            getUserInfo(userId).then(res => {
+                isLiked.value = JSON.parse(res.liked).includes(info.value.releaseID)
+                isFollow.value = res.follow.includes(info.value.userID)
+            })
         }
     } catch (e) {
         console.log(e)
@@ -244,8 +313,6 @@ onLoad((options) => {
 }
 
 .detail-top {
-    display: flex;
-    justify-content: space-between;
     margin: 20rpx;
     padding: 20rpx;
     background-color: rgba(255, 255, 255, 0.9);
@@ -259,18 +326,19 @@ onLoad((options) => {
     .detail-title {
         display: flex;
         align-items: center;
-        gap: 20rpx;
-        font-size: 40rpx;
-        font-weight: bold;
-        padding: 10rpx 0;
+        justify-content: space-between;
+        width: 100%;
 
         .animated-text {
             position: relative;
             display: inline-block;
             background: linear-gradient(90deg, #3494E6, #EC6EAD);
             -webkit-background-clip: text;
+            background-clip: text;
             color: transparent;
-            position: relative;
+            font-size: 40rpx;
+            font-weight: bold;
+            max-width: 55%;
 
             &::after {
                 content: '';
@@ -283,25 +351,36 @@ onLoad((options) => {
             }
         }
 
-        .detail-liked {
+        .action-buttons {
+            display: flex;
+            gap: 15rpx;
+        }
+
+        .detail-liked,
+        .detail-share {
             white-space: nowrap;
-            background: linear-gradient(135deg, #3494E6, #EC6EAD);
-            height: fit-content;
-            width: fit-content;
             padding: 10rpx 20rpx;
             font-size: 30rpx;
             font-weight: 500;
             color: white;
             border-radius: 30rpx;
-            box-shadow: 0 4rpx 8rpx rgba(236, 110, 173, 0.3);
+            box-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.2);
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8rpx;
 
+            &:active {
+                transform: scale(0.95);
+            }
+        }
+
+        .detail-liked {
+            background: linear-gradient(135deg, #3494E6, #EC6EAD);
+
             .like-icon {
-                font-size: 26rpx;
+                font-size: 45rpx;
                 transition: transform 0.3s ease;
                 color: white;
             }
@@ -311,33 +390,23 @@ onLoad((options) => {
             }
         }
 
+        .detail-share {
+            background: linear-gradient(135deg, #3CB371, #20B2AA);
+
+            .share-icon {
+                font-size: 37rpx;
+                transition: transform 0.3s ease;
+                color: white;
+            }
+
+            &:active .share-icon {
+                transform: translateY(-3rpx) translateX(3rpx);
+            }
+        }
+
         .detail-liked .like-icon.liked {
             animation: heartBeat 1s ease;
             color: #ff496e;
-        }
-    }
-
-    .user-info {
-        display: flex;
-        align-items: center;
-        padding: 10rpx;
-
-        .user-avatar {
-            width: 80rpx;
-            height: 80rpx;
-            border-radius: 50%;
-            margin-right: 20rpx;
-            border: 3rpx solid #fff;
-            box-shadow: 0 3rpx 10rpx rgba(0, 0, 0, 0.1);
-        }
-
-        .user-name {
-            font-size: 28rpx;
-            color: #333;
-            font-weight: 500;
-            background: linear-gradient(90deg, #333, #666);
-            -webkit-background-clip: text;
-            color: transparent;
         }
     }
 }
@@ -380,7 +449,7 @@ onLoad((options) => {
     background-color: rgba(255, 255, 255, 0.9);
     border-radius: 20rpx;
     box-shadow: 0 5rpx 15rpx rgba(0, 0, 0, 0.248);
-    backdrop-filter: blur(5rpx);
+    backdrop-filter: none;
     position: relative;
     border: 1px solid rgba(255, 255, 255, 0.6);
 
@@ -424,11 +493,7 @@ onLoad((options) => {
 
     .detail-item {
         margin-bottom: 30rpx;
-        transition: transform 0.3s ease;
-
-        &:active {
-            transform: translateX(5rpx);
-        }
+        transition: none;
 
         .item-label {
             font-size: 30rpx;
@@ -452,16 +517,16 @@ onLoad((options) => {
 
         .item-value0 {
             font-size: 32rpx;
-            color: #333;
-            font-weight: 500;
+            color: #000000;
+            font-weight: 400;
             line-height: 1.6;
             display: block;
             padding: 25rpx;
             border-left: 8rpx solid #3494E6;
             margin: 15rpx 0;
-            background-color: rgba(52, 148, 230, 0.05);
+            background: linear-gradient(90deg, rgba(52, 148, 230, 0.1), rgba(236, 110, 173, 0.05));
             border-radius: 15rpx;
-            box-shadow: inset 0 0 10rpx rgba(52, 148, 230, 0.1);
+            box-shadow: none;
         }
 
         .location-wrapper {
@@ -488,7 +553,7 @@ onLoad((options) => {
     .content-box {
         position: relative;
         border-radius: 15rpx;
-        transition: all 0.3s ease;
+        transition: none;
         overflow: hidden;
 
         &::before {
@@ -500,20 +565,11 @@ onLoad((options) => {
             height: 100%;
             background: linear-gradient(135deg, rgba(52, 148, 230, 0.05), rgba(236, 110, 173, 0.05));
             z-index: -1;
-            opacity: 0.5;
+            opacity: 0.2;
         }
 
-        &::after {
-            content: '';
-            position: absolute;
-            top: -10rpx;
-            right: -10rpx;
-            width: 80rpx;
-            height: 80rpx;
-            background-size: contain;
-            background-repeat: no-repeat;
-            opacity: 0.2;
-            z-index: 1;
+        &:active {
+            transform: none;
         }
     }
 
@@ -622,6 +678,76 @@ onLoad((options) => {
         &:active {
             transform: scale(0.98);
             box-shadow: 0 2rpx 8rpx rgba(52, 148, 230, 0.2);
+        }
+    }
+}
+
+.publisher-container {
+    margin: 20rpx;
+    padding: 20rpx;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 20rpx;
+    box-shadow: 0 5rpx 15rpx rgba(0, 0, 0, 0.252);
+    backdrop-filter: blur(10rpx);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    position: relative;
+    overflow: hidden;
+
+    .publisher-info {
+        display: flex;
+        align-items: center;
+        position: relative;
+
+        .user-avatar {
+            width: 100rpx;
+            height: 100rpx;
+            border-radius: 50%;
+            border: 3rpx solid #fff;
+            box-shadow: 0 3rpx 10rpx rgba(0, 0, 0, 0.1);
+        }
+
+        .user-details {
+            margin-left: 20rpx;
+            flex: 1;
+
+            .user-name {
+                font-size: 32rpx;
+                font-weight: 500;
+                background: linear-gradient(90deg, #333, #666);
+                -webkit-background-clip: text;
+                color: transparent;
+                display: block;
+                margin-bottom: 8rpx;
+            }
+
+            .publish-time {
+                font-size: 24rpx;
+                color: #999;
+            }
+        }
+
+        .follow-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8rpx;
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+            color: white;
+            padding: 10rpx 25rpx;
+            border-radius: 30rpx;
+            font-size: 28rpx;
+            box-shadow: 0 4rpx 8rpx rgba(76, 175, 80, 0.3);
+            transition: all 0.3s ease;
+
+            &:active {
+                transform: scale(0.95);
+                box-shadow: 0 2rpx 5rpx rgba(76, 175, 80, 0.2);
+            }
+
+            .follow-icon {
+                font-size: 43rpx;
+                font-weight: bold;
+            }
         }
     }
 }

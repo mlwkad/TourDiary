@@ -84,9 +84,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
-import { onLoad, onBackPress } from '@dcloudio/uni-app';
-import { updateRelease } from '../../api/api';
+import { ref, reactive } from 'vue'
+import { onLoad, onBackPress } from '@dcloudio/uni-app'
+import { updateRelease } from '../../api/api'
 
 // 笔记数据
 const note = reactive({
@@ -129,14 +129,14 @@ onBackPress(() => {
             content: '是否放弃此次编辑？',
             success: (res) => {
                 if (res.confirm) {
-                    uni.navigateBack();
+                    uni.navigateBack()
                 }
             }
         });
-        return true;
+        return true
     }
-    return false;
-});
+    return false
+})
 
 // 保存笔记
 const saveNote = () => {
@@ -144,16 +144,16 @@ const saveNote = () => {
         uni.showToast({
             title: '请输入标题',
             icon: 'none'
-        });
-        return;
+        })
+        return
     }
 
     if (!note.content) {
         uni.showToast({
             title: '请输入内容',
             icon: 'none'
-        });
-        return;
+        })
+        return
     }
 
     // 这里应该调用API保存笔记
@@ -162,49 +162,49 @@ const saveNote = () => {
     });
 
     updateRelease(note.id, note).then(res => {
-        uni.hideLoading();
+        uni.hideLoading()
         uni.showToast({
             title: '保存成功',
             icon: 'success'
         });
 
         setTimeout(() => {
-            uni.navigateBack();
-        }, 1000);
+            uni.navigateBack()
+        }, 1000)
     }).catch(e => {
-        uni.hideLoading();
+        uni.hideLoading()
         uni.showToast({
             title: '保存失败',
             icon: 'error'
-        });
-    });
-};
+        })
+    })
+}
 
 // 选择位置
 const chooseLocation = () => {
     uni.chooseLocation({
         success: (res) => {
-            note.location = res.name || res.address;
+            note.location = res.name || res.address
         },
         fail: (err) => {
             // 用户取消或发生错误
-            console.error('选择位置失败', err);
+            console.error('选择位置失败', err)
         }
-    });
-};
+    })
+}
 
 // 选择图片
 const chooseImage = () => {
     uni.chooseImage({
-        count: 9 - note.pictures.length,
-        sizeType: ['compressed'],
-        sourceType: ['album', 'camera'],
+        count: 9 - note.pictures.length,  // 还能选几张
+        sizeType: ['compressed'],  // 压缩后的图片 或 original:原图
+        sourceType: ['album', 'camera'],  // 可以来自相册 相机
         success: (res) => {
             // 这里应该上传图片到服务器，目前直接使用本地路径
-            note.pictures = [...note.pictures, ...res.tempFilePaths];
+            note.pictures = [...note.pictures, ...res.tempFilePaths]
         }
-    });
-};
+    })
+}
 
 // 移除图片
 const removeImage = (index: number) => {
@@ -218,15 +218,15 @@ const chooseVideo = () => {
         sourceType: ['album', 'camera'],
         success: (res) => {
             // 这里应该上传视频到服务器，目前直接使用本地路径
-            note.videos = [res.tempFilePath];
+            note.videos = [res.tempFilePath]
         }
-    });
-};
+    })
+}
 
 // 移除视频
 const removeVideo = () => {
-    note.videos = [];
-};
+    note.videos = []
+}
 
 // 选择视频封面
 const chooseVideoCover = () => {
@@ -236,36 +236,61 @@ const chooseVideoCover = () => {
         sourceType: ['album', 'camera'],
         success: (res) => {
             // 这里应该上传视频封面到服务器，目前直接使用本地路径
-            note.cover = res.tempFilePaths[0];
+            note.cover = res.tempFilePaths[0]
         }
-    });
-};
+    })
+}
 
 // 移除视频封面
 const removeCover = () => {
-    note.cover = '';
-};
+    note.cover = ''
+}
 
 onLoad((options) => {
     if (options.info) {
-        const info = JSON.parse(decodeURIComponent(options.info));
-        getNoteDetail(info);
+        const info = JSON.parse(decodeURIComponent(options.info))
+        getNoteDetail(info)
         uni.setNavigationBarTitle({
             title: '编辑笔记'
-        });
+        })
     }
-});
+})
 </script>
 
 <style lang="scss" scoped>
 .note-edit-container {
     width: 100%;
     min-height: 100vh;
-    background-color: #fff;
+    background: linear-gradient(to bottom, #f0f5ff, #ffffff);
     display: flex;
     flex-direction: column;
     position: relative;
     padding-bottom: 120rpx;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 400rpx;
+        background: linear-gradient(135deg, rgba(52, 148, 230, 0.15), rgba(236, 110, 173, 0.1));
+        z-index: -1;
+        border-radius: 0 0 30% 30%;
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 20%;
+        right: 10%;
+        width: 100rpx;
+        height: 100rpx;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(236, 110, 173, 0.2), rgba(52, 148, 230, 0.1));
+        filter: blur(30rpx);
+        z-index: -1;
+    }
 
     .edit-area {
         flex: 1;
@@ -277,16 +302,26 @@ onLoad((options) => {
             font-size: 36rpx;
             font-weight: bold;
             padding: 20rpx 0;
-            border-bottom: 1rpx solid #f0f0f0;
+            border-bottom: 1rpx solid rgba(52, 148, 230, 0.2);
             margin-bottom: 20rpx;
+            background: linear-gradient(90deg, #3494E6, #555);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: black;
+            text-shadow: 1rpx 1rpx 2rpx rgba(0, 0, 0, 0.1);
         }
 
         .location-selector {
             display: flex;
             align-items: center;
             padding: 20rpx 0;
-            border-bottom: 1rpx solid #f0f0f0;
+            border-bottom: 1rpx solid rgba(52, 148, 230, 0.2);
             margin-bottom: 20rpx;
+            transition: all 0.3s ease;
+
+            &:active {
+                background-color: rgba(52, 148, 230, 0.05);
+            }
 
             image {
                 width: 32rpx;
@@ -311,22 +346,41 @@ onLoad((options) => {
             padding: 30rpx 0;
             width: 90%;
             gap: 15rpx;
-            border-bottom: 1rpx solid #eee;
+            border-bottom: 1rpx solid rgba(52, 148, 230, 0.2);
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 15rpx;
+            padding: 20rpx;
+            margin-bottom: 20rpx;
+            box-shadow: 0 3rpx 10rpx rgba(0, 0, 0, 0.05);
 
             .info-item {
                 display: flex;
                 align-items: center;
                 margin-top: 15rpx;
+                background-color: rgba(52, 148, 230, 0.05);
+                padding: 10rpx 20rpx;
+                border-radius: 30rpx;
+                transition: all 0.3s ease;
+
+                &:active {
+                    transform: scale(0.95);
+                    background-color: rgba(52, 148, 230, 0.1);
+                }
 
                 .info-icon {
                     width: 40rpx;
                     height: 40rpx;
                     margin-right: 10rpx;
+                }
 
-                    &-content {
-                        border-bottom: 1rpx solid grey;
-                        width: 150rpx;
-                        padding: 0 15rpx;
+                .info-icon-content {
+                    border-bottom: 1rpx solid rgba(52, 148, 230, 0.3);
+                    width: 150rpx;
+                    padding: 0 15rpx;
+                    transition: all 0.3s ease;
+
+                    &:focus {
+                        border-bottom-color: #3494E6;
                     }
                 }
             }
@@ -337,11 +391,16 @@ onLoad((options) => {
             font-size: 30rpx;
             line-height: 1.8;
             min-height: 300rpx;
-            padding: 20rpx 0;
+            padding: 20rpx;
             margin-bottom: 20rpx;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 15rpx;
+            box-shadow: 0 3rpx 10rpx rgba(0, 0, 0, 0.05);
+            border: 1rpx solid rgba(52, 148, 230, 0.2);
 
             &-content {
                 width: 100%;
+                min-height: 200rpx;
             }
         }
 
@@ -357,6 +416,14 @@ onLoad((options) => {
                     width: 210rpx;
                     height: 210rpx;
                     position: relative;
+                    border-radius: 15rpx;
+                    // overflow: hidden;
+                    box-shadow: 0 3rpx 10rpx rgba(0, 0, 0, 0.1);
+                    transition: all 0.3s ease;
+
+                    &:active {
+                        transform: scale(0.95);
+                    }
 
                     .preview-image {
                         width: 100%;
@@ -370,11 +437,17 @@ onLoad((options) => {
                         right: -10rpx;
                         width: 40rpx;
                         height: 40rpx;
-                        background-color: rgba(0, 0, 0, 0.5);
+                        background: linear-gradient(135deg, #ff7676, #f54242);
                         border-radius: 50%;
                         display: flex;
                         align-items: center;
                         justify-content: center;
+                        box-shadow: 0 3rpx 8rpx rgba(0, 0, 0, 0.2);
+                        transition: all 0.3s ease;
+
+                        &:active {
+                            transform: scale(0.9);
+                        }
 
                         image {
                             width: 24rpx;
@@ -386,16 +459,23 @@ onLoad((options) => {
                 .add-image-btn {
                     width: 210rpx;
                     height: 210rpx;
-                    border: 1rpx dashed #ddd;
-                    border-radius: 8rpx;
+                    border: 2rpx dashed rgba(52, 148, 230, 0.4);
+                    border-radius: 15rpx;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
                     justify-content: center;
+                    background-color: rgba(52, 148, 230, 0.05);
+                    transition: all 0.3s ease;
+
+                    &:active {
+                        background-color: rgba(52, 148, 230, 0.1);
+                        transform: scale(0.95);
+                    }
 
                     text {
                         font-size: 50rpx;
-                        color: #ddd;
+                        color: #3494E6;
                         line-height: 1;
                         margin-bottom: 10rpx;
                     }
@@ -413,12 +493,16 @@ onLoad((options) => {
             height: 210rpx;
 
             .video-container {
+                height: 100%;
                 position: relative;
                 margin-bottom: 20rpx;
+                border-radius: 15rpx;
+                // overflow: hidden;
+                box-shadow: 0 3rpx 10rpx rgba(0, 0, 0, 0.1);
 
                 .preview-video {
                     width: 100%;
-                    height: 210rpx;
+                    height: 100%;
                     border-radius: 8rpx;
                 }
 
@@ -428,11 +512,17 @@ onLoad((options) => {
                     right: -10rpx;
                     width: 40rpx;
                     height: 40rpx;
-                    background-color: rgba(0, 0, 0, 0.5);
+                    background: linear-gradient(135deg, #ff7676, #f54242);
                     border-radius: 50%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    box-shadow: 0 3rpx 8rpx rgba(0, 0, 0, 0.2);
+                    transition: all 0.3s ease;
+
+                    &:active {
+                        transform: scale(0.9);
+                    }
 
                     image {
                         width: 24rpx;
@@ -448,6 +538,10 @@ onLoad((options) => {
                     font-size: 32rpx;
                     font-weight: bold;
                     margin-bottom: 20rpx;
+                    background: linear-gradient(90deg, #3494E6, #555);
+                    -webkit-background-clip: text;
+                    background-clip: text;
+                    color: transparent;
                 }
 
                 .cover-container {
@@ -459,6 +553,9 @@ onLoad((options) => {
                         position: relative;
                         width: 210rpx;
                         height: 210rpx;
+                        border-radius: 15rpx;
+                        // overflow: hidden;
+                        box-shadow: 0 3rpx 10rpx rgba(0, 0, 0, 0.1);
                     }
 
                     .cover-preview {
@@ -473,11 +570,17 @@ onLoad((options) => {
                         right: -10rpx;
                         width: 40rpx;
                         height: 40rpx;
-                        background-color: rgba(0, 0, 0, 0.5);
+                        background: linear-gradient(135deg, #ff7676, #f54242);
                         border-radius: 50%;
                         display: flex;
                         align-items: center;
                         justify-content: center;
+                        box-shadow: 0 3rpx 8rpx rgba(0, 0, 0, 0.2);
+                        transition: all 0.3s ease;
+
+                        &:active {
+                            transform: scale(0.9);
+                        }
 
                         image {
                             width: 24rpx;
@@ -488,16 +591,23 @@ onLoad((options) => {
                     .add-cover-btn {
                         width: 210rpx;
                         height: 210rpx;
-                        border: 1rpx dashed #ddd;
-                        border-radius: 8rpx;
+                        border: 2rpx dashed rgba(52, 148, 230, 0.4);
+                        border-radius: 15rpx;
                         display: flex;
                         flex-direction: column;
                         align-items: center;
                         justify-content: center;
+                        background-color: rgba(52, 148, 230, 0.05);
+                        transition: all 0.3s ease;
+
+                        &:active {
+                            background-color: rgba(52, 148, 230, 0.1);
+                            transform: scale(0.95);
+                        }
 
                         text {
                             font-size: 50rpx;
-                            color: #ddd;
+                            color: #3494E6;
                             line-height: 1;
                             margin-bottom: 10rpx;
                         }
@@ -513,16 +623,23 @@ onLoad((options) => {
         .add-video-btn {
             width: 210rpx;
             height: 210rpx;
-            border: 1rpx dashed #ddd;
-            border-radius: 8rpx;
+            border: 2rpx dashed rgba(52, 148, 230, 0.4);
+            border-radius: 15rpx;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            background-color: rgba(52, 148, 230, 0.05);
+            transition: all 0.3s ease;
+
+            &:active {
+                background-color: rgba(52, 148, 230, 0.1);
+                transform: scale(0.95);
+            }
 
             .add-icon {
                 font-size: 50rpx;
-                color: #ddd;
+                color: #3494E6;
                 line-height: 1;
                 margin-bottom: 10rpx;
             }
@@ -542,11 +659,18 @@ onLoad((options) => {
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(to right, #4bb0ff, #61e4ff);
+        background: linear-gradient(to right, #3494E6, #EC6EAD);
         color: #fff;
         font-size: 32rpx;
         font-weight: bold;
         z-index: 10;
+        box-shadow: 0 -5rpx 15rpx rgba(52, 148, 230, 0.2);
+        transition: all 0.3s ease;
+
+        &:active {
+            transform: scale(0.98);
+            box-shadow: 0 -3rpx 10rpx rgba(52, 148, 230, 0.1);
+        }
     }
 }
 </style>

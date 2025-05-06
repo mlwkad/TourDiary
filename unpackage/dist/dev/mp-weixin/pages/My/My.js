@@ -1,6 +1,7 @@
 "use strict";
 const common_vendor = require("../../common/vendor.js");
 const common_assets = require("../../common/assets.js");
+const api_api = require("../../api/api.js");
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "My",
   setup(__props) {
@@ -57,6 +58,31 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       });
     };
     const chooseavatar = () => {
+      common_vendor.index.chooseImage({
+        count: 1,
+        // 还能选几张
+        sizeType: ["compressed"],
+        // 压缩后的图片 或 original:原图
+        sourceType: ["album", "camera"],
+        // 可以来自相册 相机
+        success: (res) => {
+          userInfo.avatarUrl = res.tempFilePaths;
+        }
+      });
+    };
+    const changeUserInfo = () => {
+      api_api.updateUserInfo(userInfo.userId, {
+        userID: userInfo.userId,
+        userName: userInfo.nickName,
+        avatar: userInfo.avatarUrl
+      }).then((res) => {
+        common_vendor.index.setStorageSync("userInfo", JSON.stringify(userInfo));
+        isShow.value = false;
+        common_vendor.index.showToast({
+          title: "修改成功",
+          icon: "success"
+        });
+      });
     };
     const navigateTo = (page) => {
       if (!isLoggedIn.value) {
@@ -74,7 +100,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       const pageMap = {
         collection: "/pages/collection/collection",
         notes: "/pages/notes/notes",
-        following: "/pages/following/following",
+        follow: "/pages/follow/list",
         settings: "/pages/settings/settings",
         feedback: "/pages/feedback/feedback"
       };
@@ -94,7 +120,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }, isLoggedIn.value ? {
         b: userInfo.avatarUrl || "/static/666.jpg",
         c: common_vendor.t(userInfo.nickName || "666"),
-        d: common_assets._imports_0$5,
+        d: common_assets._imports_0$3,
         e: common_vendor.o(($event) => common_vendor.isRef(isShow) ? isShow.value = true : isShow = true)
       } : {
         f: common_assets._imports_0,
@@ -102,20 +128,20 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         h: common_vendor.o(handleRegister)
       }, {
         i: isLoggedIn.value ? 1 : "",
-        j: common_assets._imports_0$3,
-        k: common_assets._imports_0$4,
+        j: common_assets._imports_3,
+        k: common_assets._imports_0$2,
         l: common_vendor.o(($event) => navigateTo("collection")),
-        m: common_assets._imports_0$3,
-        n: common_assets._imports_0$4,
+        m: common_assets._imports_3,
+        n: common_assets._imports_0$2,
         o: common_vendor.o(($event) => navigateTo("notes")),
-        p: common_assets._imports_0$3,
-        q: common_assets._imports_0$4,
-        r: common_vendor.o(($event) => navigateTo("following")),
-        s: common_assets._imports_0$3,
-        t: common_assets._imports_0$4,
+        p: common_assets._imports_3,
+        q: common_assets._imports_0$2,
+        r: common_vendor.o(($event) => navigateTo("follow")),
+        s: common_assets._imports_3,
+        t: common_assets._imports_0$2,
         v: common_vendor.o(($event) => navigateTo("settings")),
-        w: common_assets._imports_0$3,
-        x: common_assets._imports_0$4,
+        w: common_assets._imports_3,
+        x: common_assets._imports_0$2,
         y: common_vendor.o(($event) => navigateTo("feedback")),
         z: isLoggedIn.value
       }, isLoggedIn.value ? {
@@ -127,7 +153,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         D: common_vendor.o(($event) => common_vendor.isRef(isShow) ? isShow.value = false : isShow = false),
         E: userInfo.avatarUrl,
         F: common_vendor.o(chooseavatar),
-        G: userInfo.nickName
+        G: userInfo.nickName,
+        H: userInfo.nickName,
+        I: common_vendor.o(($event) => userInfo.nickName = $event.detail.value),
+        J: common_vendor.o(changeUserInfo)
       } : {});
     };
   }

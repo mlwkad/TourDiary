@@ -90,6 +90,21 @@ export const updateState = (releaseID, data) => {
     return http(`/api/release/${releaseID}/state`, data, "PUT")
 }
 
+// 获取关注列表
+export const getFollowingList = (userID) => {
+    return http(`/api/user/${userID}/following`)
+}
+
+// 关注
+export const follow = (userID, data) => {
+    return http(`/api/user/${userID}/follow`, data, 'POST')
+}
+
+// 取消关注
+export const unfollow = (userID, followUserID) => {
+    return http(`/api/user/${userID}/follow/${followUserID}`, {}, 'DELETE')
+}
+
 // 上传文件
 export const uploadFiles = (filePaths) => {
     return new Promise((resolve, reject) => {

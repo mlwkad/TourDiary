@@ -13,6 +13,8 @@ if (!Math) {
   "./pages/collection/collection.js";
   "./pages/notes/notes.js";
   "./pages/notes/note-edit.js";
+  "./pages/follow/list.js";
+  "./pages/follow/works.js";
 }
 const _sfc_main = {
   onLaunch: function() {

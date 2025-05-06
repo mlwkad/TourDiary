@@ -117,7 +117,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           } : {}, {
             k: note.location
           }, note.location ? {
-            l: common_assets._imports_0$1,
+            l: common_assets._imports_2,
             m: common_vendor.t(note.location)
           } : {}, {
             n: common_vendor.t(note.createdAt.slice(0, 10)),
@@ -136,12 +136,12 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           });
         })
       } : {
-        g: common_assets._imports_0$3,
+        g: common_assets._imports_3,
         h: common_vendor.o(createNote)
       }, {
         i: common_vendor.o(onRefresh),
         j: isRefreshing.value,
-        k: common_assets._imports_2$2,
+        k: common_assets._imports_2$3,
         l: common_vendor.o(createNote)
       });
     };

@@ -291,7 +291,7 @@
   width: 60%;
   margin: 30rpx auto;
   border: none;
-  padding: 20rpx 0;
+  padding: 0rpx 0;
   font-size: 30rpx;
   box-shadow: 0 5rpx 15rpx rgba(52, 148, 230, 0.3);
   transition: all 0.3s ease;

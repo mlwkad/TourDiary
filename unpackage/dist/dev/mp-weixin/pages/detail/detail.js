@@ -5,6 +5,8 @@ const api_api = require("../../api/api.js");
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "detail",
   setup(__props) {
+    const isLiked = common_vendor.ref(false);
+    const isFollow = common_vendor.ref(false);
     const info = common_vendor.ref({
       avatar: "https://example.com/avatar2.jpg",
       content: "这是一个测试发布内容3",
@@ -18,23 +20,58 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       releaseID: "release3",
       title: "广州一日游",
       updatedAt: "2025-05-03T11:28:49.000Z",
-      userID: "user2",
+      userID: "",
       userName: "testuser2",
       videos: []
     });
-    common_vendor.ref("/static/555.jpg");
-    const liked = () => {
+    const liked = async () => {
       const userId = JSON.parse(common_vendor.index.getStorageSync("userInfo")).userId;
       try {
-        api_api.addLiked(userId, info.value.releaseID).then((res) => {
+        await api_api.addLiked(userId, info.value.releaseID).then((res) => {
           common_vendor.index.showToast({
             title: res.message,
             icon: "none"
           });
         });
+        api_api.getUserInfo(userId).then((res) => {
+          isLiked.value = JSON.parse(res.liked).includes(info.value.releaseID);
+        });
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/detail/detail.vue:129", e);
+        common_vendor.index.__f__("log", "at pages/detail/detail.vue:151", e);
       }
+    };
+    const goUserPages = () => {
+      common_vendor.index.navigateTo({
+        url: `/pages/follow/works?userID=${info.value.userID}`
+      });
+    };
+    const shareContent = () => {
+      common_vendor.index.showShareMenu({
+        withShareTicket: true,
+        menus: ["shareAppMessage", "shareTimeline"]
+      });
+      common_vendor.index.showToast({
+        title: "分享成功",
+        icon: "success",
+        duration: 2e3
+      });
+    };
+    const followPublisher = () => {
+      const userId = JSON.parse(common_vendor.index.getStorageSync("userInfo")).userId;
+      common_vendor.index.showModal({
+        title: "关注提示",
+        content: `确定要关注"${info.value.userName}"吗？`,
+        success: (res) => {
+          if (res.confirm) {
+            api_api.follow(userId, { followUserID: info.value.userID }).then((res2) => {
+              common_vendor.index.showToast({
+                title: "关注成功",
+                icon: "success"
+              });
+            });
+          }
+        }
+      });
     };
     const previewImage = (images, current) => {
       common_vendor.index.previewImage({
@@ -44,23 +81,28 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         // 当前显示的图片索引
       });
     };
-    common_vendor.onLoad((options) => {
+    common_vendor.onLoad(async (options) => {
       try {
         if (options.info) {
-          const decodedInfo = JSON.parse(decodeURIComponent(options.info));
-          info.value = decodedInfo;
-        } else {
-          common_vendor.index.__f__("log", "at pages/detail/detail.vue:145", "没拿到信息");
+          const decodedInfo = await JSON.parse(decodeURIComponent(options.info));
+          info.value = await decodedInfo;
+        }
+        if (info.value.userID) {
+          const userId = JSON.parse(common_vendor.index.getStorageSync("userInfo")).userId;
+          api_api.getUserInfo(userId).then((res) => {
+            isLiked.value = JSON.parse(res.liked).includes(info.value.releaseID);
+            isFollow.value = res.follow.includes(info.value.userID);
+          });
         }
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/detail/detail.vue:148", e);
+        common_vendor.index.__f__("log", "at pages/detail/detail.vue:217", e);
       }
     });
     return (_ctx, _cache) => {
       return common_vendor.e({
         a: info.value.pictures.length === 0 && info.value.videos.length === 0
       }, info.value.pictures.length === 0 && info.value.videos.length === 0 ? {
-        b: common_assets._imports_0$2
+        b: common_assets._imports_0$1
       } : info.value.pictures.length === 0 && info.value.videos.length > 0 ? {
         d: common_vendor.f(info.value.videos, (item, index, i0) => {
           return {
@@ -76,7 +118,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             b: "pic-" + index
           };
         }),
-        h: common_assets._imports_1$1
+        h: common_assets._imports_1$2
       } : {
         i: common_vendor.f(info.value.videos, (item, index, i0) => {
           return {
@@ -91,23 +133,30 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             b: "pic-" + index
           };
         }),
-        l: common_assets._imports_1$1
+        l: common_assets._imports_1$2
       }, {
         c: info.value.pictures.length === 0 && info.value.videos.length > 0,
         f: info.value.pictures.length > 0 && info.value.videos.length === 0,
         m: common_vendor.t(info.value.title),
-        n: common_vendor.o(liked),
-        o: common_assets._imports_0,
-        p: common_vendor.t(info.value.userName),
-        q: common_vendor.t(info.value.content),
-        r: common_assets._imports_0$1,
-        s: common_vendor.t(info.value.location),
-        t: common_assets._imports_1,
-        v: common_vendor.t(info.value.money),
-        w: common_assets._imports_2,
-        x: common_vendor.t(info.value.personNum),
-        y: common_assets._imports_3,
-        z: common_vendor.t(info.value.playTime)
+        n: isLiked.value ? "red" : "white",
+        o: common_vendor.o(liked),
+        p: common_vendor.o(shareContent),
+        q: common_assets._imports_0,
+        r: common_vendor.o(goUserPages),
+        s: common_vendor.t(info.value.userName),
+        t: common_vendor.o(goUserPages),
+        v: common_vendor.t(info.value.createdAt.slice(0, 10)),
+        w: common_vendor.o(goUserPages),
+        x: common_vendor.o(followPublisher),
+        y: common_vendor.t(info.value.content),
+        z: common_assets._imports_2,
+        A: common_vendor.t(info.value.location),
+        B: common_assets._imports_1,
+        C: common_vendor.t(info.value.money),
+        D: common_assets._imports_2$1,
+        E: common_vendor.t(info.value.personNum),
+        F: common_assets._imports_1$1,
+        G: common_vendor.t(info.value.playTime)
       });
     };
   }

@@ -260,6 +260,7 @@ onShow(async () => {
             padding: 10rpx 0;
 
             .note-item {
+                width: 90%;
                 background-color: rgba(255, 255, 255, 0.9);
                 border-radius: 20rpx;
                 margin-bottom: 30rpx;

@@ -33,7 +33,7 @@
 					<image class="arrow-icon" src="/static/public/back.png"></image>
 				</view>
 
-				<view class="option-item" @click="navigateTo('following')">
+				<view class="option-item" @click="navigateTo('follow')">
 					<image class="option-icon" src="/static/public/search.png"></image>
 					<text class="option-text">我的关注</text>
 					<image class="arrow-icon" src="/static/public/back.png"></image>
@@ -67,24 +67,30 @@
 		<view class="changeInfo-avatar">
 			头像:
 			<!-- open-type="chooseAvatar" 选择怎么设置头像 -->
-			<button class="changeInfo-avatar-title" open-type="chooseAvatar" @chooseavatar="chooseavatar">
+			<!-- <button class="changeInfo-avatar-title" open-type="chooseAvatar" @chooseavatar="chooseavatar">
+				<image class="changeInfo-avatar-title-image" :src="userInfo.avatarUrl" mode="aspectFill"></image>
+			</button> -->
+			<button class="changeInfo-avatar-title" @click="chooseavatar">
 				<image class="changeInfo-avatar-title-image" :src="userInfo.avatarUrl" mode="aspectFill"></image>
 			</button>
 		</view>
 		<view class="changeInfo-nickname">
 			<view class="changeInfo-nickname-title">昵称:</view>
 			<!-- type="nickname" 自动获取微信昵称 -->
-			<input class="changeInfo-nickname-input" type="nickname" :placeholder='userInfo.nickName' />
+			<input class="changeInfo-nickname-input" type="nickname" v-model="userInfo.nickName"
+				:placeholder='userInfo.nickName' />
 		</view>
-		<button class="changeInfo-ensure">确定</button>
+		<button class="changeInfo-ensure" @click="changeUserInfo">确定</button>
 	</view>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
 import { onLoad, onShow } from '@dcloudio/uni-app'
+import { updateUserInfo } from '../../api/api';
 
 let isShow = ref<boolean>(false)
+
 // 用户信息
 const isLoggedIn = ref<boolean>(false);
 const userInfo = reactive({
@@ -98,7 +104,6 @@ const checkLoginStatus = () => {
 	const token = uni.getStorageSync('token')
 	if (token) {
 		isLoggedIn.value = true
-		// 从本地获取用户信息
 		const savedUserInfo = uni.getStorageSync('userInfo')
 		if (savedUserInfo) {
 			Object.assign(userInfo, JSON.parse(savedUserInfo))
@@ -150,6 +155,31 @@ const handleLogout = () => {
 
 // 更改头像
 const chooseavatar = () => {
+	uni.chooseImage({
+		count: 1,  // 还能选几张
+		sizeType: ['compressed'],  // 压缩后的图片 或 original:原图
+		sourceType: ['album', 'camera'],  // 可以来自相册 相机
+		success: (res) => {
+			// 这里应该上传图片到服务器，目前直接使用本地路径
+			userInfo.avatarUrl = res.tempFilePaths
+		}
+	})
+}
+
+// 提交更改
+const changeUserInfo = () => {
+	updateUserInfo(userInfo.userId, {
+		userID: userInfo.userId,
+		userName: userInfo.nickName,
+		avatar: userInfo.avatarUrl
+	}).then(res => {
+		uni.setStorageSync('userInfo', JSON.stringify(userInfo))
+		isShow.value = false
+		uni.showToast({
+			title: '修改成功',
+			icon: 'success'
+		})
+	})
 }
 
 // 页面导航
@@ -163,32 +193,33 @@ const navigateTo = (page: string) => {
 					handleLogin()
 				}
 			}
-		});
-		return;
+		})
+		return
 	}
 
 	const pageMap: Record<string, string> = {
 		collection: '/pages/collection/collection',
 		notes: '/pages/notes/notes',
-		following: '/pages/following/following',
+		follow: '/pages/follow/list',
 		settings: '/pages/settings/settings',
 		feedback: '/pages/feedback/feedback'
-	};
+	}
 
 	uni.navigateTo({
 		url: pageMap[page]
-	});
-};
+	})
+}
 
 // 页面加载时检查登录状态
 onLoad(() => {
-	checkLoginStatus();
-});
+	checkLoginStatus()
+})
 
 // 页面显示时检查登录状态，处理从登录页返回的情况
 onShow(() => {
-	checkLoginStatus();
-});
+	checkLoginStatus()
+})
+
 </script>
 
 <style lang="scss" scoped>
@@ -492,7 +523,7 @@ onShow(() => {
 		width: 60%;
 		margin: 30rpx auto;
 		border: none;
-		padding: 20rpx 0;
+		padding: 0rpx 0;
 		font-size: 30rpx;
 		box-shadow: 0 5rpx 15rpx rgba(52, 148, 230, 0.3);
 		transition: all 0.3s ease;

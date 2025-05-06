@@ -9,7 +9,9 @@
     "pages/register/register",
     "pages/collection/collection",
     "pages/notes/notes",
-    "pages/notes/note-edit"
+    "pages/notes/note-edit",
+    "pages/follow/list",
+    "pages/follow/works"
   ],
   "window": {
     "navigationBarTextStyle": "black",

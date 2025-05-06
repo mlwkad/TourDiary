@@ -69,10 +69,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           };
         }),
         c: common_assets._imports_0,
-        d: common_assets._imports_3,
+        d: common_assets._imports_1$1,
         e: collections.value.length > 5
       }, collections.value.length > 5 ? {} : {}) : {
-        f: common_assets._imports_0$3,
+        f: common_assets._imports_3,
         g: common_vendor.o(goToDiscover)
       }, {
         h: common_vendor.o(onRefresh),

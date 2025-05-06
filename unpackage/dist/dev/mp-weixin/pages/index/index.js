@@ -75,7 +75,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
     });
     return (_ctx, _cache) => {
       return common_vendor.e({
-        a: common_assets._imports_0$3,
+        a: common_assets._imports_3,
         b: common_vendor.unref(searchContent),
         c: common_vendor.o(($event) => common_vendor.isRef(searchContent) ? searchContent.value = $event.detail.value : searchContent = $event.detail.value),
         d: common_vendor.o(goSearch),
@@ -104,7 +104,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         m: common_vendor.unref(goTop)
       }, common_vendor.unref(goTop) ? {
         n: common_vendor.o(goTopFunc),
-        o: common_assets._imports_2$1
+        o: common_assets._imports_2$2
       } : {});
     };
   }

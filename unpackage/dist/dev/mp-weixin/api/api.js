@@ -13,6 +13,12 @@ const signUp = (data) => {
 const checkLogin = (data) => {
   return api_http.http("/api/checkLogin", data, "POST");
 };
+const getUserInfo = (userID) => {
+  return api_http.http(`/api/user/${userID}`);
+};
+const updateUserInfo = (userID, data) => {
+  return api_http.http(`/api/user/${userID}`, data, "PUT");
+};
 const getUserReleases = (userID) => {
   return api_http.http(`/api/user/${userID}/releases`);
 };
@@ -46,19 +52,33 @@ const deleteRelease = (releaseID, userID) => {
 const updateState = (releaseID, data) => {
   return api_http.http(`/api/release/${releaseID}/state`, data, "PUT");
 };
+const getFollowingList = (userID) => {
+  return api_http.http(`/api/user/${userID}/following`);
+};
+const follow = (userID, data) => {
+  return api_http.http(`/api/user/${userID}/follow`, data, "POST");
+};
+const unfollow = (userID, followUserID) => {
+  return api_http.http(`/api/user/${userID}/follow/${followUserID}`, {}, "DELETE");
+};
 exports.addLiked = addLiked;
 exports.checkLogin = checkLogin;
 exports.createRelease = createRelease;
 exports.deleteRelease = deleteRelease;
+exports.follow = follow;
 exports.getAllReleases = getAllReleases;
+exports.getFollowingList = getFollowingList;
 exports.getReleaseDetail = getReleaseDetail;
 exports.getSessionKey = getSessionKey;
+exports.getUserInfo = getUserInfo;
 exports.getUserLiked = getUserLiked;
 exports.getUserReleases = getUserReleases;
 exports.getWXUserInfo = getWXUserInfo;
 exports.removeLiked = removeLiked;
 exports.searchReleases = searchReleases;
 exports.signUp = signUp;
+exports.unfollow = unfollow;
 exports.updateRelease = updateRelease;
 exports.updateState = updateState;
+exports.updateUserInfo = updateUserInfo;
 //# sourceMappingURL=../../.sourcemap/mp-weixin/api/api.js.map

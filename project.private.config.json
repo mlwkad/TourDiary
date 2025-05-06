@@ -2,7 +2,7 @@
   "libVersion": "3.8.3",
   "projectname": "%25E6%2597%2585%25E6%25B8%25B8%25E6%2597%25A5%25E8%25AE%25B0uniapp",
   "setting": {
-    "urlCheck": true,
+    "urlCheck": false,
     "coverView": true,
     "lazyloadPlaceholderEnable": false,
     "skylineRenderEnable": false,
