@@ -48,7 +48,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         url: "/pages/index/index"
       });
     };
-    common_vendor.onLoad(() => {
+    common_vendor.onShow(() => {
       userID = JSON.parse(common_vendor.index.getStorageSync("userInfo")).userId;
       api_api.getUserLiked(userID).then((res) => {
         collections.value = res;

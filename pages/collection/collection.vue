@@ -18,7 +18,7 @@
                                     {{ item.createdAt.slice(0, 10) }}
                                 </view>
                                 <view class="item-actions">
-                                    <view class="action-icon" @click.stop="removeCollection(item.releaseID)">删除</view>
+                                    <view class="action-icon" @click.stop="removeCollection(item.releaseID)">取消收藏</view>
                                 </view>
                             </view>
                         </view>
@@ -45,7 +45,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { getUserLiked, getReleaseDetail, removeLiked } from '../../api/api';
-import { onLoad } from '@dcloudio/uni-app'
+import { onLoad ,onShow} from '@dcloudio/uni-app'
 
 // 收藏数据
 const collections = ref<any[]>([])
@@ -98,7 +98,7 @@ const goToDiscover = () => {
     })
 }
 
-onLoad(() => {
+onShow(() => {
     userID = JSON.parse(uni.getStorageSync('userInfo')).userId
     getUserLiked(userID).then(res => { collections.value = res })
 })

@@ -22,19 +22,21 @@
 		<view class="options-section">
 			<view class="option-group">
 				<view class="option-item" @click="navigateTo('collection')">
-					<image class="option-icon" src="/static/public/search.png"></image>
+					<image class="option-icon" src="/static/public/like.png"></image>
 					<text class="option-text">我的收藏</text>
 					<image class="arrow-icon" src="/static/public/back.png"></image>
 				</view>
 
 				<view class="option-item" @click="navigateTo('notes')">
-					<image class="option-icon" src="/static/public/search.png"></image>
+					<image class="option-icon" style="transform: translateX(-4rpx);width: 50rpx;height: 55rpx;"
+						src="/static/public/note.png"></image>
 					<text class="option-text">我的笔记</text>
 					<image class="arrow-icon" src="/static/public/back.png"></image>
 				</view>
 
 				<view class="option-item" @click="navigateTo('follow')">
-					<image class="option-icon" src="/static/public/search.png"></image>
+					<image class="option-icon" style="width: 40rpx;height: 40rpx;" src="/static/public/followed.png">
+					</image>
 					<text class="option-text">我的关注</text>
 					<image class="arrow-icon" src="/static/public/back.png"></image>
 				</view>

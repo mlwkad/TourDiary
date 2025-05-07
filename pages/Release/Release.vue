@@ -7,33 +7,43 @@
 
 		<view class="form-container">
 			<view class="form-item">
-				<text class="label required">标题</text>
+				<text class="label required">标题
+					<text style="color: rgba(236, 110, 173, 1)">*</text>
+				</text>
 				<input class="input" v-model="formData.title" placeholder="请输入旅游日记标题" />
 				<text v-if="errors.title" class="error-text">{{ errors.title }}</text>
 			</view>
 
 			<view class="form-row">
 				<view class="form-item-half">
-					<text class="label required">游玩时间(分钟)</text>
-					<input class="input-short" type="number" v-model="formData.playTime" placeholder="游玩时间" />
+					<text class="label required">游玩时间
+						<text style="color: rgba(236, 110, 173, 1)">*</text>
+					</text>
+					<input class="input-short" type="number" v-model="formData.playTime" placeholder="时间/天" />
 					<text v-if="errors.playTime" class="error-text">{{ errors.playTime }}</text>
 				</view>
 
 				<view class="form-item-half">
-					<text class="label required">费用</text>
+					<text class="label required">费用
+						<text style="color: rgba(236, 110, 173, 1)">*</text>
+					</text>
 					<input class="input-short" type="number" v-model="formData.money" placeholder="花费金额" />
 					<text v-if="errors.money" class="error-text">{{ errors.money }}</text>
 				</view>
 
 				<view class="form-item-half">
-					<text class="label required">人数</text>
+					<text class="label required">人数
+						<text style="color: rgba(236, 110, 173, 1)">*</text>
+					</text>
 					<input class="input-short" type="number" v-model="formData.personNum" placeholder="出行人数" />
 					<text v-if="errors.personNum" class="error-text">{{ errors.personNum }}</text>
 				</view>
 			</view>
 
 			<view class="form-item location-item">
-				<text class="label required">位置</text>
+				<text class="label required">位置
+					<text style="color: rgba(236, 110, 173, 1)">*</text>
+				</text>
 				<view class="location-picker" @click="chooseLocation">
 					<text>{{ formData.location || '点击选择位置' }}</text>
 					<text class="location-icon"></text>
@@ -42,13 +52,17 @@
 			</view>
 
 			<view class="form-item">
-				<text class="label required">内容描述</text>
+				<text class="label required">内容描述
+					<text style="color: rgba(236, 110, 173, 1)">*</text>
+				</text>
 				<textarea class="textarea" v-model="formData.content" placeholder="请描述您的旅游体验..." />
 				<text v-if="errors.content" class="error-text">{{ errors.content }}</text>
 			</view>
 
 			<view class="form-item">
-				<text class="label">图片上传 (可上传多张)</text>
+				<text class="label">图片上传 (最多5张)
+					<text style="color: rgba(236, 110, 173, 1)">*</text>
+				</text>
 				<view class="upload-area">
 					<view class="upload-preview" v-for="(item, index) in formData.pictures" :key="'pic-' + index">
 						<image class="preview-image" :src="item" mode="aspectFill"></image>
@@ -117,7 +131,8 @@ const errors = reactive({
 	money: '',
 	personNum: '',
 	content: '',
-	location: ''
+	location: '',
+	pictures: ''
 });
 
 // 表单验证
@@ -177,6 +192,12 @@ const validateForm = () => {
 		isValid = false;
 	} else if (formData.content.length < 10) {
 		errors.content = '内容描述不能少于10个字符';
+		isValid = false;
+	}
+
+	// 图片验证
+	if (!formData.pictures) {
+		errors.pictures = '至少上传一张图片';
 		isValid = false;
 	}
 
@@ -513,7 +534,7 @@ onShow(() => {
 				}
 
 				&:nth-child(2) {
-					margin-left: 15rpx;
+					margin-left: 25rpx;
 				}
 
 				&.required:after {
@@ -604,7 +625,7 @@ onShow(() => {
 					margin-bottom: 20rpx;
 					position: relative;
 					border-radius: 15rpx;
-					overflow: hidden;
+					// overflow: hidden;
 					box-shadow: 0 3rpx 10rpx rgba(0, 0, 0, 0.1);
 					transition: all 0.3s ease;
 
@@ -616,15 +637,16 @@ onShow(() => {
 					.preview-video {
 						width: 100%;
 						height: 100%;
+						border-radius: inherit;
 					}
 
 					.delete-icon {
 						position: absolute;
-						top: 5rpx;
-						right: 5rpx;
+						top: -10rpx;
+						right: -10rpx;
 						width: 40rpx;
 						height: 40rpx;
-						background-color: rgba(236, 110, 173, 0.8);
+						background: linear-gradient(135deg, #ff7676, #f54242);
 						color: #fff;
 						border-radius: 50%;
 						display: flex;
@@ -701,7 +723,7 @@ onShow(() => {
 					&.required:after {
 						content: '';
 						color: #EC6EAD;
-						margin-left: 10rpx;
+						margin-left: 100rpx;
 						background: none;
 						height: auto;
 						width: auto;

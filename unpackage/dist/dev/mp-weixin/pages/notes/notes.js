@@ -7,10 +7,15 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   setup(__props) {
     const notes = common_vendor.ref([]);
     const isRefreshing = common_vendor.ref(false);
-    common_vendor.ref("all");
     const userID = JSON.parse(common_vendor.index.getStorageSync("userInfo")).userId;
+    const showAllReason = common_vendor.ref(false);
+    const allReason = common_vendor.ref("");
     let state = common_vendor.ref("555");
     let reason = common_vendor.ref("555");
+    const getRejectReason = (reason2) => {
+      allReason.value = reason2;
+      showAllReason.value = true;
+    };
     const getStateColor = (state2) => {
       if (state2 === "wait")
         return "rgba(255, 204, 0, 0.7)";
@@ -29,7 +34,14 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         return "待审核";
       return "待审核";
     };
-    const viewNote = async (releaseID) => {
+    const viewNote = async (releaseID, state2) => {
+      if (state2 !== "resolve") {
+        common_vendor.index.showToast({
+          title: "笔记未通过,请继续编辑",
+          icon: "none"
+        });
+        return;
+      }
       const info = await api_api.getReleaseDetail(releaseID);
       common_vendor.index.navigateTo({
         url: `/pages/detail/detail?info=${encodeURIComponent(JSON.stringify(info))}`
@@ -103,27 +115,31 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           return common_vendor.e({
             a: common_vendor.t(note.title),
             b: common_vendor.o(($event) => deleteNote(note), index),
-            c: common_vendor.o(($event) => editNote(note), index),
-            d: common_vendor.t(changeStateName(note.state)),
-            e: note.state === "reject"
+            c: note.state !== "resolve"
+          }, note.state !== "resolve" ? {
+            d: common_vendor.o(($event) => editNote(note), index)
+          } : {}, {
+            e: common_vendor.t(changeStateName(note.state)),
+            f: note.state === "reject"
           }, note.state === "reject" ? {
-            f: common_vendor.t(note.reason)
+            g: common_vendor.t(note.reason),
+            h: common_vendor.o(($event) => getRejectReason(note.reason), index)
           } : {}, {
-            g: getStateColor(note.state),
-            h: common_vendor.o(($event) => changeState(note), index),
-            i: note.content
+            i: getStateColor(note.state),
+            j: common_vendor.o(($event) => changeState(note), index),
+            k: note.content
           }, note.content ? {
-            j: common_vendor.t(note.content)
+            l: common_vendor.t(note.content)
           } : {}, {
-            k: note.location
+            m: note.location
           }, note.location ? {
-            l: common_assets._imports_2,
-            m: common_vendor.t(note.location)
+            n: common_assets._imports_2,
+            o: common_vendor.t(note.location)
           } : {}, {
-            n: common_vendor.t(note.createdAt.slice(0, 10)),
-            o: note.pictures && note.pictures.length
+            p: common_vendor.t(note.createdAt.slice(0, 10)),
+            q: note.pictures && note.pictures.length
           }, note.pictures && note.pictures.length ? {
-            p: common_vendor.f(note.pictures, (img, imgIndex, i1) => {
+            r: common_vendor.f(note.pictures, (img, imgIndex, i1) => {
               return {
                 a: imgIndex,
                 b: img,
@@ -131,8 +147,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
               };
             })
           } : {}, {
-            q: index,
-            r: common_vendor.o(($event) => viewNote(note.releaseID), index)
+            s: index,
+            t: common_vendor.o(($event) => viewNote(note.releaseID, note.state), index)
           });
         })
       } : {
@@ -141,9 +157,16 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }, {
         i: common_vendor.o(onRefresh),
         j: isRefreshing.value,
-        k: common_assets._imports_2$3,
-        l: common_vendor.o(createNote)
-      });
+        k: common_assets._imports_2$4,
+        l: common_vendor.o(createNote),
+        m: showAllReason.value
+      }, showAllReason.value ? {
+        n: common_vendor.t(allReason.value),
+        o: common_vendor.o(($event) => showAllReason.value = false),
+        p: common_vendor.o(() => {
+        }),
+        q: common_vendor.o(($event) => showAllReason.value = false)
+      } : {});
     };
   }
 });

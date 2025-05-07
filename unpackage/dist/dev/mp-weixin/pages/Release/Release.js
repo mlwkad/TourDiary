@@ -23,7 +23,8 @@ const _sfc_main = {
       money: "",
       personNum: "",
       content: "",
-      location: ""
+      location: "",
+      pictures: ""
     });
     const validateForm = () => {
       let isValid = true;
@@ -69,6 +70,10 @@ const _sfc_main = {
         errors.content = "内容描述不能少于10个字符";
         isValid = false;
       }
+      if (!formData.pictures) {
+        errors.pictures = "至少上传一张图片";
+        isValid = false;
+      }
       return isValid;
     };
     const submitForm = () => {
@@ -99,7 +104,7 @@ const _sfc_main = {
         });
         resetForm();
       }).catch((e) => {
-        common_vendor.index.__f__("log", "at pages/Release/Release.vue:225", e);
+        common_vendor.index.__f__("log", "at pages/Release/Release.vue:246", e);
       });
     };
     const resetForm = () => {
@@ -180,7 +185,7 @@ const _sfc_main = {
           }
         },
         fail: (err) => {
-          common_vendor.index.__f__("log", "at pages/Release/Release.vue:330", "获取设置失败", err);
+          common_vendor.index.__f__("log", "at pages/Release/Release.vue:351", "获取设置失败", err);
           showManualLocationInput();
         }
       });
@@ -192,7 +197,7 @@ const _sfc_main = {
             formData.location = res.name;
           },
           fail: (err) => {
-            common_vendor.index.__f__("log", "at pages/Release/Release.vue:345", "选择位置失败", err);
+            common_vendor.index.__f__("log", "at pages/Release/Release.vue:366", "选择位置失败", err);
             if (err.errMsg && err.errMsg.includes("requiredPrivateInfos")) {
               common_vendor.index.showToast({
                 title: "位置服务未配置",
@@ -203,7 +208,7 @@ const _sfc_main = {
           }
         });
       } catch (e) {
-        common_vendor.index.__f__("error", "at pages/Release/Release.vue:357", "调用选择位置接口失败", e);
+        common_vendor.index.__f__("error", "at pages/Release/Release.vue:378", "调用选择位置接口失败", e);
         showManualLocationInput();
       }
     };
@@ -235,7 +240,7 @@ const _sfc_main = {
           });
         }
       } catch (e) {
-        common_vendor.index.__f__("error", "at pages/Release/Release.vue:413", "获取用户信息失败", e);
+        common_vendor.index.__f__("error", "at pages/Release/Release.vue:434", "获取用户信息失败", e);
       }
     });
     return (_ctx, _cache) => {

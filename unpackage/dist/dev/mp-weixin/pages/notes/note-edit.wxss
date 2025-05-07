@@ -102,7 +102,7 @@
   justify-content: space-between;
   flex-wrap: wrap;
   padding: 30rpx 0;
-  width: 90%;
+  width: 88%;
   gap: 15rpx;
   border-bottom: 1rpx solid rgba(52, 148, 230, 0.2);
   background-color: rgba(255, 255, 255, 0.8);
@@ -139,7 +139,7 @@
   border-bottom-color: #3494E6;
 }
 .note-edit-container .edit-area .note-content-input.data-v-aecc2c28 {
-  width: 90%;
+  width: 88%;
   font-size: 30rpx;
   line-height: 1.8;
   min-height: 300rpx;

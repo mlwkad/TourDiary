@@ -89,7 +89,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           note.location = res.name || res.address;
         },
         fail: (err) => {
-          common_vendor.index.__f__("error", "at pages/notes/note-edit.vue:191", "选择位置失败", err);
+          common_vendor.index.__f__("error", "at pages/notes/note-edit.vue:192", "选择位置失败", err);
         }
       });
     };
@@ -171,31 +171,30 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             c: index
           };
         }),
-        s: common_assets._imports_4,
-        t: note.pictures.length < 9
+        s: note.pictures.length < 9
       }, note.pictures.length < 9 ? {
-        v: common_vendor.o(chooseImage)
+        t: common_vendor.o(chooseImage)
       } : {}, {
-        w: note.videos && note.videos.length > 0
+        v: note.videos && note.videos.length > 0
       }, note.videos && note.videos.length > 0 ? common_vendor.e({
-        x: note.videos[0],
-        y: common_assets._imports_4,
-        z: common_vendor.o(removeVideo),
-        A: note.cover
+        w: note.videos[0],
+        x: common_assets._imports_4,
+        y: common_vendor.o(removeVideo),
+        z: note.cover
       }, note.cover ? {
-        B: note.cover,
-        C: common_assets._imports_4,
-        D: common_vendor.o(removeCover)
+        A: note.cover,
+        B: common_assets._imports_4,
+        C: common_vendor.o(removeCover)
       } : {}, {
-        E: !note.cover
+        D: !note.cover
       }, !note.cover ? {
-        F: common_vendor.o(chooseVideoCover)
+        E: common_vendor.o(chooseVideoCover)
       } : {}) : {}, {
-        G: !note.videos || note.videos.length === 0
+        F: !note.videos || note.videos.length === 0
       }, !note.videos || note.videos.length === 0 ? {
-        H: common_vendor.o(chooseVideo)
+        G: common_vendor.o(chooseVideo)
       } : {}, {
-        I: common_vendor.o(saveNote)
+        H: common_vendor.o(saveNote)
       });
     };
   }

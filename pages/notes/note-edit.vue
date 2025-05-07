@@ -37,7 +37,8 @@
                     <view class="image-item" v-for="(img, index) in note.pictures" :key="index">
                         <image class="preview-image" :src="img" mode="aspectFill"></image>
                         <view class="delete-btn" @click="removeImage(index)">
-                            <image src="/static/public/close.png" mode="aspectFit"></image>
+                            <view style="color: white;">×</view>
+                            <!-- <image src="/static/public/close.png" mode="aspectFit"></image> -->
                         </view>
                     </view>
                     <view class="add-image-btn" @click="chooseImage" v-if="note.pictures.length < 9">
@@ -344,7 +345,7 @@ onLoad((options) => {
             justify-content: space-between;
             flex-wrap: wrap;
             padding: 30rpx 0;
-            width: 90%;
+            width: 88%;
             gap: 15rpx;
             border-bottom: 1rpx solid rgba(52, 148, 230, 0.2);
             background-color: rgba(255, 255, 255, 0.8);
@@ -387,7 +388,7 @@ onLoad((options) => {
         }
 
         .note-content-input {
-            width: 90%;
+            width: 88%;
             font-size: 30rpx;
             line-height: 1.8;
             min-height: 300rpx;

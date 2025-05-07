@@ -120,7 +120,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }, isLoggedIn.value ? {
         b: userInfo.avatarUrl || "/static/666.jpg",
         c: common_vendor.t(userInfo.nickName || "666"),
-        d: common_assets._imports_0$3,
+        d: common_assets._imports_0$2,
         e: common_vendor.o(($event) => common_vendor.isRef(isShow) ? isShow.value = true : isShow = true)
       } : {
         f: common_assets._imports_0,
@@ -128,20 +128,20 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         h: common_vendor.o(handleRegister)
       }, {
         i: isLoggedIn.value ? 1 : "",
-        j: common_assets._imports_3,
-        k: common_assets._imports_0$2,
+        j: common_assets._imports_2$3,
+        k: common_assets._imports_0$1,
         l: common_vendor.o(($event) => navigateTo("collection")),
-        m: common_assets._imports_3,
-        n: common_assets._imports_0$2,
+        m: common_assets._imports_4$1,
+        n: common_assets._imports_0$1,
         o: common_vendor.o(($event) => navigateTo("notes")),
-        p: common_assets._imports_3,
-        q: common_assets._imports_0$2,
+        p: common_assets._imports_5,
+        q: common_assets._imports_0$1,
         r: common_vendor.o(($event) => navigateTo("follow")),
         s: common_assets._imports_3,
-        t: common_assets._imports_0$2,
+        t: common_assets._imports_0$1,
         v: common_vendor.o(($event) => navigateTo("settings")),
         w: common_assets._imports_3,
-        x: common_assets._imports_0$2,
+        x: common_assets._imports_0$1,
         y: common_vendor.o(($event) => navigateTo("feedback")),
         z: isLoggedIn.value
       }, isLoggedIn.value ? {

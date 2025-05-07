@@ -1,37 +1,25 @@
 <template>
     <view class="detail-container">
         <!-- 轮播图展示pictures和videos -->
-        <swiper class="detail-swiper" v-if="(info.pictures.length === 0) && (info.videos.length === 0)" indicator-dots
+        <swiper class="detail-swiper" v-if="(info.pictures.length > 0) && (info.videos.length === 0)" indicator-dots
             :indicator-active-color="'#3494E6'" :indicator-color="'rgba(255,255,255,0.5)'" :interval="3000"
             :duration="500" circular>
-            <swiper-item>
-                <image class="swiper-nothing" src="/static/public/nothing.png" mode="aspectFill"></image>
-                <view class="swiper-nothing-title">暂无相关内容</view>
-            </swiper-item>
-        </swiper>
-        <swiper class="detail-swiper" v-else-if="(info.pictures.length === 0) && (info.videos.length > 0)"
-            indicator-dots :indicator-active-color="'#3494E6'" :indicator-color="'rgba(255,255,255,0.5)'"
-            :interval="3000" :duration="500" circular>
-            <swiper-item v-for="(item, index) in info.videos" :key="'vid-' + index">
-                <video class="swiper-video" :src="item" :poster="info.cover" controls></video>
-            </swiper-item>
-        </swiper>
-        <swiper class="detail-swiper" v-else-if="(info.pictures.length > 0) && (info.videos.length === 0)"
-            indicator-dots :indicator-active-color="'#3494E6'" :indicator-color="'rgba(255,255,255,0.5)'"
-            :interval="3000" :duration="500" circular>
             <swiper-item v-for="(item, index) in info.pictures" :key="'pic-' + index">
-                <image class="swiper-image" src="/static/555.jpg" @click="previewImage(info.pictures, index)"
-                    mode="aspectFill"></image>
+                <image class="swiper-image" :src="item" @click="previewImage(info.pictures, index)" mode="aspectFill">
+                </image>
             </swiper-item>
         </swiper>
         <swiper class="detail-swiper" v-else indicator-dots :indicator-active-color="'#3494E6'"
             :indicator-color="'rgba(255,255,255,0.5)'" :interval="3000" :duration="500" circular>
             <swiper-item v-for="(item, index) in info.videos" :key="'vid-' + index">
-                <video class="swiper-video" :src="item" :poster="info.cover" controls></video>
+                <video class="swiper-video" :src="item" :poster="info.cover" controls show-fullscreen-btn
+                    show-center-play-btn picture-in-picture-mode="push" show-picture-in-picture-btn
+                    :id="'video-' + index" enable-auto-rotation @error="videoError">
+                </video>
             </swiper-item>
             <swiper-item v-for="(item, index) in info.pictures" :key="'pic-' + index">
-                <image class="swiper-image" src="/static/555.jpg" @click="previewImage(info.pictures, index)"
-                    mode="aspectFill"></image>
+                <image class="swiper-image" :src="item" @click="previewImage(info.pictures, index)" mode="aspectFill">
+                </image>
             </swiper-item>
         </swiper>
         <view class="detail-top">
@@ -43,10 +31,10 @@
                         <text class="like-text">收藏</text>
                         <text class="like-icon" :style="{ color: isLiked ? 'red' : 'white' }">♥</text>
                     </view>
-                    <view class="detail-share" @click="shareContent">
+                    <!-- <view class="detail-share" @click="shareContent">
                         <text class="share-text">分享</text>
                         <text class="share-icon">↗</text>
-                    </view>
+                    </view> -->
                 </view>
             </view>
         </view>
@@ -59,9 +47,15 @@
                     <text class="user-name" @click="goUserPages">{{ info.userName }}</text>
                     <text class="publish-time" @click="goUserPages">发布于 {{ info.createdAt.slice(0, 10) }}</text>
                 </view>
-                <view class="follow-btn" @click="followPublisher">
-                    <text class="follow-icon">+</text>
+                <view class="follow-btn" @click="followPublisher" v-if="!isFollow">
                     <text>关注</text>
+                    <image src="/static/public/no-follow.png" style="width: 35rpx;height: 35rpx;padding: 13rpx 5rpx;">
+                    </image>
+                </view>
+                <view class="follow-btn" @click="followPublisher" v-else>
+                    <text>已关注</text>
+                    <image src="/static/public/followed.png" style="width: 35rpx;height: 35rpx;padding: 13rpx 5rpx;">
+                    </image>
                 </view>
             </view>
         </view>
@@ -94,7 +88,7 @@
 
                 <view class="info-item time-item">
                     <image src="/static/public/time.png" class="info-icon"></image>
-                    <text>{{ info.playTime }}分钟</text>
+                    <text>{{ info.playTime }}天</text>
                 </view>
             </view>
         </view>
@@ -108,42 +102,50 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
-import { onLoad } from '@dcloudio/uni-app'
-import { addLiked, getUserInfo, follow, unfollow } from '../../api/api';
-import { unix } from 'dayjs';
+import { ref, reactive, defineExpose } from 'vue';
+import { onLoad, onShow } from '@dcloudio/uni-app'
+import { addLiked, getUserInfo, follow, unfollow, removeLiked } from '../../api/api';
 
 const isLiked = ref<boolean>(false)
 const isFollow = ref<boolean>(false)
 
 // 初始化info对象
 const info = ref({
-    avatar: "https://example.com/avatar2.jpg",
-    content: "这是一个测试发布内容3",
-    createdAt: "2025-05-03T11:28:49.000Z",
-    id: 3,
-    location: "广州市天河区",
-    money: "300.00",
-    personNum: 1,
-    pictures: ["https://example.com/pic4.jpg", "https://example.com/pic5.jpg"],
-    playTime: 90,
-    releaseID: "release3",
-    title: "广州一日游",
-    updatedAt: "2025-05-03T11:28:49.000Z",
+    avatar: "",
+    content: "",
+    createdAt: "0000-00-00",
+    id: 0,
+    location: "",
+    money: "",
+    personNum: 0,
+    pictures: ["/static/555.jpg", ".jpg"],
+    playTime: 0,
+    releaseID: "release0",
+    title: "",
+    updatedAt: "0000-00-00",
     userID: "",
-    userName: "testuser2",
+    userName: "testuser0",
     videos: []
 });
 
 const liked = async () => {
     const userId = JSON.parse(uni.getStorageSync('userInfo')).userId
     try {
-        await addLiked(userId, info.value.releaseID).then(res => {
-            uni.showToast({
-                title: res.message,
-                icon: 'none'
+        if (!isLiked.value) {
+            await addLiked(userId, info.value.releaseID).then(res => {
+                uni.showToast({
+                    title: '收藏成功',
+                    icon: 'none'
+                })
             })
-        })
+        } else {
+            await removeLiked(userId, info.value.releaseID).then(res => {
+                uni.showToast({
+                    title: '取消收藏',
+                    icon: 'none'
+                })
+            })
+        }
         getUserInfo(userId).then(res => {
             isLiked.value = JSON.parse(res.liked).includes(info.value.releaseID)
             // isFollow.value = res.follow.includes(info.value.userID)
@@ -160,36 +162,82 @@ const goUserPages = () => {
 
 // 分享功能
 const shareContent = () => {
+    // #ifdef MP-WEIXIN
     uni.showShareMenu({
         withShareTicket: true,
         menus: ['shareAppMessage', 'shareTimeline']
-    })
+    });
+    // #endif
 
     // 显示分享成功的提示
     uni.showToast({
         title: '分享成功',
         icon: 'success',
         duration: 2000
-    })
+    });
 }
+
+// 暴露微信小程序所需的分享方法,因为设置了setup
+defineExpose({
+    // 分享给好友
+    onShareAppMessage() {  // 生命周期,右上角分享时自动触发
+        return {
+            title: '旅游日记分享',
+            path: `/pages/detail/detail?info=${encodeURIComponent(JSON.stringify(info.value))}`,
+            imageUrl: info.value.pictures[0] || '/static/public/555.jpg'
+        };
+    },
+    // 分享到朋友圈
+    onShareTimeline() {
+        return {
+            title: '旅游日记分享',
+            // 默认自带本页路径,只需写查询参数
+            query: `info=${encodeURIComponent(JSON.stringify(info.value))}`,
+            imageUrl: info.value.pictures[0] || '/static/public/555.jpg'
+        };
+    }
+});
 
 // 关注发布者功能
 const followPublisher = () => {
     const userId = JSON.parse(uni.getStorageSync('userInfo')).userId
-    uni.showModal({
-        title: '关注提示',
-        content: `确定要关注"${info.value.userName}"吗？`,
-        success: (res) => {
-            if (res.confirm) {
-                follow(userId, { followUserID: info.value.userID }).then(res => {
-                    uni.showToast({
-                        title: '关注成功',
-                        icon: 'success'
+    if (!isFollow.value) {
+        uni.showModal({
+            title: '关注提示',
+            content: `确定要关注"${info.value.userName}"吗？`,
+            success: async (res) => {
+                if (res.confirm) {
+                    await follow(userId, { followUserID: info.value.userID }).then(res => {
+                        uni.showToast({
+                            title: '关注成功',
+                            icon: 'none'
+                        })
                     })
-                })
+                    getUserInfo(userId).then(res => {
+                        isFollow.value = res.follow.includes(info.value.userID)
+                    })
+                }
             }
-        }
-    })
+        })
+    } else {
+        uni.showModal({
+            title: '取关提示',
+            content: `确定要取消关注"${info.value.userName}"吗？`,
+            success: async (res) => {
+                if (res.confirm) {
+                    await unfollow(userId, info.value.userID).then(res => {
+                        uni.showToast({
+                            title: '已取消关注',
+                            icon: 'none'
+                        })
+                    })
+                    getUserInfo(userId).then(res => {
+                        isFollow.value = res.follow.includes(info.value.userID)
+                    })
+                }
+            }
+        })
+    }
 }
 
 const previewImage = (images: string[], current: number) => {
@@ -199,12 +247,51 @@ const previewImage = (images: string[], current: number) => {
     })
 }
 
+// 视频播放错误处理
+const videoError = (e) => {
+    console.error('视频播放错误:', e.detail)
+    uni.showToast({
+        title: '视频播放失败',
+        icon: 'none'
+    })
+}
+
+// 进入画中画模式的回调
+const onEnterPIP = (e) => {
+    // console.log('进入小窗播放模式', e)
+    // uni.showToast({
+    //     title: '已进入小窗播放',
+    //     icon: 'none'
+    // })
+}
+
+// 退出画中画模式的回调
+const onLeavePIP = (e) => {
+    console.log('退出小窗播放模式', e)
+}
+
 onLoad(async (options) => {
     try {
         if (options.info) {
-            const decodedInfo = await JSON.parse(decodeURIComponent(options.info))
-            info.value = await decodedInfo
+            const decodedInfo = JSON.parse(decodeURIComponent(options.info))
+            info.value = decodedInfo
+            console.log(info.value)
         }
+        // 获取收藏列表
+        if (info.value.userID) {
+            const userId = JSON.parse(uni.getStorageSync('userInfo')).userId
+            getUserInfo(userId).then(res => {
+                isLiked.value = JSON.parse(res.liked).includes(info.value.releaseID)
+                isFollow.value = res.follow.includes(info.value.userID)
+            })
+        }
+    } catch (e) {
+        console.log(e)
+    }
+})
+
+onShow(() => {  // 不接收参数
+    try {
         // 获取收藏列表
         if (info.value.userID) {
             const userId = JSON.parse(uni.getStorageSync('userInfo')).userId
@@ -276,10 +363,6 @@ onLoad(async (options) => {
         width: 100%;
         height: 100%;
         transition: transform 0.3s ease;
-
-        &:active {
-            transform: scale(1.02);
-        }
     }
 
     .swiper-nothing {
@@ -747,6 +830,7 @@ onLoad(async (options) => {
             .follow-icon {
                 font-size: 43rpx;
                 font-weight: bold;
+                transform: translateY(-2rpx);
             }
         }
     }

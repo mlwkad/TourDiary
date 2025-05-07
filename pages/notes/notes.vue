@@ -11,21 +11,25 @@
             <template v-if="notes.length > 0">
                 <view class="notes-list">
                     <view class="note-item" v-for="(note, index) in notes" :key="index"
-                        @click="viewNote(note.releaseID)">
+                        @click="viewNote(note.releaseID, note.state)">
                         <view class="note-header">
                             <view class="note-title">{{ note.title }}</view>
                             <view class="note-actions">
                                 <view class="action-icon delete-btn" @click.stop="deleteNote(note, index)">
                                     <text>删除</text>
                                 </view>
-                                <view class="action-icon edit-btn" @click.stop="editNote(note, index)">
+                                <view class="action-icon edit-btn" @click.stop="editNote(note, index)"
+                                    v-if="note.state !== 'resolve'">
                                     <text>编辑</text>
                                 </view>
                                 <view class="action-icon state-btn"
                                     :style="{ backgroundColor: getStateColor(note.state) }"
                                     @click.stop="changeState(note)">
                                     <text>{{ changeStateName(note.state) }}</text>
-                                    <text class="reason" v-if="note.state === 'reject'">:{{ note.reason }}</text>
+                                    <text class="reason" v-if="note.state === 'reject'"
+                                        @click.stop="getRejectReason(note.reason)">
+                                        :{{ note.reason }}
+                                    </text>
                                 </view>
                             </view>
                         </view>
@@ -70,6 +74,13 @@
             <view class="add-label">添加笔记</view>
         </view>
     </view>
+    <view v-if="showAllReason" class="reason-popup" @click.stop="showAllReason = false">
+        <view class="reason-popup-content" @click.stop>
+            <view class="reason-popup-title">拒绝原因</view>
+            <view class="reason-popup-text">{{ allReason }}</view>
+            <view class="reason-popup-close" @click="showAllReason = false">关闭</view>
+        </view>
+    </view>
 </template>
 
 <script setup lang="ts">
@@ -80,11 +91,18 @@ import { getUserReleases, getReleaseDetail, deleteRelease, updateState } from '.
 // 笔记数据
 const notes = ref<any[]>([]);
 const isRefreshing = ref(false);
-const currentFilter = ref('all');
 const userID = JSON.parse(uni.getStorageSync('userInfo')).userId
+const showAllReason = ref<boolean>(false)
+const allReason = ref<string>('')
 
 let state = ref<string>('555')
 let reason = ref<string>('555')
+
+// 获取拒绝原因
+const getRejectReason = (reason: string) => {
+    allReason.value = reason
+    showAllReason.value = true
+}
 
 // 获取状态颜色
 const getStateColor = (state: string) => {
@@ -102,7 +120,14 @@ const changeStateName = (name: string) => {
 }
 
 // 查看笔记详情
-const viewNote = async (releaseID: string) => {
+const viewNote = async (releaseID: string, state: string) => {
+    if (state !== 'resolve') {
+        uni.showToast({
+            title: '笔记未通过,请继续编辑',
+            icon: 'none'
+        })
+        return
+    }
     const info = await getReleaseDetail(releaseID)
     uni.navigateTo({
         url: `/pages/detail/detail?info=${encodeURIComponent(JSON.stringify(info))}`
@@ -348,7 +373,7 @@ onShow(async () => {
 
                             .reason {
                                 width: fit-content;
-                                max-width: 380rpx;
+                                max-width: 290rpx;
                                 white-space: nowrap;
                                 overflow: hidden;
                                 text-overflow: ellipsis;
@@ -365,7 +390,7 @@ onShow(async () => {
 
                         .state-btn {
                             width: fit-content;
-                            max-width: 380rpx;
+                            max-width: 500rpx;
                             white-space: nowrap;
                             overflow: hidden;
                             text-overflow: ellipsis;
@@ -540,7 +565,7 @@ onShow(async () => {
             height: 100rpx;
             border-radius: 50%;
             box-shadow: 0 5rpx 20rpx rgba(108, 181, 245, 0.279);
-            background: linear-gradient(135deg, #EC6EAD,#EC6EAD);
+            background: linear-gradient(135deg, #c0fabf, #7adbfe);
             padding: 5rpx;
             transition: all 0.3s ease;
             margin-bottom: 10rpx;
@@ -572,6 +597,114 @@ onShow(async () => {
 
     100% {
         transform: translateY(0);
+    }
+}
+
+.reason-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    animation: fadeIn 0.3s ease;
+}
+
+.reason-popup-content {
+    width: 85%;
+    background: linear-gradient(to bottom, #ffffff, #f8f9ff);
+    border-radius: 20rpx;
+    padding: 40rpx 30rpx;
+    box-shadow: 0 5rpx 25rpx rgba(0, 0, 0, 0.25);
+    border: 1rpx solid rgba(255, 255, 255, 0.8);
+    position: relative;
+    animation: slideUp 0.3s ease;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 8rpx;
+        border-radius: 20rpx 20rpx 0 0;
+    }
+}
+
+.reason-popup-title {
+    font-size: 34rpx;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 30rpx;
+    text-align: center;
+    position: relative;
+
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: -10rpx;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80rpx;
+        height: 3rpx;
+        background: linear-gradient(90deg, #3494E6, #EC6EAD);
+    }
+}
+
+.reason-popup-text {
+    font-size: 30rpx;
+    color: #555;
+    line-height: 1.6;
+    padding: 20rpx;
+    background-color: rgba(52, 148, 230, 0.05);
+    border-radius: 15rpx;
+    border-left: 6rpx solid #3494E6;
+    margin: 20rpx 0;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.reason-popup-close {
+    text-align: center;
+    margin-top: 30rpx;
+    padding: 18rpx 0;
+    background: linear-gradient(135deg, #3494E6, #EC6EAD);
+    color: white;
+    border-radius: 50rpx;
+    font-size: 30rpx;
+    font-weight: 500;
+    box-shadow: 0 5rpx 15rpx rgba(52, 148, 230, 0.3);
+    transition: all 0.3s ease;
+
+    &:active {
+        transform: scale(0.98);
+        box-shadow: 0 3rpx 10rpx rgba(52, 148, 230, 0.2);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50rpx);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
     }
 }
 </style>

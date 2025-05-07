@@ -77,10 +77,6 @@
   height: 100%;
   transition: transform 0.3s ease;
 }
-.detail-swiper .swiper-image.data-v-eca06f3c:active,
-.detail-swiper .swiper-video.data-v-eca06f3c:active {
-  transform: scale(1.02);
-}
 .detail-swiper .swiper-nothing.data-v-eca06f3c {
   width: 50%;
   height: 80%;
@@ -489,4 +485,5 @@
 .publisher-container .publisher-info .follow-btn .follow-icon.data-v-eca06f3c {
   font-size: 43rpx;
   font-weight: bold;
+  transform: translateY(-2rpx);
 }

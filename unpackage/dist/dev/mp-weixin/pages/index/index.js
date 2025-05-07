@@ -9,18 +9,35 @@ const _sfc_defineComponent = common_vendor.defineComponent({
     let goTop = common_vendor.ref(false);
     let choose = common_vendor.ref(false);
     let isShowChoose = common_vendor.ref(false);
+    let curPage = common_vendor.ref(1);
+    let offSet = common_vendor.ref(0);
+    let isShowChangePage = common_vendor.ref(true);
     const allInfo = common_vendor.ref([[], []]);
     const allInfoByUserName = common_vendor.ref([[], []]);
     const allInfoByTitle = common_vendor.ref([[], []]);
+    const distributeData = (data, target) => {
+      const totalCount = data.length;
+      if (totalCount === 0) {
+        target[0] = [];
+        target[1] = [];
+        return;
+      }
+      if (totalCount < 14 || totalCount > 14) {
+        const leftCount = Math.ceil(totalCount / 2);
+        target[0] = data.slice(0, leftCount);
+        target[1] = data.slice(leftCount);
+      } else {
+        target[0] = data.slice(0, 7);
+        target[1] = data.slice(7, 14);
+      }
+    };
     common_vendor.watch(searchContent, (newVal) => {
       if (!newVal) {
-        api_api.getAllReleases(50, 0).then((res) => {
-          allInfo.value[0] = res.releases;
-        });
-        api_api.getAllReleases(50, 1).then((res) => {
-          allInfo.value[1] = res.releases;
+        api_api.getAllReleases(14, 0).then((res) => {
+          distributeData(res.releases || [], allInfo.value);
         });
         isShowChoose.value = false;
+        isShowChangePage.value = true;
       }
     });
     const goSearch = () => {
@@ -30,18 +47,15 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         { userName: searchContent.value, title: searchContent.value }
       ).then((res) => {
         isShowChoose.value = true;
-        if (res.byUserName.length === 1) {
-          allInfoByUserName.value[0] = res.byUserName;
-        } else {
-          allInfoByUserName.value[0] = res.byUserName.slice(0, res.byUserName.length / 2);
-          allInfoByUserName.value[1] = res.byUserName.slice(res.byUserName.length / 2, res.byUserName.length);
-        }
-        allInfo.value = allInfoByUserName.value;
-        if (res.byTitle.length === 1) {
-          allInfoByTitle.value[0] = res.byTitle;
-        } else {
-          allInfoByTitle.value[0] = res.byTitle.slice(0, res.byTitle.length / 2);
-          allInfoByTitle.value[1] = res.byTitle.slice(res.byTitle.length / 2, res.byTitle.length);
+        isShowChangePage.value = false;
+        distributeData(res.byUserName || [], allInfoByUserName.value);
+        distributeData(res.byTitle || [], allInfoByTitle.value);
+        if (res.byUserName.length > 0) {
+          allInfo.value = allInfoByUserName.value;
+          choose.value = false;
+        } else if (res.byTitle.length > 0) {
+          allInfo.value = allInfoByTitle.value;
+          choose.value = true;
         }
       });
     };
@@ -56,18 +70,33 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         duration: 300
       });
     };
+    const changePage = (num) => {
+      if (num === 1 && curPage.value !== 1) {
+        offSet.value -= 14;
+        api_api.getAllReleases(14, offSet.value).then((res) => {
+          distributeData(res.releases || [], allInfo.value);
+        });
+        goTopFunc();
+        curPage.value--;
+      } else if (num === 2) {
+        offSet.value += 14;
+        api_api.getAllReleases(14, offSet.value).then((res) => {
+          distributeData(res.releases || [], allInfo.value);
+        });
+        goTopFunc();
+        curPage.value++;
+      }
+    };
     common_vendor.onShow(() => {
-      api_api.getAllReleases(50, 0).then((res) => {
-        allInfo.value[0] = res.releases;
+      api_api.getAllReleases(14, 0).then((res) => {
+        distributeData(res.releases || [], allInfo.value);
       });
-      api_api.getAllReleases(50, 1).then((res) => {
-        allInfo.value[1] = res.releases;
-      });
+      searchContent.value = "";
     });
     common_vendor.onReachBottom(() => {
     });
     common_vendor.onPageScroll((e) => {
-      if (e.scrollTop > 400) {
+      if (e.scrollTop > 300) {
         goTop.value = true;
       } else {
         goTop.value = false;
@@ -80,31 +109,42 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         c: common_vendor.o(($event) => common_vendor.isRef(searchContent) ? searchContent.value = $event.detail.value : searchContent = $event.detail.value),
         d: common_vendor.o(goSearch),
         e: common_vendor.unref(isShowChoose)
-      }, common_vendor.unref(isShowChoose) ? {
-        f: !common_vendor.unref(choose) ? 1 : "",
-        g: common_vendor.o(($event) => (common_vendor.isRef(choose) ? choose.value = false : choose = false, allInfo.value = allInfoByUserName.value)),
-        h: common_vendor.unref(choose) ? 1 : "",
-        i: common_vendor.o(($event) => (common_vendor.isRef(choose) ? choose.value = true : choose = true, allInfo.value = allInfoByTitle.value))
+      }, common_vendor.unref(isShowChoose) ? common_vendor.e({
+        f: allInfoByUserName.value[0][0]
+      }, allInfoByUserName.value[0][0] ? {
+        g: !common_vendor.unref(choose) ? 1 : "",
+        h: common_vendor.o(($event) => (common_vendor.isRef(choose) ? choose.value = false : choose = false, allInfo.value = allInfoByUserName.value))
       } : {}, {
-        j: common_vendor.f(2, (i, index, i0) => {
+        i: allInfoByTitle.value[0][0]
+      }, allInfoByTitle.value[0][0] ? {
+        j: common_vendor.unref(choose) ? 1 : "",
+        k: common_vendor.o(($event) => (common_vendor.isRef(choose) ? choose.value = true : choose = true, allInfo.value = allInfoByTitle.value))
+      } : {}) : {}, {
+        l: common_vendor.f(2, (i, index, i0) => {
           return {
             a: common_vendor.f(allInfo.value[i - 1], (j, k1, i1) => {
               return {
-                a: common_vendor.t(j.title),
-                b: common_vendor.t(j.userName),
-                c: j.name,
-                d: common_vendor.o(($event) => goDetail(j), j.name)
+                a: j.pictures[0],
+                b: common_vendor.t(j.title),
+                c: common_vendor.t(j.userName),
+                d: j.name,
+                e: common_vendor.o(($event) => goDetail(j), j.name)
               };
             }),
             b: index
           };
         }),
-        k: common_assets._imports_0,
-        l: common_assets._imports_0,
-        m: common_vendor.unref(goTop)
+        m: common_assets._imports_0,
+        n: common_vendor.unref(isShowChangePage)
+      }, common_vendor.unref(isShowChangePage) ? {
+        o: common_vendor.o(($event) => changePage(1)),
+        p: common_vendor.t(common_vendor.unref(curPage)),
+        q: common_vendor.o(($event) => changePage(2))
+      } : {}, {
+        r: common_vendor.unref(goTop)
       }, common_vendor.unref(goTop) ? {
-        n: common_vendor.o(goTopFunc),
-        o: common_assets._imports_2$2
+        s: common_vendor.o(goTopFunc),
+        t: common_assets._imports_2$2
       } : {});
     };
   }
