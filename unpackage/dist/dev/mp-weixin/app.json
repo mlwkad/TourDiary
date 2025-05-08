@@ -1,8 +1,8 @@
 {
   "pages": [
+    "pages/index/index",
     "pages/detail/detail",
     "pages/dev/dev",
-    "pages/index/index",
     "pages/My/My",
     "pages/Release/Release",
     "pages/login/login",

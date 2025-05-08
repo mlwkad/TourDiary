@@ -103,7 +103,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       return common_vendor.e({
         a: common_assets._imports_0,
         b: common_vendor.t(userData.userName),
-        c: common_vendor.t(userData.release ? JSON.parse(userData.release).length : 0),
+        c: common_vendor.t(userWorks.value.length),
         d: common_vendor.t(isFollowing.value ? "已关注" : "+ 关注"),
         e: common_vendor.o(toggleFollow),
         f: userWorks.value.length > 0
@@ -119,7 +119,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           } : {}, {
             f: item.location
           }, item.location ? {
-            g: common_assets._imports_2,
+            g: common_assets._imports_2$1,
             h: common_vendor.t(item.location)
           } : {}, {
             i: index,

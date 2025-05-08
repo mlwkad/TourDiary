@@ -275,7 +275,6 @@ onLoad(async (options) => {
         if (options.info) {
             const decodedInfo = JSON.parse(decodeURIComponent(options.info))
             info.value = decodedInfo
-            console.log(info.value)
         }
         // 获取收藏列表
         if (info.value.userID) {

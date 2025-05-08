@@ -133,7 +133,6 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         if (options.info) {
           const decodedInfo = JSON.parse(decodeURIComponent(options.info));
           info.value = decodedInfo;
-          common_vendor.index.__f__("log", "at pages/detail/detail.vue:278", info.value);
         }
         if (info.value.userID) {
           const userId = JSON.parse(common_vendor.index.getStorageSync("userInfo")).userId;
@@ -143,7 +142,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
           });
         }
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/detail/detail.vue:289", e);
+        common_vendor.index.__f__("log", "at pages/detail/detail.vue:288", e);
       }
     });
     common_vendor.onShow(() => {
@@ -156,7 +155,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
           });
         }
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/detail/detail.vue:304", e);
+        common_vendor.index.__f__("log", "at pages/detail/detail.vue:303", e);
       }
     });
     return (_ctx, _cache) => {
@@ -206,11 +205,11 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         s: common_vendor.o(followPublisher)
       }, {
         t: common_vendor.t(info.value.content),
-        v: common_assets._imports_2,
+        v: common_assets._imports_2$1,
         w: common_vendor.t(info.value.location),
         x: common_assets._imports_1,
         y: common_vendor.t(info.value.money),
-        z: common_assets._imports_2$1,
+        z: common_assets._imports_2$2,
         A: common_vendor.t(info.value.personNum),
         B: common_assets._imports_1$1,
         C: common_vendor.t(info.value.playTime)

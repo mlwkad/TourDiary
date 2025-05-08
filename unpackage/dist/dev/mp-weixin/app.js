@@ -3,9 +3,9 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
 const common_vendor = require("./common/vendor.js");
 const uni_modules_uviewPlus_index = require("./uni_modules/uview-plus/index.js");
 if (!Math) {
+  "./pages/index/index.js";
   "./pages/detail/detail.js";
   "./pages/dev/dev.js";
-  "./pages/index/index.js";
   "./pages/My/My.js";
   "./pages/Release/Release.js";
   "./pages/login/login.js";
@@ -17,20 +17,22 @@ if (!Math) {
   "./pages/follow/works.js";
 }
 const _sfc_main = {
-  onLaunch: function() {
-    common_vendor.index.__f__("log", "at App.vue:4", "App Launch");
-    setTimeout(() => {
-      common_vendor.index.reLaunch({
-        url: "/pages/dev/dev"
-      });
-    }, 800);
-  },
-  onShow: function() {
-    common_vendor.index.__f__("log", "at App.vue:16", "App Show");
-  },
-  onHide: function() {
-    common_vendor.index.__f__("log", "at App.vue:19", "App Hide");
-  }
+  // onLaunch: function () {
+  // 	uni.__f__('log','at App.vue:4','App Launch')
+  // 	// 导航页
+  // 	// 发布前注释掉
+  // 	setTimeout(() => {
+  // 		uni.reLaunch({
+  // 			url: '/pages/dev/dev'
+  // 		});
+  // 	}, 800);
+  // },
+  // onShow: function () {
+  // 	uni.__f__('log','at App.vue:15','App Show')
+  // },
+  // onHide: function () {
+  // 	uni.__f__('log','at App.vue:18','App Hide')
+  // }
 };
 function createApp() {
   const app = common_vendor.createSSRApp(_sfc_main);

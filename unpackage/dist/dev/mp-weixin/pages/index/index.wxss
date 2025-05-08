@@ -89,6 +89,18 @@
   transform: scale(0.95);
   box-shadow: 0 2rpx 8rpx rgba(52, 148, 230, 0.2);
 }
+.home-container .home-content .search-error.data-v-1cf27b2a {
+  color: #EC6EAD;
+  font-size: 24rpx;
+  margin-top: 10rpx;
+  background-color: rgba(236, 110, 173, 0.1);
+  padding: 6rpx 20rpx;
+  border-radius: 10rpx;
+  width: -webkit-fit-content;
+  width: fit-content;
+  margin: 10rpx auto;
+  text-align: center;
+}
 .home-container .home-choose.data-v-1cf27b2a {
   display: flex;
   padding: 12rpx 22rpx;

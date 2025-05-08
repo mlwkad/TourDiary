@@ -1,13 +1,13 @@
 "use strict";
+const _imports_3 = "/static/public/search.png";
 const _imports_0$2 = "/static/666.jpg";
+const _imports_2$4 = "/static/public/goTop.png";
 const _imports_1$2 = "/static/public/no-follow.png";
 const _imports_5 = "/static/public/followed.png";
-const _imports_2$4 = "/static/public/location.png";
+const _imports_2$3 = "/static/public/location.png";
 const _imports_1$1 = "/static/public/money.png";
-const _imports_2$3 = "/static/public/person.png";
+const _imports_2$2 = "/static/public/person.png";
 const _imports_1 = "/static/public/time.png";
-const _imports_3 = "/static/public/search.png";
-const _imports_2$2 = "/static/public/goTop.png";
 const _imports_0$1 = "/static/public/change.png";
 const _imports_2$1 = "/static/public/like.png";
 const _imports_0 = "/static/public/back.png";

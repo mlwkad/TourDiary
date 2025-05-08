@@ -6,7 +6,7 @@
                 <view class="user-name">{{ userData.userName }}</view>
                 <view class="user-stats">
                     <view class="stat-item">
-                        <view class="stat-value">{{ userData.release ? JSON.parse(userData.release).length : 0 }}</view>
+                        <view class="stat-value">{{ userWorks.length }}</view>
                         <view class="stat-label">作品</view>
                     </view>
                 </view>

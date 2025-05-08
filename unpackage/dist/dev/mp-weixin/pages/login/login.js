@@ -7,12 +7,54 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   setup(__props) {
     const username = common_vendor.ref("");
     const password = common_vendor.ref("");
+    const errors = common_vendor.reactive({
+      username: "",
+      password: ""
+    });
+    const validateUsername = (username2) => {
+      if (!username2.trim()) {
+        return { isValid: false, message: "用户名不能为空" };
+      }
+      if (username2.length < 3) {
+        return { isValid: false, message: "用户名不能少于3个字符" };
+      }
+      if (username2.length > 20) {
+        return { isValid: false, message: "用户名不能超过20个字符" };
+      }
+      const usernamePattern = /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/;
+      if (!usernamePattern.test(username2)) {
+        return { isValid: false, message: "用户名只能包含字母、数字、下划线和中文" };
+      }
+      return { isValid: true, message: "" };
+    };
+    const validatePassword = (password2) => {
+      if (!password2) {
+        return { isValid: false, message: "密码不能为空" };
+      }
+      if (password2.length < 6) {
+        return { isValid: false, message: "密码不能少于6个字符" };
+      }
+      if (password2.length > 20) {
+        return { isValid: false, message: "密码不能超过20个字符" };
+      }
+      return { isValid: true, message: "" };
+    };
+    const validateForm = () => {
+      let isValid = true;
+      const usernameVal = validateUsername(username.value);
+      if (!usernameVal.isValid) {
+        errors.username = usernameVal.message;
+        isValid = false;
+      }
+      const passwordVal = validatePassword(password.value);
+      if (!passwordVal.isValid) {
+        errors.password = passwordVal.message;
+        isValid = false;
+      }
+      return isValid;
+    };
     const handleLogin = () => {
-      if (!username.value || !password.value) {
-        common_vendor.index.showToast({
-          title: "请输入用户名和密码",
-          icon: "none"
-        });
+      if (!validateForm()) {
         return;
       }
       common_vendor.index.showLoading({
@@ -38,7 +80,6 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
               resolve();
             }, 1e3);
           });
-          common_vendor.index.__f__("log", "at pages/login/login.vue:84", res);
           userInfo.userId = res.userID;
           userInfo.nickName = username.value;
           userInfo.avatarUrl = "/static/666.jpg";
@@ -46,10 +87,20 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           await common_vendor.index.setStorageSync("userInfo", JSON.stringify(userInfo));
           common_vendor.index.navigateBack();
         }).catch((err) => {
-          common_vendor.index.__f__("log", "at pages/login/login.vue:93", err);
+          common_vendor.index.__f__("log", "at pages/login/login.vue:146", err);
+          common_vendor.index.hideLoading();
+          common_vendor.index.showToast({
+            title: "登录失败，请检查用户名和密码",
+            icon: "none"
+          });
         });
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/login/login.vue:96", e);
+        common_vendor.index.__f__("log", "at pages/login/login.vue:154", e);
+        common_vendor.index.hideLoading();
+        common_vendor.index.showToast({
+          title: "登录失败，请稍后重试",
+          icon: "none"
+        });
       }
     };
     const wechatLogin = async () => {
@@ -70,7 +121,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             fail: reject
           });
         }).catch((err) => {
-          common_vendor.index.__f__("log", "at pages/login/login.vue:120", "获取用户信息失败", err);
+          common_vendor.index.__f__("log", "at pages/login/login.vue:183", "获取用户信息失败", err);
           common_vendor.index.showToast({ title: "获取用户信息失败", icon: "none" });
           throw new Error("用户拒绝授权");
         });
@@ -95,18 +146,12 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           common_vendor.index.showToast({ title: "登录成功", icon: "success" });
           setTimeout(() => common_vendor.index.navigateBack(), 1e3);
         } catch (error) {
-          common_vendor.index.__f__("error", "at pages/login/login.vue:151", "微信登录失败", error);
+          common_vendor.index.__f__("error", "at pages/login/login.vue:214", "微信登录失败", error);
           common_vendor.index.showToast({ title: "登录失败，请稍后重试", icon: "none" });
         }
       } catch (error) {
-        common_vendor.index.__f__("error", "at pages/login/login.vue:155", "微信登录过程异常", error);
+        common_vendor.index.__f__("error", "at pages/login/login.vue:218", "微信登录过程异常", error);
       }
-    };
-    const forgetPassword = () => {
-      common_vendor.index.showToast({
-        title: "忘记密码功能暂未开放",
-        icon: "none"
-      });
     };
     const goBack = () => {
       common_vendor.index.navigateBack();
@@ -117,19 +162,26 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       });
     };
     return (_ctx, _cache) => {
-      return {
+      return common_vendor.e({
         a: common_assets._imports_0$1,
         b: common_vendor.o(goBack),
         c: common_assets._imports_0,
-        d: username.value,
-        e: common_vendor.o(($event) => username.value = $event.detail.value),
-        f: password.value,
-        g: common_vendor.o(($event) => password.value = $event.detail.value),
-        h: common_vendor.o(forgetPassword),
-        i: common_vendor.o(goToRegister),
-        j: common_vendor.o(handleLogin),
-        k: common_vendor.o(wechatLogin)
-      };
+        d: common_vendor.o([($event) => username.value = $event.detail.value, ($event) => errors.username = ""]),
+        e: username.value,
+        f: errors.username
+      }, errors.username ? {
+        g: common_vendor.t(errors.username)
+      } : {}, {
+        h: common_vendor.o([($event) => password.value = $event.detail.value, ($event) => errors.password = ""]),
+        i: password.value,
+        j: errors.password
+      }, errors.password ? {
+        k: common_vendor.t(errors.password)
+      } : {}, {
+        l: common_vendor.o(goToRegister),
+        m: common_vendor.o(handleLogin),
+        n: common_vendor.o(wechatLogin)
+      });
     };
   }
 });

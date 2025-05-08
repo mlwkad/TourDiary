@@ -2,6 +2,7 @@
 const common_vendor = require("../../common/vendor.js");
 const common_assets = require("../../common/assets.js");
 const api_api = require("../../api/api.js");
+const utils_filter = require("../../utils/filter.js");
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "note-edit",
   setup(__props) {
@@ -18,6 +19,20 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       videos: [],
       cover: ""
     });
+    const errors = common_vendor.reactive({
+      title: "",
+      content: "",
+      location: "",
+      playTime: "",
+      money: "",
+      personNum: "",
+      pictures: ""
+    });
+    const clearErrors = () => {
+      for (let key in errors) {
+        errors[key] = "";
+      }
+    };
     const getNoteDetail = (info) => {
       Object.assign(note, {
         id: info.releaseID,
@@ -32,6 +47,50 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         videos: info.videos,
         cover: info.cover || ""
       });
+    };
+    const validateForm = () => {
+      let isValid = true;
+      clearErrors();
+      const titleVal = utils_filter.validateTitle(note.title);
+      if (!titleVal.isValid) {
+        errors.title = titleVal.message;
+        isValid = false;
+      } else {
+        note.title = titleVal.filteredText;
+      }
+      const contentVal = utils_filter.validateContent(note.content);
+      if (!contentVal.isValid) {
+        errors.content = contentVal.message;
+        isValid = false;
+      } else {
+        note.content = contentVal.filteredText;
+      }
+      if (note.location) {
+        const locationVal = utils_filter.validateLocation(note.location);
+        if (!locationVal.isValid) {
+          errors.location = locationVal.message;
+          isValid = false;
+        } else {
+          note.location = locationVal.filteredText;
+        }
+      }
+      if (note.playTime && (isNaN(Number(note.playTime)) || Number(note.playTime) <= 0)) {
+        errors.playTime = "请输入有效的游玩时间";
+        isValid = false;
+      }
+      if (note.money && (isNaN(Number(note.money)) || Number(note.money) < 0)) {
+        errors.money = "请输入有效的费用金额";
+        isValid = false;
+      }
+      if (note.personNum && (isNaN(Number(note.personNum)) || Number(note.personNum) <= 0 || !Number.isInteger(Number(note.personNum)))) {
+        errors.personNum = "请输入有效的人数";
+        isValid = false;
+      }
+      if (!note.pictures || note.pictures.length === 0) {
+        errors.pictures = "至少上传一张图片";
+        isValid = false;
+      }
+      return isValid;
     };
     common_vendor.onBackPress(() => {
       if (note.title || note.content || note.pictures.length > 0) {
@@ -49,25 +108,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       return false;
     });
     const saveNote = () => {
-      if (!note.title) {
-        common_vendor.index.showToast({
-          title: "请输入标题",
-          icon: "none"
-        });
+      if (!validateForm()) {
         return;
       }
-      if (!note.content) {
-        common_vendor.index.showToast({
-          title: "请输入内容",
-          icon: "none"
-        });
-        return;
-      }
-      common_vendor.index.showLoading({
-        title: "保存中"
-      });
       api_api.updateRelease(note.id, note).then((res) => {
-        common_vendor.index.hideLoading();
         common_vendor.index.showToast({
           title: "保存成功",
           icon: "success"
@@ -76,7 +120,6 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           common_vendor.index.navigateBack();
         }, 1e3);
       }).catch((e) => {
-        common_vendor.index.hideLoading();
         common_vendor.index.showToast({
           title: "保存失败",
           icon: "error"
@@ -87,9 +130,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       common_vendor.index.chooseLocation({
         success: (res) => {
           note.location = res.name || res.address;
+          errors.location = "";
         },
         fail: (err) => {
-          common_vendor.index.__f__("error", "at pages/notes/note-edit.vue:192", "选择位置失败", err);
+          common_vendor.index.__f__("error", "at pages/notes/note-edit.vue:267", "选择位置失败", err);
         }
       });
     };
@@ -103,6 +147,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         // 可以来自相册 相机
         success: (res) => {
           note.pictures = [...note.pictures, ...res.tempFilePaths];
+          errors.pictures = "";
         }
       });
     };
@@ -145,56 +190,84 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     });
     return (_ctx, _cache) => {
       return common_vendor.e({
-        a: note.title,
-        b: common_vendor.o(($event) => note.title = $event.detail.value),
-        c: common_assets._imports_3,
-        d: note.location
-      }, note.location ? {
-        e: common_vendor.t(note.location)
+        a: common_vendor.o([($event) => note.title = $event.detail.value, ($event) => errors.title = ""]),
+        b: note.title,
+        c: errors.title
+      }, errors.title ? {
+        d: common_vendor.t(errors.title)
       } : {}, {
-        f: common_vendor.o(chooseLocation),
-        g: common_assets._imports_1,
-        h: note.money,
-        i: common_vendor.o(($event) => note.money = $event.detail.value),
-        j: common_assets._imports_2$1,
-        k: note.personNum,
-        l: common_vendor.o(($event) => note.personNum = $event.detail.value),
-        m: common_assets._imports_1$1,
-        n: note.playTime,
-        o: common_vendor.o(($event) => note.playTime = $event.detail.value),
-        p: note.content,
-        q: common_vendor.o(($event) => note.content = $event.detail.value),
-        r: common_vendor.f(note.pictures, (img, index, i0) => {
+        e: common_assets._imports_3,
+        f: note.location
+      }, note.location ? {
+        g: common_vendor.t(note.location)
+      } : {}, {
+        h: common_vendor.o(chooseLocation),
+        i: errors.location
+      }, errors.location ? {
+        j: common_vendor.t(errors.location)
+      } : {}, {
+        k: common_assets._imports_1,
+        l: common_vendor.o([($event) => note.money = $event.detail.value, ($event) => errors.money = ""]),
+        m: note.money,
+        n: common_assets._imports_2$2,
+        o: common_vendor.o([($event) => note.personNum = $event.detail.value, ($event) => errors.personNum = ""]),
+        p: note.personNum,
+        q: common_assets._imports_1$1,
+        r: common_vendor.o([($event) => note.playTime = $event.detail.value, ($event) => errors.playTime = ""]),
+        s: note.playTime,
+        t: errors.money
+      }, errors.money ? {
+        v: common_vendor.t(errors.money)
+      } : {}, {
+        w: errors.personNum
+      }, errors.personNum ? {
+        x: common_vendor.t(errors.personNum)
+      } : {}, {
+        y: errors.playTime
+      }, errors.playTime ? {
+        z: common_vendor.t(errors.playTime)
+      } : {}, {
+        A: common_vendor.o([($event) => note.content = $event.detail.value, ($event) => errors.content = ""]),
+        B: note.content,
+        C: errors.content
+      }, errors.content ? {
+        D: common_vendor.t(errors.content)
+      } : {}, {
+        E: common_vendor.f(note.pictures, (img, index, i0) => {
           return {
             a: img,
             b: common_vendor.o(($event) => removeImage(index), index),
             c: index
           };
         }),
-        s: note.pictures.length < 9
+        F: note.pictures.length < 9
       }, note.pictures.length < 9 ? {
-        t: common_vendor.o(chooseImage)
+        G: common_vendor.o(chooseImage)
       } : {}, {
-        v: note.videos && note.videos.length > 0
+        H: errors.pictures
+      }, errors.pictures ? {
+        I: common_vendor.t(errors.pictures)
+      } : {}, {
+        J: note.videos && note.videos.length > 0
       }, note.videos && note.videos.length > 0 ? common_vendor.e({
-        w: note.videos[0],
-        x: common_assets._imports_4,
-        y: common_vendor.o(removeVideo),
-        z: note.cover
+        K: note.videos[0],
+        L: common_assets._imports_4,
+        M: common_vendor.o(removeVideo),
+        N: note.cover
       }, note.cover ? {
-        A: note.cover,
-        B: common_assets._imports_4,
-        C: common_vendor.o(removeCover)
+        O: note.cover,
+        P: common_assets._imports_4,
+        Q: common_vendor.o(removeCover)
       } : {}, {
-        D: !note.cover
+        R: !note.cover
       }, !note.cover ? {
-        E: common_vendor.o(chooseVideoCover)
+        S: common_vendor.o(chooseVideoCover)
       } : {}) : {}, {
-        F: !note.videos || note.videos.length === 0
+        T: !note.videos || note.videos.length === 0
       }, !note.videos || note.videos.length === 0 ? {
-        G: common_vendor.o(chooseVideo)
+        U: common_vendor.o(chooseVideo)
       } : {}, {
-        H: common_vendor.o(saveNote)
+        V: common_vendor.o(saveNote)
       });
     };
   }

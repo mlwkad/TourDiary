@@ -2,6 +2,7 @@
 const common_vendor = require("../../common/vendor.js");
 const common_assets = require("../../common/assets.js");
 const api_api = require("../../api/api.js");
+const utils_filter = require("../../utils/filter.js");
 const _sfc_defineComponent = common_vendor.defineComponent({
   __name: "index",
   setup(__props) {
@@ -12,6 +13,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
     let curPage = common_vendor.ref(1);
     let offSet = common_vendor.ref(0);
     let isShowChangePage = common_vendor.ref(true);
+    let searchError = common_vendor.ref("");
     const allInfo = common_vendor.ref([[], []]);
     const allInfoByUserName = common_vendor.ref([[], []]);
     const allInfoByTitle = common_vendor.ref([[], []]);
@@ -31,8 +33,8 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         target[1] = data.slice(7, 14);
       }
     };
-    common_vendor.watch(searchContent, (newVal) => {
-      if (!newVal) {
+    common_vendor.watchEffect(() => {
+      if (!searchContent.value) {
         api_api.getAllReleases(14, 0).then((res) => {
           distributeData(res.releases || [], allInfo.value);
         });
@@ -41,8 +43,13 @@ const _sfc_defineComponent = common_vendor.defineComponent({
       }
     });
     const goSearch = () => {
-      if (!searchContent.value)
+      searchError.value = "";
+      const searchValidation = utils_filter.validateSearch(searchContent.value);
+      if (!searchValidation.isValid) {
+        searchError.value = searchValidation.message;
         return;
+      }
+      searchContent.value = searchValidation.filteredText;
       api_api.searchReleases(
         { userName: searchContent.value, title: searchContent.value }
       ).then((res) => {
@@ -56,7 +63,12 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         } else if (res.byTitle.length > 0) {
           allInfo.value = allInfoByTitle.value;
           choose.value = true;
+        } else {
+          searchError.value = "未找到相关内容";
         }
+      }).catch((err) => {
+        common_vendor.index.__f__("error", "at pages/index/index.vue:113", err);
+        searchError.value = "搜索失败，请稍后再试";
       });
     };
     const goDetail = (info) => {
@@ -108,19 +120,23 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         b: common_vendor.unref(searchContent),
         c: common_vendor.o(($event) => common_vendor.isRef(searchContent) ? searchContent.value = $event.detail.value : searchContent = $event.detail.value),
         d: common_vendor.o(goSearch),
-        e: common_vendor.unref(isShowChoose)
-      }, common_vendor.unref(isShowChoose) ? common_vendor.e({
-        f: allInfoByUserName.value[0][0]
-      }, allInfoByUserName.value[0][0] ? {
-        g: !common_vendor.unref(choose) ? 1 : "",
-        h: common_vendor.o(($event) => (common_vendor.isRef(choose) ? choose.value = false : choose = false, allInfo.value = allInfoByUserName.value))
+        e: common_vendor.unref(searchError)
+      }, common_vendor.unref(searchError) ? {
+        f: common_vendor.t(common_vendor.unref(searchError))
       } : {}, {
-        i: allInfoByTitle.value[0][0]
+        g: common_vendor.unref(isShowChoose)
+      }, common_vendor.unref(isShowChoose) ? common_vendor.e({
+        h: allInfoByUserName.value[0][0]
+      }, allInfoByUserName.value[0][0] ? {
+        i: !common_vendor.unref(choose) ? 1 : "",
+        j: common_vendor.o(($event) => (common_vendor.isRef(choose) ? choose.value = false : choose = false, allInfo.value = allInfoByUserName.value))
+      } : {}, {
+        k: allInfoByTitle.value[0][0]
       }, allInfoByTitle.value[0][0] ? {
-        j: common_vendor.unref(choose) ? 1 : "",
-        k: common_vendor.o(($event) => (common_vendor.isRef(choose) ? choose.value = true : choose = true, allInfo.value = allInfoByTitle.value))
+        l: common_vendor.unref(choose) ? 1 : "",
+        m: common_vendor.o(($event) => (common_vendor.isRef(choose) ? choose.value = true : choose = true, allInfo.value = allInfoByTitle.value))
       } : {}) : {}, {
-        l: common_vendor.f(2, (i, index, i0) => {
+        n: common_vendor.f(2, (i, index, i0) => {
           return {
             a: common_vendor.f(allInfo.value[i - 1], (j, k1, i1) => {
               return {
@@ -134,17 +150,17 @@ const _sfc_defineComponent = common_vendor.defineComponent({
             b: index
           };
         }),
-        m: common_assets._imports_0,
-        n: common_vendor.unref(isShowChangePage)
+        o: common_assets._imports_0,
+        p: common_vendor.unref(isShowChangePage)
       }, common_vendor.unref(isShowChangePage) ? {
-        o: common_vendor.o(($event) => changePage(1)),
-        p: common_vendor.t(common_vendor.unref(curPage)),
-        q: common_vendor.o(($event) => changePage(2))
+        q: common_vendor.o(($event) => changePage(1)),
+        r: common_vendor.t(common_vendor.unref(curPage)),
+        s: common_vendor.o(($event) => changePage(2))
       } : {}, {
-        r: common_vendor.unref(goTop)
+        t: common_vendor.unref(goTop)
       }, common_vendor.unref(goTop) ? {
-        s: common_vendor.o(goTopFunc),
-        t: common_assets._imports_2$2
+        v: common_vendor.o(goTopFunc),
+        w: common_assets._imports_2
       } : {});
     };
   }

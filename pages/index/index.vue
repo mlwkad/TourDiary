@@ -6,6 +6,7 @@
 				<input class="home-input-search" placeholder="搜一搜" v-model="searchContent">
 				<view class="home-input-go" @click="goSearch">搜索</view>
 			</view>
+			<view class="search-error" v-if="searchError">{{ searchError }}</view>
 		</view>
 		<view class="home-choose" v-if="isShowChoose">
 			<view class="home-user" :class="{ 'active': !choose }" @click="choose = false, allInfo = allInfoByUserName"
@@ -39,7 +40,9 @@
 <script setup lang="ts">
 import { getAllReleases, searchReleases } from '../../api/api'
 import { onLoad, onReachBottom, onPageScroll, onShow } from '@dcloudio/uni-app'
-import { ref, watch } from 'vue'
+import { ref, watchEffect } from 'vue'
+import { validateSearch } from '../../utils/filter'
+
 let searchContent = ref<string>('')
 let goTop = ref<boolean>(false)
 let choose = ref<boolean>(false)
@@ -47,6 +50,7 @@ let isShowChoose = ref<boolean>(false)
 let curPage = ref<number>(1)
 let offSet = ref<number>(0)
 let isShowChangePage = ref<boolean>(true)
+let searchError = ref<string>('')
 
 const allInfo = ref<any>([[], []])
 const allInfoByUserName = ref<any>([[], []])
@@ -71,18 +75,24 @@ const distributeData = (data: any[], target: any[][]) => {
 	}
 }
 
-watch(searchContent, (newVal) => {
-	if (!newVal) {
+watchEffect(() => {
+	if (!searchContent.value) {
 		getAllReleases(14, 0).then(res => {
 			distributeData(res.releases || [], allInfo.value)
 		})
 		isShowChoose.value = false
 		isShowChangePage.value = true
-	} else { }
+	}
 })
 
 const goSearch = () => {
-	if (!searchContent.value) return
+	searchError.value = ''
+	const searchValidation = validateSearch(searchContent.value)
+	if (!searchValidation.isValid) {
+		searchError.value = searchValidation.message
+		return
+	}
+	searchContent.value = searchValidation.filteredText
 	searchReleases(
 		{ userName: searchContent.value, title: searchContent.value }
 	).then(res => {
@@ -96,7 +106,12 @@ const goSearch = () => {
 		} else if (res.byTitle.length > 0) {
 			allInfo.value = allInfoByTitle.value
 			choose.value = true
+		} else {
+			searchError.value = '未找到相关内容'
 		}
+	}).catch(err => {
+		console.error(err)
+		searchError.value = '搜索失败，请稍后再试'
 	})
 }
 
@@ -225,6 +240,18 @@ onPageScroll((e) => {
 					box-shadow: 0 2rpx 8rpx rgba(52, 148, 230, 0.2);
 				}
 			}
+		}
+
+		.search-error {
+			color: #EC6EAD;
+			font-size: 24rpx;
+			margin-top: 10rpx;
+			background-color: rgba(236, 110, 173, 0.1);
+			padding: 6rpx 20rpx;
+			border-radius: 10rpx;
+			width: fit-content;
+			margin: 10rpx auto;
+			text-align: center;
 		}
 	}
 

@@ -80,6 +80,19 @@
   padding: 0 30rpx;
   font-size: 28rpx;
 }
+.login-container .login-form .input-group .input-item .error-text.data-v-e4e4508d {
+  color: #EC6EAD;
+  font-size: 24rpx;
+  margin: 12rpx 0 0 20rpx;
+  background-color: rgba(236, 110, 173, 0.1);
+  padding: 8rpx 16rpx;
+  border-radius: 10rpx;
+  display: block;
+  width: -webkit-fit-content;
+  width: fit-content;
+  max-width: 90%;
+  word-break: break-all;
+}
 .login-container .login-form .login-options.data-v-e4e4508d {
   display: flex;
   justify-content: space-between;

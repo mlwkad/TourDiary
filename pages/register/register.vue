@@ -4,7 +4,6 @@
             <image class="back-icon" src="/static/public/back.png" @click="goBack"></image>
             <text class="header-title">用户注册</text>
         </view>
-
         <view class="register-form">
             <view class="avatar-container">
                 <image class="avatar" src="/static/666.jpg" mode="aspectFill"></image>
@@ -12,70 +11,102 @@
                     <text>点击更换头像</text>
                 </view>
             </view>
-
             <view class="input-group">
                 <view class="input-item">
                     <text class="input-label">用户名</text>
-                    <input class="input-field" type="text" v-model="username" placeholder="请输入用户名" />
+                    <input class="input-field" type="text" v-model="username" placeholder="请输入用户名"
+                        @input="errors.username = ''" />
+                    <view class="error-text" v-if="errors.username">{{ errors.username }}</view>
                 </view>
-
+                <view class="input-item">
+                    <text class="input-label">确认用户名</text>
+                    <input class="input-field" type="text" v-model="confirmUsername" placeholder="请再次输入用户名"
+                        @input="errors.confirmUsername = ''" />
+                    <view class="error-text" v-if="errors.confirmUsername">{{ errors.confirmUsername }}</view>
+                </view>
                 <view class="input-item">
                     <text class="input-label">密码</text>
-                    <input class="input-field" type="password" v-model="password" placeholder="请输入密码" />
+                    <input class="input-field" type="password" v-model="password" placeholder="请输入密码"
+                        @input="errors.password = ''" />
+                    <view class="error-text" v-if="errors.password">{{ errors.password }}</view>
                 </view>
-
                 <view class="input-item">
                     <text class="input-label">确认密码</text>
-                    <input class="input-field" type="password" v-model="confirmPassword" placeholder="请再次输入密码" />
+                    <input class="input-field" type="password" v-model="confirmPassword" placeholder="请再次输入密码"
+                        @input="errors.confirmPassword = ''" />
+                    <view class="error-text" v-if="errors.confirmPassword">{{ errors.confirmPassword }}</view>
                 </view>
             </view>
-
             <view class="register-options">
                 <text class="login-link" @click="goToLogin">已有账号? 去登录</text>
             </view>
-
             <button class="register-button" @click="handleRegister">注册</button>
-
-            <view class="wechat-register">
-                <text class="wechat-register-text">微信快速注册</text>
-                <button class="wechat-register-button" @click="wechatRegister">
-                    <text>微信注册</text>
-                </button>
-            </view>
         </view>
     </view>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 import { signUp } from '../../api/api'
+import { validateUsername, validatePassword } from '../../utils/filter'
+
 const username = ref<string>('')
+const confirmUsername = ref<string>('')
 const password = ref<string>('')
 const confirmPassword = ref<string>('')
 
+// 错误信息
+const errors = reactive({
+    username: '',
+    confirmUsername: '',
+    password: '',
+    confirmPassword: ''
+})
+
+// 验证表单
+const validateForm = () => {
+    let isValid = true
+    for (let key in errors) {
+        errors[key] = ''
+    }
+    // 验证用户名
+    const usernameVal = validateUsername(username.value)
+    if (!usernameVal.isValid) {
+        errors.username = usernameVal.message
+        isValid = false
+    } else {
+        username.value = usernameVal.filteredText
+    }
+    // 验证确认用户名
+    const confirmUsernameVal = validateUsername(confirmUsername.value)
+    if (!confirmUsernameVal.isValid) {
+        errors.confirmUsername = confirmUsernameVal.message
+        isValid = false
+    } else {
+        confirmUsername.value = confirmUsernameVal.filteredText
+    }
+    // 验证密码
+    const passwordVal = validatePassword(password.value)
+    if (!passwordVal.isValid) {
+        errors.password = passwordVal.message
+        isValid = false
+    }
+    // 验证确认密码
+    const confirmPasswordVal = validatePassword(confirmPassword.value)
+    if (!confirmPasswordVal.isValid) {
+        errors.confirmPassword = confirmPasswordVal.message
+        isValid = false
+    } else if (password.value !== confirmPassword.value) {
+        errors.confirmPassword = '两次输入的密码不一致'
+        isValid = false
+    }
+    return isValid
+}
+
 // 注册处理
 const handleRegister = () => {
-    if (!username.value || !password.value || !confirmPassword.value) {
-        uni.showToast({
-            title: '请填写完整信息',
-            icon: 'none'
-        })
-        return
-    }
-
-    if (username.value.length < 3) {
-        uni.showToast({
-            title: '用户名长度应大于3小于20位',
-            icon: 'none'
-        })
-        return
-    }
-
-    if (password.value !== confirmPassword.value) {
-        uni.showToast({
-            title: '两次密码输入不一致',
-            icon: 'none'
-        })
+    // 验证表单
+    if (!validateForm()) {
         return
     }
 
@@ -112,9 +143,21 @@ const handleRegister = () => {
                 }, 1000)
             })
             uni.navigateBack()
+        }).catch(err => {
+            console.log(err)
+            uni.hideLoading()
+            uni.showToast({
+                title: '注册失败，请稍后重试',
+                icon: 'none'
+            })
         })
     } catch (error) {
         console.log(error)
+        uni.hideLoading()
+        uni.showToast({
+            title: '注册失败，请稍后重试',
+            icon: 'none'
+        })
     }
 }
 
@@ -224,12 +267,25 @@ const goToLogin = () => {
                 }
 
                 .input-field {
-                    width: 100%;
+                    width: 92%;
                     height: 80rpx;
                     background-color: #f5f5f5;
                     border-radius: 40rpx;
                     padding: 0 30rpx;
                     font-size: 28rpx;
+                }
+
+                .error-text {
+                    color: #EC6EAD;
+                    font-size: 24rpx;
+                    margin: 12rpx 0 0 20rpx;
+                    background-color: rgba(236, 110, 173, 0.1);
+                    padding: 8rpx 16rpx;
+                    border-radius: 10rpx;
+                    display: block;
+                    width: fit-content;
+                    max-width: 90%;
+                    word-break: break-all;
                 }
             }
         }

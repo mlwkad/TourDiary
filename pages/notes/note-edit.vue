@@ -2,35 +2,42 @@
     <view class="note-edit-container">
         <!-- 编辑区域 -->
         <scroll-view scroll-y class="edit-area">
-            <input class="note-title-input" placeholder="请输入标题..." v-model="note.title" maxlength="50" />
+            <input class="note-title-input" placeholder="请输入标题..." v-model="note.title" maxlength="50"
+                @input="errors.title = ''" />
+            <view class="error-text" v-if="errors.title">{{ errors.title }}</view>
 
             <view class="location-selector" @click="chooseLocation">
                 <image src="/static/public/search.png" mode="aspectFit"></image>
                 <text v-if="note.location">{{ note.location }}</text>
                 <text v-else class="placeholder">添加位置</text>
             </view>
+            <view class="error-text" v-if="errors.location">{{ errors.location }}</view>
 
             <view class="detail-info">
                 <view class="info-item">
                     <image src="/static/public/money.png" class="info-icon"></image>
-                    <input class="info-icon-content" v-model="note.money" />元
+                    <input class="info-icon-content" v-model="note.money" @input="errors.money = ''" />元
                 </view>
-
                 <view class="info-item">
                     <image src="/static/public/person.png" class="info-icon"></image>
-                    <input class="info-icon-content" v-model="note.personNum" />人
+                    <input class="info-icon-content" v-model="note.personNum" @input="errors.personNum = ''" />人
                 </view>
-
                 <view class="info-item">
                     <image src="/static/public/time.png" class="info-icon"></image>
-                    <input class="info-icon-content" v-model="note.playTime" />分钟
+                    <input class="info-icon-content" v-model="note.playTime" @input="errors.playTime = ''" />分钟
                 </view>
+            </view>
+            <view class="detail-errors">
+                <view class="error-text" v-if="errors.money">费用: {{ errors.money }}</view>
+                <view class="error-text" v-if="errors.personNum">人数: {{ errors.personNum }}</view>
+                <view class="error-text" v-if="errors.playTime">时间: {{ errors.playTime }}</view>
             </view>
 
             <view class="note-content-input">
                 <textarea class="note-content-input-content" placeholder="写下你的旅行记录..." v-model="note.content"
-                    maxlength="5000" auto-height />
+                    maxlength="5000" auto-height @input="errors.content = ''" />
             </view>
+            <view class="error-text" v-if="errors.content">{{ errors.content }}</view>
 
             <view class="image-section">
                 <view class="image-list">
@@ -47,6 +54,7 @@
                     </view>
                 </view>
             </view>
+            <view class="error-text" v-if="errors.pictures">{{ errors.pictures }}</view>
 
             <view class="video-section" v-if="note.videos && note.videos.length > 0">
                 <view class="video-container">
@@ -88,6 +96,7 @@
 import { ref, reactive } from 'vue'
 import { onLoad, onBackPress } from '@dcloudio/uni-app'
 import { updateRelease } from '../../api/api'
+import { validateTitle, validateContent, validateLocation } from '../../utils/filter'
 
 // 笔记数据
 const note = reactive({
@@ -102,7 +111,25 @@ const note = reactive({
     pictures: [] as string[],
     videos: [] as string[],
     cover: ''
-});
+})
+
+// 错误信息
+const errors = reactive({
+    title: '',
+    content: '',
+    location: '',
+    playTime: '',
+    money: '',
+    personNum: '',
+    pictures: ''
+})
+
+// 清除所有错误信息
+const clearErrors = () => {
+    for (let key in errors) {
+        errors[key] = ''
+    }
+}
 
 // 获取笔记详情
 const getNoteDetail = (info: any) => {
@@ -122,6 +149,70 @@ const getNoteDetail = (info: any) => {
     })
 }
 
+// 验证表单
+const validateForm = () => {
+    let isValid = true
+
+    // 清除所有错误
+    clearErrors()
+
+    // 标题验证
+    const titleVal = validateTitle(note.title)
+    if (!titleVal.isValid) {
+        errors.title = titleVal.message
+        isValid = false
+    } else {
+        // 使用过滤后的文本
+        note.title = titleVal.filteredText
+    }
+
+    // 内容验证
+    const contentVal = validateContent(note.content);
+    if (!contentVal.isValid) {
+        errors.content = contentVal.message
+        isValid = false
+    } else {
+        note.content = contentVal.filteredText
+    }
+
+    // 位置验证
+    if (note.location) {
+        const locationVal = validateLocation(note.location);
+        if (!locationVal.isValid) {
+            errors.location = locationVal.message
+            isValid = false
+        } else {
+            note.location = locationVal.filteredText
+        }
+    }
+
+    // 游玩时间验证
+    if (note.playTime && (isNaN(Number(note.playTime)) || Number(note.playTime) <= 0)) {
+        errors.playTime = '请输入有效的游玩时间'
+        isValid = false
+    }
+
+    // 费用验证
+    if (note.money && (isNaN(Number(note.money)) || Number(note.money) < 0)) {
+        errors.money = '请输入有效的费用金额'
+        isValid = false
+    }
+
+    // 人数验证
+    if (note.personNum && (isNaN(Number(note.personNum)) || Number(note.personNum) <= 0 || !Number.isInteger(Number(note.personNum)))) {
+        errors.personNum = '请输入有效的人数'
+        isValid = false
+    }
+
+    // 图片验证
+    if (!note.pictures || note.pictures.length === 0) {
+        errors.pictures = '至少上传一张图片'
+        isValid = false
+    }
+
+    return isValid
+}
+
 // 处理后退按钮
 onBackPress(() => {
     if (note.title || note.content || note.pictures.length > 0) {
@@ -133,7 +224,7 @@ onBackPress(() => {
                     uni.navigateBack()
                 }
             }
-        });
+        })
         return true
     }
     return false
@@ -141,39 +232,21 @@ onBackPress(() => {
 
 // 保存笔记
 const saveNote = () => {
-    if (!note.title) {
-        uni.showToast({
-            title: '请输入标题',
-            icon: 'none'
-        })
-        return
+    // 使用验证函数验证表单
+    if (!validateForm()) {
+        return // 如果验证失败，直接返回
     }
-
-    if (!note.content) {
-        uni.showToast({
-            title: '请输入内容',
-            icon: 'none'
-        })
-        return
-    }
-
-    // 这里应该调用API保存笔记
-    uni.showLoading({
-        title: '保存中'
-    });
 
     updateRelease(note.id, note).then(res => {
-        uni.hideLoading()
         uni.showToast({
             title: '保存成功',
             icon: 'success'
-        });
+        })
 
         setTimeout(() => {
             uni.navigateBack()
         }, 1000)
     }).catch(e => {
-        uni.hideLoading()
         uni.showToast({
             title: '保存失败',
             icon: 'error'
@@ -186,6 +259,8 @@ const chooseLocation = () => {
     uni.chooseLocation({
         success: (res) => {
             note.location = res.name || res.address
+            // 清除位置错误信息
+            errors.location = ''
         },
         fail: (err) => {
             // 用户取消或发生错误
@@ -203,14 +278,16 @@ const chooseImage = () => {
         success: (res) => {
             // 这里应该上传图片到服务器，目前直接使用本地路径
             note.pictures = [...note.pictures, ...res.tempFilePaths]
+            // 清除图片错误信息
+            errors.pictures = ''
         }
     })
 }
 
 // 移除图片
 const removeImage = (index: number) => {
-    note.pictures.splice(index, 1);
-};
+    note.pictures.splice(index, 1)
+}
 
 // 选择视频
 const chooseVideo = () => {
@@ -648,6 +725,26 @@ onLoad((options) => {
             .add-text {
                 font-size: 28rpx;
             }
+        }
+
+        .detail-errors {
+            display: flex;
+            flex-direction: column;
+            margin: 0 0 16rpx 0;
+            width: 88%;
+        }
+
+        .error-text {
+            color: #EC6EAD;
+            font-size: 24rpx;
+            margin: 8rpx 0 8rpx 0;
+            background-color: rgba(236, 110, 173, 0.1);
+            padding: 8rpx 16rpx;
+            border-radius: 10rpx;
+            display: block;
+            width: fit-content;
+            max-width: 90%;
+            word-break: break-all;
         }
     }
 

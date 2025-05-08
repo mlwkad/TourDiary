@@ -4,31 +4,28 @@
             <image class="back-icon" src="/static/public/back.png" @click="goBack"></image>
             <text class="header-title">用户登录</text>
         </view>
-
         <view class="login-form">
             <view class="avatar-container">
                 <image class="avatar" src="/static/666.jpg" mode="aspectFill"></image>
             </view>
-
             <view class="input-group">
                 <view class="input-item">
                     <text class="input-label">用户名</text>
-                    <input class="input-field" type="text" v-model="username" placeholder="请输入用户名" />
+                    <input class="input-field" type="text" v-model="username" placeholder="请输入用户名"
+                        @input="errors.username = ''" />
+                    <view class="error-text" v-if="errors.username">{{ errors.username }}</view>
                 </view>
-
                 <view class="input-item">
                     <text class="input-label">密码</text>
-                    <input class="input-field" type="password" v-model="password" placeholder="请输入密码" />
+                    <input class="input-field" type="password" v-model="password" placeholder="请输入密码"
+                        @input="errors.password = ''" />
+                    <view class="error-text" v-if="errors.password">{{ errors.password }}</view>
                 </view>
             </view>
-
             <view class="login-options">
-                <text class="forget-password" @click="forgetPassword">忘记密码?</text>
                 <text class="register-link" @click="goToRegister">没有账号? 去注册</text>
             </view>
-
             <button class="login-button" @click="handleLogin">登录</button>
-
             <view class="wechat-login">
                 <text class="wechat-login-text">微信快速登录</text>
                 <button class="wechat-login-button" @click="wechatLogin">
@@ -40,19 +37,76 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 import { getSessionKey, getWXUserInfo, checkLogin } from '../../api/api';
 
 const username = ref<string>('')
 const password = ref<string>('')
 
+// 错误信息
+const errors = reactive({
+    username: '',
+    password: ''
+})
+
+// 验证用户名
+const validateUsername = (username: string) => {
+    if (!username.trim()) {
+        return { isValid: false, message: '用户名不能为空' }
+    }
+    if (username.length < 3) {
+        return { isValid: false, message: '用户名不能少于3个字符' }
+    }
+    if (username.length > 20) {
+        return { isValid: false, message: '用户名不能超过20个字符' }
+    }
+    // 检查用户名是否包含非法字符
+    const usernamePattern = /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/
+    if (!usernamePattern.test(username)) {
+        return { isValid: false, message: '用户名只能包含字母、数字、下划线和中文' }
+    }
+    return { isValid: true, message: '' }
+}
+
+// 验证密码
+const validatePassword = (password: string) => {
+    if (!password) {
+        return { isValid: false, message: '密码不能为空' }
+    }
+    if (password.length < 6) {
+        return { isValid: false, message: '密码不能少于6个字符' }
+    }
+    if (password.length > 20) {
+        return { isValid: false, message: '密码不能超过20个字符' }
+    }
+    return { isValid: true, message: '' }
+}
+
+// 验证表单
+const validateForm = () => {
+    let isValid = true
+
+    // 验证用户名
+    const usernameVal = validateUsername(username.value)
+    if (!usernameVal.isValid) {
+        errors.username = usernameVal.message
+        isValid = false
+    }
+
+    // 验证密码
+    const passwordVal = validatePassword(password.value)
+    if (!passwordVal.isValid) {
+        errors.password = passwordVal.message
+        isValid = false
+    }
+
+    return isValid
+}
+
 // 登录处理
 const handleLogin = () => {
-    if (!username.value || !password.value) {
-        uni.showToast({
-            title: '请输入用户名和密码',
-            icon: 'none'
-        })
+    // 验证表单
+    if (!validateForm()) {
         return
     }
 
@@ -81,7 +135,6 @@ const handleLogin = () => {
                     resolve()
                 }, 1000)
             })
-            console.log(res)
             userInfo.userId = res.userID
             userInfo.nickName = username.value
             userInfo.avatarUrl = '/static/666.jpg'
@@ -91,11 +144,21 @@ const handleLogin = () => {
             uni.navigateBack()
         }).catch(err => {
             console.log(err)
+            uni.hideLoading()
+            uni.showToast({
+                title: '登录失败，请检查用户名和密码',
+                icon: 'none'
+            })
         })
     } catch (e) {
         console.log(e)
+        uni.hideLoading()
+        uni.showToast({
+            title: '登录失败，请稍后重试',
+            icon: 'none'
+        })
     }
-};
+}
 
 // 用户鉴权
 const wechatLogin = async () => {
@@ -154,14 +217,6 @@ const wechatLogin = async () => {
     } catch (error) {
         console.error('微信登录过程异常', error)
     }
-}
-
-// 忘记密码
-const forgetPassword = () => {
-    uni.showToast({
-        title: '忘记密码功能暂未开放',
-        icon: 'none'
-    })
 }
 
 // 返回上一页
@@ -239,6 +294,19 @@ const goToRegister = () => {
                     border-radius: 40rpx;
                     padding: 0 30rpx;
                     font-size: 28rpx;
+                }
+
+                .error-text {
+                    color: #EC6EAD;
+                    font-size: 24rpx;
+                    margin: 12rpx 0 0 20rpx;
+                    background-color: rgba(236, 110, 173, 0.1);
+                    padding: 8rpx 16rpx;
+                    border-radius: 10rpx;
+                    display: block;
+                    width: fit-content;
+                    max-width: 90%;
+                    word-break: break-all;
                 }
             }
         }

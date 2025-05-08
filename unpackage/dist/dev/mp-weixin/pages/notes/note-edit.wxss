@@ -362,6 +362,25 @@
 .note-edit-container .edit-area .add-video-btn .add-text.data-v-aecc2c28 {
   font-size: 28rpx;
 }
+.note-edit-container .edit-area .detail-errors.data-v-aecc2c28 {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 16rpx 0;
+  width: 88%;
+}
+.note-edit-container .edit-area .error-text.data-v-aecc2c28 {
+  color: #EC6EAD;
+  font-size: 24rpx;
+  margin: 8rpx 0 8rpx 0;
+  background-color: rgba(236, 110, 173, 0.1);
+  padding: 8rpx 16rpx;
+  border-radius: 10rpx;
+  display: block;
+  width: -webkit-fit-content;
+  width: fit-content;
+  max-width: 90%;
+  word-break: break-all;
+}
 .note-edit-container .save-button.data-v-aecc2c28 {
   position: fixed;
   bottom: 0;

@@ -2074,6 +2074,9 @@ function setCurrentRenderingInstance(instance) {
   instance && instance.type.__scopeId || null;
   return prev;
 }
+function watchEffect(effect2, options) {
+  return doWatch(effect2, null, options);
+}
 const INITIAL_WATCHER_VALUE = {};
 function watch(source, cb, options) {
   if (!isFunction(cb)) {
@@ -6922,7 +6925,7 @@ function isConsoleWritable() {
 function initRuntimeSocketService() {
   const hosts = "10.163.133.75,127.0.0.1";
   const port = "8090";
-  const id = "mp-weixin_swul_V";
+  const id = "mp-weixin_cSR7iF";
   const lazy = typeof swan !== "undefined";
   let restoreError = lazy ? () => {
   } : initOnError();
@@ -7893,5 +7896,5 @@ exports.reactive = reactive;
 exports.ref = ref;
 exports.t = t;
 exports.unref = unref;
-exports.watch = watch;
+exports.watchEffect = watchEffect;
 //# sourceMappingURL=../../.sourcemap/mp-weixin/common/vendor.js.map

@@ -20,7 +20,8 @@
 						<text style="color: rgba(236, 110, 173, 1)">*</text>
 					</text>
 					<input class="input-short" type="number" v-model="formData.playTime" placeholder="时间/天" />
-					<text v-if="errors.playTime" class="error-text">{{ errors.playTime }}</text>
+					<text v-if="errors.playTime" class="error-text" style="max-width: 140rpx;">{{ errors.playTime
+					}}</text>
 				</view>
 
 				<view class="form-item-half">
@@ -28,7 +29,7 @@
 						<text style="color: rgba(236, 110, 173, 1)">*</text>
 					</text>
 					<input class="input-short" type="number" v-model="formData.money" placeholder="花费金额" />
-					<text v-if="errors.money" class="error-text">{{ errors.money }}</text>
+					<text v-if="errors.money" class="error-text" style="max-width: 140rpx;">{{ errors.money }}</text>
 				</view>
 
 				<view class="form-item-half">
@@ -36,7 +37,8 @@
 						<text style="color: rgba(236, 110, 173, 1)">*</text>
 					</text>
 					<input class="input-short" type="number" v-model="formData.personNum" placeholder="出行人数" />
-					<text v-if="errors.personNum" class="error-text">{{ errors.personNum }}</text>
+					<text v-if="errors.personNum" class="error-text" style="max-width: 140rpx;">{{ errors.personNum
+					}}</text>
 				</view>
 			</view>
 
@@ -46,7 +48,6 @@
 				</text>
 				<view class="location-picker" @click="chooseLocation">
 					<text>{{ formData.location || '点击选择位置' }}</text>
-					<text class="location-icon"></text>
 				</view>
 				<text v-if="errors.location" class="error-text">{{ errors.location }}</text>
 			</view>
@@ -109,6 +110,7 @@
 import { ref, reactive, onMounted } from 'vue';
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { createRelease } from '../../api/api';
+import { validateTitle, validateContent, validateLocation } from '../../utils/filter';
 
 // 表单数据
 const formData = reactive({
@@ -133,76 +135,79 @@ const errors = reactive({
 	content: '',
 	location: '',
 	pictures: ''
-});
+})
 
 // 表单验证
 const validateForm = () => {
-	let isValid = true;
+	let isValid = true
 
 	// 重置错误信息
 	for (let key in errors) {
-		errors[key] = '';
+		errors[key] = ''
 	}
 
 	// 标题验证
-	if (!formData.title.trim()) {
-		errors.title = '标题不能为空';
-		isValid = false;
-	} else if (formData.title.length > 50) {
-		errors.title = '标题不能超过50个字符';
-		isValid = false;
+	const titleVal = validateTitle(formData.title)  // 检验敏感词,防SQL注入
+	if (!titleVal.isValid) {
+		errors.title = titleVal.message
+		isValid = false
+	} else {
+		formData.title = titleVal.filteredText
 	}
 
 	// 游玩时间验证
 	if (!formData.playTime) {
-		errors.playTime = '游玩时间不能为空';
-		isValid = false;
+		errors.playTime = '游玩时间不能为空'
+		isValid = false
 	} else if (isNaN(Number(formData.playTime)) || Number(formData.playTime) <= 0) {
-		errors.playTime = '请输入有效的游玩时间';
-		isValid = false;
+		errors.playTime = '请输入有效的游玩时间'
+		isValid = false
 	}
 
 	// 费用验证
 	if (!formData.money) {
-		errors.money = '费用不能为空';
-		isValid = false;
+		errors.money = '费用不能为空'
+		isValid = false
 	} else if (isNaN(Number(formData.money)) || Number(formData.money) < 0) {
-		errors.money = '请输入有效的费用金额';
-		isValid = false;
+		errors.money = '请输入有效的费用金额'
+		isValid = false
 	}
 
 	// 人数验证
 	if (!formData.personNum) {
-		errors.personNum = '人数不能为空';
-		isValid = false;
+		errors.personNum = '人数不能为空'
+		isValid = false
 	} else if (isNaN(Number(formData.personNum)) || Number(formData.personNum) <= 0 || !Number.isInteger(Number(formData.personNum))) {
-		errors.personNum = '请输入有效的人数';
-		isValid = false;
+		errors.personNum = '请输入有效的人数'
+		isValid = false
 	}
 
 	// 位置验证
-	if (!formData.location) {
-		errors.location = '位置不能为空';
-		isValid = false;
+	const locationVal = validateLocation(formData.location)  // 不能为空或太长
+	if (!locationVal.isValid) {
+		errors.location = locationVal.message
+		isValid = false
+	} else {
+		formData.location = locationVal.filteredText
 	}
 
-	// 内容描述验证
-	if (!formData.content.trim()) {
-		errors.content = '内容描述不能为空';
-		isValid = false;
-	} else if (formData.content.length < 10) {
-		errors.content = '内容描述不能少于10个字符';
-		isValid = false;
+	// 内容验证
+	const contentVal = validateContent(formData.content)  // 检验敏感词,防SQL注入
+	if (!contentVal.isValid) {
+		errors.content = contentVal.message
+		isValid = false
+	} else {
+		formData.content = contentVal.filteredText
 	}
 
 	// 图片验证
-	if (!formData.pictures) {
+	if (!formData.pictures || formData.pictures.length === 0) {
 		errors.pictures = '至少上传一张图片';
 		isValid = false;
 	}
 
 	return isValid;
-};
+}
 
 // 提交表单
 const submitForm = () => {
@@ -210,14 +215,13 @@ const submitForm = () => {
 		uni.showToast({
 			title: '请完善表单信息',
 			icon: 'none'
-		});
-		return;
+		})
+		return
 	}
 
 	// 转换数据类型
 	const submitData = {
 		...formData,
-
 		playTime: Number(formData.playTime),
 		money: Number(formData.money),
 		personNum: Number(formData.personNum)
@@ -249,7 +253,7 @@ const submitForm = () => {
 // 重置表单
 const resetForm = () => {
 	// 保留用户ID，清空其他字段
-	const userID = formData.userID;
+	const userID = formData.userID
 
 	// 重置表单数据
 	Object.assign(formData, {
@@ -263,58 +267,58 @@ const resetForm = () => {
 		pictures: [],
 		videos: [],
 		cover: ''
-	});
+	})
 
 	// 清空错误信息
 	for (let key in errors) {
-		errors[key] = '';
+		errors[key] = ''
 	}
-};
+}
 
 // 选择图片
 const chooseImage = () => {
 	uni.chooseImage({
 		count: 9 - formData.pictures.length,
 		success: (res) => {
-			formData.pictures = [...formData.pictures, ...res.tempFilePaths];
+			formData.pictures = [...formData.pictures, ...res.tempFilePaths]
 		}
-	});
-};
+	})
+}
 
 // 删除图片
 const deleteImage = (index) => {
-	formData.pictures.splice(index, 1);
-};
+	formData.pictures.splice(index, 1)
+}
 
 // 选择视频
 const chooseVideo = () => {
 	uni.chooseVideo({
 		count: 1,
 		success: (res) => {
-			formData.videos = [res.tempFilePath];
+			formData.videos = [res.tempFilePath]
 		}
-	});
-};
+	})
+}
 
 // 删除视频
 const deleteVideo = (index) => {
-	formData.videos.splice(index, 1);
-};
+	formData.videos.splice(index, 1)
+}
 
 // 选择视频封面
 const chooseVideoCover = () => {
 	uni.chooseImage({
 		count: 1,
 		success: (res) => {
-			formData.cover = res.tempFilePaths[0];
+			formData.cover = res.tempFilePaths[0]
 		}
-	});
-};
+	})
+}
 
 // 删除视频封面
 const deleteVideoCover = () => {
-	formData.cover = '';
-};
+	formData.cover = ''
+}
 
 // 选择位置
 const chooseLocation = () => {
@@ -327,7 +331,7 @@ const chooseLocation = () => {
 					scope: 'scope.userLocation',
 					success: () => {
 						// 获取权限后调用位置选择器
-						openChooseLocation();
+						openChooseLocation()
 					},
 					fail: () => {
 						uni.showModal({
@@ -336,47 +340,48 @@ const chooseLocation = () => {
 							confirmText: '去设置',
 							success: (res) => {
 								if (res.confirm) {
-									uni.openSetting();
+									uni.openSetting()
 								}
 							}
-						});
+						})
 					}
-				});
+				})
 			} else {
 				// 已经授权，直接调用
-				openChooseLocation();
+				openChooseLocation()
 			}
 		},
 		fail: (err) => {
-			console.log('获取设置失败', err);
+			console.log('获取设置失败', err)
 			// 使用手动输入作为备选方案
-			showManualLocationInput();
+			showManualLocationInput()
 		}
-	});
-};
+	})
+}
 
 // 打开位置选择器
 const openChooseLocation = () => {
 	try {
 		uni.chooseLocation({
 			success: (res) => {
-				formData.location = res.name;
+				// 位置选择成功后直接赋值，地图API返回的位置通常是安全的
+				formData.location = res.name
 			},
 			fail: (err) => {
-				console.log('选择位置失败', err);
+				console.log('选择位置失败', err)
 				if (err.errMsg && err.errMsg.includes('requiredPrivateInfos')) {
 					uni.showToast({
 						title: '位置服务未配置',
 						icon: 'none'
-					});
+					})
 					// 使用手动输入作为备选方案
-					showManualLocationInput();
+					showManualLocationInput()
 				}
 			}
-		});
+		})
 	} catch (e) {
-		console.error('调用选择位置接口失败', e);
-		showManualLocationInput();
+		console.error('调用选择位置接口失败', e)
+		showManualLocationInput()
 	}
 };
 
@@ -388,50 +393,41 @@ const showManualLocationInput = () => {
 		placeholderText: '请输入您的位置',
 		success: (res) => {
 			if (res.confirm && res.content) {
-				formData.location = res.content;
+				// 手动输入需要进行过滤
+				const locationValidation = validateLocation(res.content);
+				if (locationValidation.isValid) {
+					formData.location = locationValidation.filteredText;
+				} else {
+					uni.showToast({
+						title: locationValidation.message,
+						icon: 'none'
+					});
+				}
 			}
 		}
-	});
-};
+	})
+}
 
 // 跳转到我的笔记
 const goToMyNotes = () => {
 	uni.navigateTo({
 		url: '/pages/notes/notes'
-	});
-};
-
-// 生命周期钩子 - 组件挂载后
-// onLoad(() => {
-// 	// 获取当前用户ID
-// 	try {
-// 		const userInfo = uni.getStorageSync('userInfo');
-// 		if (userInfo) {
-// 			formData.userID = JSON.parse(userInfo).userId;
-// 		} else {
-// 			// 未登录，跳转到登录页
-// 			uni.navigateTo({
-// 				url: '/pages/login/login'
-// 			});
-// 		}
-// 	} catch (e) {
-// 		console.error('获取用户信息失败', e);
-// 	}
-// })
+	})
+}
 
 onShow(() => {
 	try {
-		const userInfo = uni.getStorageSync('userInfo');
+		const userInfo = uni.getStorageSync('userInfo')
 		if (userInfo) {
-			formData.userID = JSON.parse(userInfo).userId;
+			formData.userID = JSON.parse(userInfo).userId
 		} else {
 			// 未登录，跳转到登录页
 			uni.navigateTo({
 				url: '/pages/login/login'
-			});
+			})
 		}
 	} catch (e) {
-		console.error('获取用户信息失败', e);
+		console.error('获取用户信息失败', e)
 	}
 })
 </script>
