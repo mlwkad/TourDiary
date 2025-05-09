@@ -8,7 +8,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const userData = common_vendor.reactive({});
     let userID = common_vendor.ref("");
     const isFollowing = common_vendor.ref(true);
-    const isRefreshing = common_vendor.ref(false);
+    common_vendor.ref(false);
     const userWorks = common_vendor.ref([
       {
         releaseID: "release1",
@@ -76,15 +76,6 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         });
       }
     };
-    const onRefresh = async () => {
-      isRefreshing.value = true;
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          isRefreshing.value = false;
-          resolve(null);
-        }, 500);
-      });
-    };
     common_vendor.onLoad((options) => {
       if (options.userID) {
         api_api.getUserReleases(options.userID).then((res) => {
@@ -130,9 +121,6 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         i: userWorks.value.length > 5
       }, userWorks.value.length > 5 ? {} : {}) : {
         j: common_assets._imports_3
-      }, {
-        k: common_vendor.o(onRefresh),
-        l: isRefreshing.value
       });
     };
   }

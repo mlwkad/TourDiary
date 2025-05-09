@@ -6,7 +6,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "collection",
   setup(__props) {
     const collections = common_vendor.ref([]);
-    const isRefreshing = common_vendor.ref(false);
+    common_vendor.ref(false);
     let userID = common_vendor.ref("");
     const viewNote = async (releaseID) => {
       const info = await api_api.getReleaseDetail(releaseID);
@@ -29,18 +29,6 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             });
           }
         }
-      });
-    };
-    const onRefresh = async () => {
-      isRefreshing.value = true;
-      await api_api.getUserLiked(userID).then((res) => {
-        collections.value = res;
-      });
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          isRefreshing.value = false;
-          resolve();
-        }, 500);
       });
     };
     const goToDiscover = () => {
@@ -74,9 +62,6 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }, collections.value.length > 5 ? {} : {}) : {
         f: common_assets._imports_3,
         g: common_vendor.o(goToDiscover)
-      }, {
-        h: common_vendor.o(onRefresh),
-        i: isRefreshing.value
       });
     };
   }

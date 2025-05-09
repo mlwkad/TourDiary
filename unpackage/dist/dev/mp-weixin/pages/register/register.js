@@ -1,6 +1,5 @@
 "use strict";
 const common_vendor = require("../../common/vendor.js");
-const common_assets = require("../../common/assets.js");
 const api_api = require("../../api/api.js");
 const utils_filter = require("../../utils/filter.js");
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
@@ -10,6 +9,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const confirmUsername = common_vendor.ref("");
     const password = common_vendor.ref("");
     const confirmPassword = common_vendor.ref("");
+    const avatarUrl = common_vendor.ref("/static/public/defaultAvatar.png");
     const errors = common_vendor.reactive({
       username: "",
       confirmUsername: "",
@@ -59,19 +59,19 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       });
       const userInfo = {
         nickName: username.value,
-        avatarUrl: "/static/666.jpg",
+        avatarUrl: "",
         userId: ""
       };
       try {
         api_api.signUp({
           userName: username.value,
-          passWord: password.value
+          passWord: password.value,
+          avatar: avatarUrl.value
         }).then(async (res) => {
-          common_vendor.index.__f__("log", "at pages/register/register.vue:128", res);
           userInfo.nickName = username.value;
-          userInfo.avatarUrl = "/static/666.jpg";
+          userInfo.avatarUrl = avatarUrl.value;
           userInfo.userId = res.userID;
-          common_vendor.index.setStorageSync("token", "sample-token");
+          common_vendor.index.setStorageSync("token", res.userID);
           common_vendor.index.setStorageSync("userInfo", JSON.stringify(userInfo));
           common_vendor.index.hideLoading();
           await new Promise((resolve) => {
@@ -85,7 +85,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           });
           common_vendor.index.navigateBack();
         }).catch((err) => {
-          common_vendor.index.__f__("log", "at pages/register/register.vue:147", err);
+          common_vendor.index.__f__("log", "at pages/register/register.vue:146", err);
           common_vendor.index.hideLoading();
           common_vendor.index.showToast({
             title: "注册失败，请稍后重试",
@@ -93,7 +93,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           });
         });
       } catch (error) {
-        common_vendor.index.__f__("log", "at pages/register/register.vue:155", error);
+        common_vendor.index.__f__("log", "at pages/register/register.vue:154", error);
         common_vendor.index.hideLoading();
         common_vendor.index.showToast({
           title: "注册失败，请稍后重试",
@@ -101,43 +101,50 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         });
       }
     };
-    const goBack = () => {
-      common_vendor.index.navigateBack();
+    const changeAvatar = () => {
+      common_vendor.index.chooseImage({
+        count: 1,
+        success: (res) => {
+          avatarUrl.value = res.tempFilePaths;
+        }
+      });
     };
     const goToLogin = () => {
       common_vendor.index.navigateBack();
     };
+    common_vendor.onShow(() => {
+      avatarUrl.value = "/static/public/defaultAvatar.png";
+    });
     return (_ctx, _cache) => {
       return common_vendor.e({
-        a: common_assets._imports_0$1,
-        b: common_vendor.o(goBack),
-        c: common_assets._imports_0,
-        d: common_vendor.o([($event) => username.value = $event.detail.value, ($event) => errors.username = ""]),
-        e: username.value,
-        f: errors.username
+        a: avatarUrl.value,
+        b: common_vendor.o(changeAvatar),
+        c: common_vendor.o([($event) => username.value = $event.detail.value, ($event) => errors.username = ""]),
+        d: username.value,
+        e: errors.username
       }, errors.username ? {
-        g: common_vendor.t(errors.username)
+        f: common_vendor.t(errors.username)
       } : {}, {
-        h: common_vendor.o([($event) => confirmUsername.value = $event.detail.value, ($event) => errors.confirmUsername = ""]),
-        i: confirmUsername.value,
-        j: errors.confirmUsername
+        g: common_vendor.o([($event) => confirmUsername.value = $event.detail.value, ($event) => errors.confirmUsername = ""]),
+        h: confirmUsername.value,
+        i: errors.confirmUsername
       }, errors.confirmUsername ? {
-        k: common_vendor.t(errors.confirmUsername)
+        j: common_vendor.t(errors.confirmUsername)
       } : {}, {
-        l: common_vendor.o([($event) => password.value = $event.detail.value, ($event) => errors.password = ""]),
-        m: password.value,
-        n: errors.password
+        k: common_vendor.o([($event) => password.value = $event.detail.value, ($event) => errors.password = ""]),
+        l: password.value,
+        m: errors.password
       }, errors.password ? {
-        o: common_vendor.t(errors.password)
+        n: common_vendor.t(errors.password)
       } : {}, {
-        p: common_vendor.o([($event) => confirmPassword.value = $event.detail.value, ($event) => errors.confirmPassword = ""]),
-        q: confirmPassword.value,
-        r: errors.confirmPassword
+        o: common_vendor.o([($event) => confirmPassword.value = $event.detail.value, ($event) => errors.confirmPassword = ""]),
+        p: confirmPassword.value,
+        q: errors.confirmPassword
       }, errors.confirmPassword ? {
-        s: common_vendor.t(errors.confirmPassword)
+        r: common_vendor.t(errors.confirmPassword)
       } : {}, {
-        t: common_vendor.o(goToLogin),
-        v: common_vendor.o(handleRegister)
+        s: common_vendor.o(goToLogin),
+        t: common_vendor.o(handleRegister)
       });
     };
   }

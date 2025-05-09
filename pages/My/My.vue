@@ -3,14 +3,14 @@
 		<!-- 用户信息区域 -->
 		<view class="user-info-section" :class="{ 'logged-in': isLoggedIn }">
 			<view v-if="isLoggedIn" class="user-profile">
-				<image class="user-avatar" :src="userInfo.avatarUrl || '/static/666.jpg'" mode="aspectFill"></image>
+				<image class="user-avatar" :src="userInfo.avatarUrl" mode="aspectFill"></image>
 				<view class="user-name">
-					{{ userInfo.nickName || '666' }}
+					{{ userInfo.nickName || '用户' }}
 					<image class="changeInfoIcon" src="/static/public/change.png" @click="isShow = true"></image>
 				</view>
 			</view>
 			<view v-else class="login-section">
-				<image class="default-avatar" src="/static/666.jpg" mode="aspectFill"></image>
+				<image class="default-avatar" src="/static/public/defaultAvatar.png" mode="aspectFill"></image>
 				<view class="login-btns">
 					<button class="login-btn" @click="handleLogin">登录</button>
 					<button class="register-btn" @click="handleRegister">注册</button>
@@ -42,7 +42,7 @@
 				</view>
 			</view>
 
-			<view class="option-group">
+			<!-- <view class="option-group">
 				<view class="option-item" @click="navigateTo('settings')">
 					<image class="option-icon" src="/static/public/search.png"></image>
 					<text class="option-text">设置</text>
@@ -54,7 +54,7 @@
 					<text class="option-text">意见反馈</text>
 					<image class="arrow-icon" src="/static/public/back.png"></image>
 				</view>
-			</view>
+			</view> -->
 
 			<view v-if="isLoggedIn" class="logout-btn" @click="handleLogout">
 				退出登录
@@ -79,8 +79,7 @@
 		<view class="changeInfo-nickname">
 			<view class="changeInfo-nickname-title">昵称:</view>
 			<!-- type="nickname" 自动获取微信昵称 -->
-			<input class="changeInfo-nickname-input" type="nickname" v-model="userInfo.nickName"
-				:placeholder='userInfo.nickName' />
+			<input class="changeInfo-nickname-input" v-model="userInfo.nickName" :placeholder='userInfo.nickName' />
 		</view>
 		<button class="changeInfo-ensure" @click="changeUserInfo">确定</button>
 	</view>
@@ -198,18 +197,15 @@ const navigateTo = (page: string) => {
 		})
 		return
 	}
-
-	const pageMap: Record<string, string> = {
-		collection: '/pages/collection/collection',
-		notes: '/pages/notes/notes',
-		follow: '/pages/follow/list',
-		settings: '/pages/settings/settings',
-		feedback: '/pages/feedback/feedback'
+	if (page !== 'follow') {
+		uni.navigateTo({
+			url: `/pages/${page}/${page}`
+		})
+	} else {
+		uni.navigateTo({
+			url: `/pages/${page}/list`
+		})
 	}
-
-	uni.navigateTo({
-		url: pageMap[page]
-	})
 }
 
 // 页面加载时检查登录状态
@@ -310,6 +306,7 @@ onShow(() => {
 			align-items: center;
 
 			.default-avatar {
+				background-color: white;
 				width: 180rpx;
 				height: 180rpx;
 				border-radius: 50%;
@@ -405,7 +402,7 @@ onShow(() => {
 			padding: 30rpx 0;
 			border-radius: 20rpx;
 			font-size: 32rpx;
-			margin-top: 30rpx;
+			margin-top: 250rpx;
 			font-weight: bold;
 			box-shadow: 0 5rpx 15rpx rgba(255, 118, 118, 0.3);
 			transition: all 0.3s ease;

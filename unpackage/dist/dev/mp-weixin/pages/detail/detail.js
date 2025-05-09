@@ -2,11 +2,16 @@
 const common_vendor = require("../../common/vendor.js");
 const common_assets = require("../../common/assets.js");
 const api_api = require("../../api/api.js");
+const api_ws = require("../../api/ws.js");
 const _sfc_defineComponent = common_vendor.defineComponent({
   __name: "detail",
   setup(__props, { expose: __expose }) {
     const isLiked = common_vendor.ref(false);
     const isFollow = common_vendor.ref(false);
+    const isShowWantLocation = common_vendor.ref(false);
+    const wantGoInput = common_vendor.ref("");
+    const XunFeiRes = common_vendor.ref("");
+    const selectedChoose = common_vendor.ref([]);
     const info = common_vendor.ref({
       avatar: "",
       content: "",
@@ -24,6 +29,51 @@ const _sfc_defineComponent = common_vendor.defineComponent({
       userName: "testuser0",
       videos: []
     });
+    const chatChoose = common_vendor.ref([
+      { id: 1, title: "附近景点", image: "/static/public/build.png", selectedImage: "/static/public/build-white.png" },
+      { id: 2, title: "附近美食", image: "/static/public/food.png", selectedImage: "/static/public/food-white.png" },
+      { id: 3, title: "经济旅游", image: "/static/public/sale.png", selectedImage: "/static/public/sale-white.png" },
+      { id: 4, title: "自驾旅游", image: "/static/public/jeepCar.png", selectedImage: "/static/public/jeepCar-white.png" },
+      { id: 5, title: "特色住宿", image: "/static/public/hotal.png", selectedImage: "/static/public/hotal-white.png" },
+      { id: 6, title: "购物攻略", image: "/static/public/shopping.png", selectedImage: "/static/public/shopping-white.png" }
+    ]);
+    const chooseSelect = (id) => {
+      let storedId = selectedChoose.value.indexOf(id);
+      if (storedId !== -1) {
+        selectedChoose.value.splice(storedId, 1);
+      } else {
+        selectedChoose.value.push(id);
+      }
+    };
+    const getRes = () => {
+      const allChoose = chatChoose.value.filter((item) => selectedChoose.value.includes(item.id));
+      let allChooseTitle = "";
+      allChoose.forEach((item) => {
+        allChooseTitle += item.title + ",";
+      });
+      const finalContent = `我想去${wantGoInput.value}游玩,并为我提供${allChooseTitle}的建议,分点明确(一级标题:一,二 二级标题:1,2),不要出现*#等特殊符号`;
+      api_ws.streamChat(finalContent, (update) => {
+        if (update.type === "update") {
+          XunFeiRes.value += update.content;
+        } else if (update.type === "error") {
+          common_vendor.index.__f__("log", "at pages/detail/detail.vue:201", update.error);
+        }
+      });
+    };
+    const copyRes = () => {
+      common_vendor.index.setClipboardData({
+        data: XunFeiRes.value,
+        success: () => {
+          common_vendor.index.showToast({
+            title: "复制成功",
+            icon: "none"
+          });
+        }
+      });
+    };
+    const delRes = () => {
+      XunFeiRes.value = "";
+    };
     const liked = async () => {
       const userId = JSON.parse(common_vendor.index.getStorageSync("userInfo")).userId;
       try {
@@ -46,7 +96,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
           isLiked.value = JSON.parse(res.liked).includes(info.value.releaseID);
         });
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/detail/detail.vue:153", e);
+        common_vendor.index.__f__("log", "at pages/detail/detail.vue:244", e);
       }
     };
     const goUserPages = () => {
@@ -122,7 +172,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
       });
     };
     const videoError = (e) => {
-      common_vendor.index.__f__("error", "at pages/detail/detail.vue:252", "视频播放错误:", e.detail);
+      common_vendor.index.__f__("error", "at pages/detail/detail.vue:343", "视频播放错误:", e.detail);
       common_vendor.index.showToast({
         title: "视频播放失败",
         icon: "none"
@@ -134,6 +184,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
           const decodedInfo = JSON.parse(decodeURIComponent(options.info));
           info.value = decodedInfo;
         }
+        wantGoInput.value = info.value.location;
         if (info.value.userID) {
           const userId = JSON.parse(common_vendor.index.getStorageSync("userInfo")).userId;
           api_api.getUserInfo(userId).then((res) => {
@@ -142,7 +193,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
           });
         }
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/detail/detail.vue:288", e);
+        common_vendor.index.__f__("log", "at pages/detail/detail.vue:380", e);
       }
     });
     common_vendor.onShow(() => {
@@ -155,7 +206,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
           });
         }
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/detail/detail.vue:303", e);
+        common_vendor.index.__f__("log", "at pages/detail/detail.vue:395", e);
       }
     });
     return (_ctx, _cache) => {
@@ -207,13 +258,49 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         t: common_vendor.t(info.value.content),
         v: common_assets._imports_2$1,
         w: common_vendor.t(info.value.location),
-        x: common_assets._imports_1,
-        y: common_vendor.t(info.value.money),
-        z: common_assets._imports_2$2,
-        A: common_vendor.t(info.value.personNum),
-        B: common_assets._imports_1$1,
-        C: common_vendor.t(info.value.playTime)
-      });
+        x: common_assets._imports_4$1,
+        y: common_vendor.o(($event) => isShowWantLocation.value = true),
+        z: common_assets._imports_1,
+        A: common_vendor.t(info.value.money),
+        B: common_assets._imports_2$2,
+        C: common_vendor.t(info.value.personNum),
+        D: common_assets._imports_1$1,
+        E: common_vendor.t(info.value.playTime),
+        F: isShowWantLocation.value
+      }, isShowWantLocation.value ? common_vendor.e({
+        G: XunFeiRes.value.length > 0
+      }, XunFeiRes.value.length > 0 ? {
+        H: common_assets._imports_8,
+        I: common_vendor.o(copyRes)
+      } : {}, {
+        J: XunFeiRes.value.length > 0
+      }, XunFeiRes.value.length > 0 ? {
+        K: common_assets._imports_9,
+        L: common_vendor.o(delRes)
+      } : {}, {
+        M: common_assets._imports_4,
+        N: common_vendor.o(($event) => isShowWantLocation.value = false),
+        O: XunFeiRes.value.length === 0
+      }, XunFeiRes.value.length === 0 ? {
+        P: common_vendor.f(chatChoose.value, (item, k0, i0) => {
+          return {
+            a: selectedChoose.value.find((ele) => ele === item.id) ? item.selectedImage : item.image,
+            b: common_vendor.t(item.title),
+            c: item.id,
+            d: selectedChoose.value.find((ele) => ele === item.id) ? "#FFA07A" : "#b6b6b635",
+            e: selectedChoose.value.find((ele) => ele === item.id) ? "white" : "#999",
+            f: common_vendor.o(($event) => chooseSelect(item.id), item.id)
+          };
+        })
+      } : {}, {
+        Q: XunFeiRes.value.length === 0
+      }, XunFeiRes.value.length === 0 ? {
+        R: wantGoInput.value,
+        S: common_vendor.o(($event) => wantGoInput.value = $event.detail.value),
+        T: common_vendor.o(getRes)
+      } : {
+        U: common_vendor.t(XunFeiRes.value)
+      }) : {});
     };
   }
 });

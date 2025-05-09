@@ -59,7 +59,7 @@
   width: 180rpx;
   height: 180rpx;
   border-radius: 50%;
-  border: 4rpx solid #4bb0ff;
+  border: 8rpx solid #4bb0ff;
 }
 .register-container .register-form .avatar-container .avatar-upload.data-v-bac4a35d {
   margin-top: 15rpx;
@@ -111,7 +111,7 @@
 .register-container .register-form .register-button.data-v-bac4a35d {
   width: 100%;
   height: 90rpx;
-  background: linear-gradient(to right, #4bb0ff, #61e4ff);
+  background: linear-gradient(to right, #3494E6, #EC6EAD);
   color: #fff;
   font-size: 32rpx;
   font-weight: bold;

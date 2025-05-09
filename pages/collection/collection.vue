@@ -2,8 +2,8 @@
     <view class="collection-container">
 
         <!-- 内容区域 -->
-        <scroll-view scroll-y class="content-area" refresher-enabled @refresherrefresh="onRefresh"
-            :refresher-triggered="isRefreshing">
+        <!-- refresher-enabled @refresherrefresh="onRefresh" :refresher-triggered="isRefreshing" -->
+        <scroll-view scroll-y class="content-area">
             <template v-if="collections.length > 0">
                 <view class="collection-list">
                     <view class="collection-item" v-for="(item, index) in collections" :key="index"
@@ -45,7 +45,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { getUserLiked, getReleaseDetail, removeLiked } from '../../api/api';
-import { onLoad ,onShow} from '@dcloudio/uni-app'
+import { onLoad, onShow } from '@dcloudio/uni-app'
 
 // 收藏数据
 const collections = ref<any[]>([])

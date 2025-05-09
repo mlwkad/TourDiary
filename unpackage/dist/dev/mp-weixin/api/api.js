@@ -1,12 +1,6 @@
 "use strict";
 require("../common/vendor.js");
 const api_http = require("./http.js");
-const getSessionKey = (url, data) => {
-  return api_http.http("/api/getSessionKey", data);
-};
-const getWXUserInfo = (url, data, method) => {
-  return api_http.http("/api/getUserInfo", data, method);
-};
 const signUp = (data) => {
   return api_http.http("/api/signUp", data, "POST");
 };
@@ -69,11 +63,9 @@ exports.follow = follow;
 exports.getAllReleases = getAllReleases;
 exports.getFollowingList = getFollowingList;
 exports.getReleaseDetail = getReleaseDetail;
-exports.getSessionKey = getSessionKey;
 exports.getUserInfo = getUserInfo;
 exports.getUserLiked = getUserLiked;
 exports.getUserReleases = getUserReleases;
-exports.getWXUserInfo = getWXUserInfo;
 exports.removeLiked = removeLiked;
 exports.searchReleases = searchReleases;
 exports.signUp = signUp;

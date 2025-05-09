@@ -70,8 +70,14 @@
             <view class="detail-item location-box">
                 <text class="item-label">旅游地点</text>
                 <view class="location-wrapper">
-                    <image src="/static/public/location.png" class="mini-icon"></image>
-                    <text class="item-value1">{{ info.location }}</text>
+                    <view class="location-wrapper-title">
+                        <image src="/static/public/location.png" class="mini-icon"></image>
+                        <text class="item-value1">{{ info.location }}</text>
+                    </view>
+                    <view class="wantGo" @click="isShowWantLocation = true">
+                        想去
+                        <image src="/static/public/wantGo.png"></image>
+                    </view>
                 </view>
             </view>
 
@@ -99,15 +105,50 @@
             <button class="action-btn">收藏</button>
         </view> -->
     </view>
+    <view class="detail-float" v-if="isShowWantLocation">
+        <view class="detail-float-item">
+            <view class="detail-float-item-option" style="font-weight: 600;font-size: 30rpx;">
+                旅游规划
+                <image src="/static/public/copy.png" v-if="XunFeiRes.length > 0" @click="copyRes"></image>
+                <image src="/static/public/delete.png" v-if="XunFeiRes.length > 0" @click="delRes"></image>
+            </view>
+            <image src="/static/public/close.png" @click="isShowWantLocation = false">
+            </image>
+        </view>
+        <view class="detail-float-choose" v-if="XunFeiRes.length === 0">
+            <view class="detail-float-choose-item" v-for="item in chatChoose" :key="item.id" :style="{
+                background: selectedChoose.find((ele: number) => ele === item.id) ? '#FFA07A' : '#b6b6b635',
+                color: selectedChoose.find((ele: number) => ele === item.id) ? 'white' : '#999'
+            }" @click="chooseSelect(item.id)">
+                <image :src='selectedChoose.find((ele: number) => ele === item.id) ? item.selectedImage : item.image'>
+                </image>
+                {{ item.title }}
+            </view>
+        </view>
+        <view class="detail-float-input" v-if="XunFeiRes.length === 0">
+            我也想去
+            <input v-model="wantGoInput">
+            <view class="detail-float-input-go" @click="getRes">GO</view>
+        </view>
+        <view v-else class="detail-float-res">
+            <view class="detail-float-res-content">{{ XunFeiRes }}</view>
+        </view>
+    </view>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, defineExpose } from 'vue';
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { addLiked, getUserInfo, follow, unfollow, removeLiked } from '../../api/api';
+import { streamChat } from '../../api/ws';
 
 const isLiked = ref<boolean>(false)
 const isFollow = ref<boolean>(false)
+
+const isShowWantLocation = ref<boolean>(false)
+const wantGoInput = ref<any>('')  // onLoad里赋值
+const XunFeiRes = ref<string>('')
+const selectedChoose = ref([])
 
 // 初始化info对象
 const info = ref({
@@ -126,7 +167,57 @@ const info = ref({
     userID: "",
     userName: "testuser0",
     videos: []
-});
+})
+
+const chatChoose = ref([
+    { id: 1, title: '附近景点', image: '/static/public/build.png', selectedImage: '/static/public/build-white.png' },
+    { id: 2, title: '附近美食', image: '/static/public/food.png', selectedImage: '/static/public/food-white.png' },
+    { id: 3, title: '经济旅游', image: '/static/public/sale.png', selectedImage: '/static/public/sale-white.png' },
+    { id: 4, title: '自驾旅游', image: '/static/public/jeepCar.png', selectedImage: '/static/public/jeepCar-white.png' },
+    { id: 5, title: '特色住宿', image: '/static/public/hotal.png', selectedImage: '/static/public/hotal-white.png' },
+    { id: 6, title: '购物攻略', image: '/static/public/shopping.png', selectedImage: '/static/public/shopping-white.png' }
+])
+
+const chooseSelect = (id: number) => {
+    let storedId = selectedChoose.value.indexOf(id)
+    if (storedId !== -1) {
+        selectedChoose.value.splice(storedId, 1)
+    } else {
+        selectedChoose.value.push(id)
+    }
+}
+
+const getRes = () => {
+    const allChoose = chatChoose.value.filter(item => selectedChoose.value.includes(item.id))
+    let allChooseTitle = ''
+    allChoose.forEach((item) => {
+        allChooseTitle += (item.title + ',')
+    })
+    const finalContent = `我想去${wantGoInput.value}游玩,并为我提供${allChooseTitle}的建议,分点明确(一级标题:一,二 二级标题:1,2),不要出现*#等特殊符号`
+    streamChat(finalContent, (update) => {
+        if (update.type === 'update') {
+            XunFeiRes.value += update.content
+        } else if (update.type === 'error') {
+            console.log(update.error)
+        }
+    })
+}
+
+const copyRes = () => {
+    uni.setClipboardData({
+        data: XunFeiRes.value,
+        success: () => {
+            uni.showToast({
+                title: '复制成功',
+                icon: 'none'
+            })
+        }
+    })
+}
+
+const delRes = () => {
+    XunFeiRes.value = ''
+}
 
 const liked = async () => {
     const userId = JSON.parse(uni.getStorageSync('userInfo')).userId
@@ -276,6 +367,7 @@ onLoad(async (options) => {
             const decodedInfo = JSON.parse(decodeURIComponent(options.info))
             info.value = decodedInfo
         }
+        wantGoInput.value = info.value.location
         // 获取收藏列表
         if (info.value.userID) {
             const userId = JSON.parse(uni.getStorageSync('userInfo')).userId
@@ -614,21 +706,42 @@ onShow(() => {  // 不接收参数
         .location-wrapper {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             background: linear-gradient(90deg, rgba(52, 148, 230, 0.1), rgba(236, 110, 173, 0.05));
             padding: 15rpx 20rpx;
             border-radius: 50rpx;
 
-            .mini-icon {
-                width: 32rpx;
-                height: 32rpx;
-                margin-right: 10rpx;
-            }
-        }
+            .location-wrapper-title {
+                display: flex;
+                align-items: center;
 
-        .item-value1 {
-            font-size: 28rpx;
-            color: #333;
-            font-weight: 500;
+                .mini-icon {
+                    width: 32rpx;
+                    height: 32rpx;
+                    margin-right: 10rpx;
+                }
+
+                .item-value1 {
+                    font-size: 28rpx;
+                    color: #333;
+                    font-weight: 500;
+                }
+            }
+
+            .wantGo {
+                background: linear-gradient(90deg, #3494E6, #EC6EAD);
+                margin-left: 45rpx;
+                border-radius: 24rpx;
+                padding: 12rpx 16rpx 15rpx;
+                color: white;
+                white-space: nowrap;
+
+                image {
+                    height: 35rpx;
+                    width: 35rpx;
+                    transform: translateY(10rpx);
+                }
+            }
         }
     }
 
@@ -797,6 +910,7 @@ onShow(() => {  // 不接收参数
                 font-weight: 500;
                 background: linear-gradient(90deg, #333, #666);
                 -webkit-background-clip: text;
+                background-clip: text;
                 color: transparent;
                 display: block;
                 margin-bottom: 8rpx;
@@ -831,6 +945,148 @@ onShow(() => {  // 不接收参数
                 font-weight: bold;
                 transform: translateY(-2rpx);
             }
+        }
+    }
+}
+
+.detail-float {
+    overflow-y: auto;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: fit-content;
+    min-height: 30%;
+    max-height: 85%;
+    background-color: #ffffff;
+    border-radius: 28rpx 28rpx 0 0;
+    z-index: 99999;
+    animation: toTop 0.3s ease-in-out forwards;
+    padding-bottom: 45rpx;
+    box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.15);
+
+    @keyframes toTop {
+        0% {
+            transform: translateY(50%);
+            opacity: 0;
+        }
+
+        100% {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .detail-float-item {
+        width: 92%;
+        height: 110rpx;
+        border-radius: 10rpx;
+        padding: 0 30rpx;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
+
+        image {
+            width: 36rpx;
+            height: 36rpx;
+            padding: 12rpx;
+        }
+
+        .detail-float-item-option {
+            display: flex;
+            align-items: center;
+            gap: 35rpx;
+            color: #333;
+
+            image {
+                margin-left: 35rpx;
+                border-radius: 50%;
+                width: 40rpx;
+                height: 40rpx;
+                background-color: rgba(52, 148, 230, 0.1);
+                padding: 8rpx;
+            }
+        }
+    }
+
+    .detail-float-choose {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        padding: 20rpx 24rpx;
+        gap: 15rpx;
+
+        .detail-float-choose-item {
+            width: fit-content;
+            height: fit-content;
+            border-radius: 24rpx;
+            color: #999;
+            white-space: nowrap;
+            padding: 18rpx 25rpx;
+            margin-bottom: 25rpx;
+            transition: all 0.3s ease-in-out;
+            font-weight: 600;
+            font-size: 28rpx;
+            border: 2rpx solid rgba(128, 128, 128, 0.2);
+            box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+
+            image {
+                width: 32rpx;
+                height: 32rpx;
+                margin-right: 12rpx;
+                transform: translateY(4rpx);
+            }
+        }
+    }
+
+    .detail-float-input {
+        padding: 20rpx 30rpx;
+        display: flex;
+        align-items: center;
+        gap: 15rpx;
+        font-size: 30rpx;
+        font-weight: 600;
+        color: #333;
+
+        .detail-float-input-go {
+            background: linear-gradient(135deg, #3494E6, #EC6EAD);
+            color: #fff;
+            font-size: 28rpx;
+            padding: 20rpx 30rpx;
+            border-radius: 50rpx;
+            box-shadow: 0 5rpx 15rpx rgba(52, 148, 230, 0.2);
+            font-weight: bold;
+        }
+
+        input {
+            flex: 1;
+            padding: 15rpx;
+            border-radius: 10rpx;
+            background-color: rgba(0, 0, 0, 0.03);
+            border: 1rpx solid rgba(128, 128, 128, 0.2);
+        }
+    }
+
+    .detail-float-res {
+        font-size: 30rpx;
+        font-weight: 600;
+        padding: 10rpx 30rpx;
+
+        .detail-float-res-content {
+            border-top: rgba(128, 128, 128, 0.2) 2rpx solid;
+            padding: 25rpx 15rpx;
+            margin-top: 12rpx;
+            line-height: 1.6;
+            font-weight: 400;
+            white-space: pre-wrap; // 保留空格 换行 - 自动换行
+            color: #333;
+            background-color: rgba(52, 148, 230, 0.05);
+            border-radius: 12rpx;
         }
     }
 }

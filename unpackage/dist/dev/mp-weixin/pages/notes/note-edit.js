@@ -133,7 +133,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           errors.location = "";
         },
         fail: (err) => {
-          common_vendor.index.__f__("error", "at pages/notes/note-edit.vue:267", "选择位置失败", err);
+          common_vendor.index.__f__("error", "at pages/notes/note-edit.vue:259", "选择位置失败", err);
         }
       });
     };

@@ -97,16 +97,15 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         });
         return;
       }
-      const pageMap = {
-        collection: "/pages/collection/collection",
-        notes: "/pages/notes/notes",
-        follow: "/pages/follow/list",
-        settings: "/pages/settings/settings",
-        feedback: "/pages/feedback/feedback"
-      };
-      common_vendor.index.navigateTo({
-        url: pageMap[page]
-      });
+      if (page !== "follow") {
+        common_vendor.index.navigateTo({
+          url: `/pages/${page}/${page}`
+        });
+      } else {
+        common_vendor.index.navigateTo({
+          url: `/pages/${page}/list`
+        });
+      }
     };
     common_vendor.onLoad(() => {
       checkLoginStatus();
@@ -118,45 +117,39 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       return common_vendor.e({
         a: isLoggedIn.value
       }, isLoggedIn.value ? {
-        b: userInfo.avatarUrl || "/static/666.jpg",
-        c: common_vendor.t(userInfo.nickName || "666"),
-        d: common_assets._imports_0$2,
+        b: userInfo.avatarUrl,
+        c: common_vendor.t(userInfo.nickName || "用户"),
+        d: common_assets._imports_0$1,
         e: common_vendor.o(($event) => common_vendor.isRef(isShow) ? isShow.value = true : isShow = true)
       } : {
-        f: common_assets._imports_0,
+        f: common_assets._imports_1$3,
         g: common_vendor.o(handleLogin),
         h: common_vendor.o(handleRegister)
       }, {
         i: isLoggedIn.value ? 1 : "",
         j: common_assets._imports_2$3,
-        k: common_assets._imports_0$1,
+        k: common_assets._imports_3$1,
         l: common_vendor.o(($event) => navigateTo("collection")),
-        m: common_assets._imports_4$1,
-        n: common_assets._imports_0$1,
+        m: common_assets._imports_4$2,
+        n: common_assets._imports_3$1,
         o: common_vendor.o(($event) => navigateTo("notes")),
         p: common_assets._imports_5,
-        q: common_assets._imports_0$1,
+        q: common_assets._imports_3$1,
         r: common_vendor.o(($event) => navigateTo("follow")),
-        s: common_assets._imports_3,
-        t: common_assets._imports_0$1,
-        v: common_vendor.o(($event) => navigateTo("settings")),
-        w: common_assets._imports_3,
-        x: common_assets._imports_0$1,
-        y: common_vendor.o(($event) => navigateTo("feedback")),
-        z: isLoggedIn.value
+        s: isLoggedIn.value
       }, isLoggedIn.value ? {
-        A: common_vendor.o(handleLogout)
+        t: common_vendor.o(handleLogout)
       } : {}, {
-        B: common_vendor.unref(isShow)
+        v: common_vendor.unref(isShow)
       }, common_vendor.unref(isShow) ? {
-        C: common_assets._imports_4,
-        D: common_vendor.o(($event) => common_vendor.isRef(isShow) ? isShow.value = false : isShow = false),
-        E: userInfo.avatarUrl,
-        F: common_vendor.o(chooseavatar),
-        G: userInfo.nickName,
-        H: userInfo.nickName,
-        I: common_vendor.o(($event) => userInfo.nickName = $event.detail.value),
-        J: common_vendor.o(changeUserInfo)
+        w: common_assets._imports_4,
+        x: common_vendor.o(($event) => common_vendor.isRef(isShow) ? isShow.value = false : isShow = false),
+        y: userInfo.avatarUrl,
+        z: common_vendor.o(chooseavatar),
+        A: userInfo.nickName,
+        B: userInfo.nickName,
+        C: common_vendor.o(($event) => userInfo.nickName = $event.detail.value),
+        D: common_vendor.o(changeUserInfo)
       } : {});
     };
   }

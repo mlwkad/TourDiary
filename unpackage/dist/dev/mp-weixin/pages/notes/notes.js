@@ -6,7 +6,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "notes",
   setup(__props) {
     const notes = common_vendor.ref([]);
-    const isRefreshing = common_vendor.ref(false);
+    common_vendor.ref(false);
     const userID = JSON.parse(common_vendor.index.getStorageSync("userInfo")).userId;
     const showAllReason = common_vendor.ref(false);
     const allReason = common_vendor.ref("");
@@ -80,13 +80,6 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         { state: state.value, reason: reason.value }
       );
     };
-    const onRefresh = async () => {
-      isRefreshing.value = true;
-      const res = await api_api.getUserReleases(userID);
-      notes.value = res;
-      await new Promise((resolve) => setTimeout(resolve, 1e3));
-      isRefreshing.value = false;
-    };
     const previewImage = (images, current) => {
       common_vendor.index.previewImage({
         urls: images,
@@ -155,17 +148,15 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         g: common_assets._imports_3,
         h: common_vendor.o(createNote)
       }, {
-        i: common_vendor.o(onRefresh),
-        j: isRefreshing.value,
-        k: common_assets._imports_2$4,
-        l: common_vendor.o(createNote),
-        m: showAllReason.value
+        i: common_assets._imports_2$4,
+        j: common_vendor.o(createNote),
+        k: showAllReason.value
       }, showAllReason.value ? {
-        n: common_vendor.t(allReason.value),
-        o: common_vendor.o(($event) => showAllReason.value = false),
-        p: common_vendor.o(() => {
+        l: common_vendor.t(allReason.value),
+        m: common_vendor.o(($event) => showAllReason.value = false),
+        n: common_vendor.o(() => {
         }),
-        q: common_vendor.o(($event) => showAllReason.value = false)
+        o: common_vendor.o(($event) => showAllReason.value = false)
       } : {});
     };
   }

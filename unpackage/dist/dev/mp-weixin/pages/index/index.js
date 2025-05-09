@@ -3,29 +3,9 @@ const common_vendor = require("../../common/vendor.js");
 const common_assets = require("../../common/assets.js");
 const api_api = require("../../api/api.js");
 const utils_filter = require("../../utils/filter.js");
-const api_ws = require("../../api/ws.js");
 const _sfc_defineComponent = common_vendor.defineComponent({
   __name: "index",
   setup(__props) {
-    let wsContent = common_vendor.ref("");
-    let messages = common_vendor.ref([]);
-    const handleStreamChat = () => {
-      if (!wsContent.value.trim())
-        return;
-      messages.value.push(`我: ${wsContent.value}`);
-      api_ws.streamChat(wsContent.value, (update) => {
-        if (update.type === "update") {
-          if (messages.value.length > 0 && messages.value[messages.value.length - 1].startsWith("AI:")) {
-            messages.value[messages.value.length - 1] = `AI: ${update.content}`;
-          } else {
-            messages.value.push(`AI: ${update.content}`);
-          }
-        } else if (update.type === "error") {
-          common_vendor.index.__f__("error", "at pages/index/index.vue:86", update.error);
-        }
-      });
-      wsContent.value = "";
-    };
     let searchContent = common_vendor.ref("");
     let goTop = common_vendor.ref(false);
     let choose = common_vendor.ref(false);
@@ -87,7 +67,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
           searchError.value = "未找到相关内容";
         }
       }).catch((err) => {
-        common_vendor.index.__f__("error", "at pages/index/index.vue:164", err);
+        common_vendor.index.__f__("error", "at pages/index/index.vue:113", err);
         searchError.value = "搜索失败，请稍后再试";
       });
     };
@@ -136,36 +116,27 @@ const _sfc_defineComponent = common_vendor.defineComponent({
     });
     return (_ctx, _cache) => {
       return common_vendor.e({
-        a: common_vendor.unref(wsContent),
-        b: common_vendor.o(($event) => common_vendor.isRef(wsContent) ? wsContent.value = $event.detail.value : wsContent = $event.detail.value),
-        c: common_vendor.o(handleStreamChat),
-        d: common_vendor.f(common_vendor.unref(messages), (msg, index, i0) => {
-          return {
-            a: common_vendor.t(msg),
-            b: index
-          };
-        }),
-        e: common_assets._imports_3,
-        f: common_vendor.unref(searchContent),
-        g: common_vendor.o(($event) => common_vendor.isRef(searchContent) ? searchContent.value = $event.detail.value : searchContent = $event.detail.value),
-        h: common_vendor.o(goSearch),
-        i: common_vendor.unref(searchError)
+        a: common_assets._imports_3,
+        b: common_vendor.unref(searchContent),
+        c: common_vendor.o(($event) => common_vendor.isRef(searchContent) ? searchContent.value = $event.detail.value : searchContent = $event.detail.value),
+        d: common_vendor.o(goSearch),
+        e: common_vendor.unref(searchError)
       }, common_vendor.unref(searchError) ? {
-        j: common_vendor.t(common_vendor.unref(searchError))
+        f: common_vendor.t(common_vendor.unref(searchError))
       } : {}, {
-        k: common_vendor.unref(isShowChoose)
+        g: common_vendor.unref(isShowChoose)
       }, common_vendor.unref(isShowChoose) ? common_vendor.e({
-        l: allInfoByUserName.value[0][0]
+        h: allInfoByUserName.value[0][0]
       }, allInfoByUserName.value[0][0] ? {
-        m: !common_vendor.unref(choose) ? 1 : "",
-        n: common_vendor.o(($event) => (common_vendor.isRef(choose) ? choose.value = false : choose = false, allInfo.value = allInfoByUserName.value))
+        i: !common_vendor.unref(choose) ? 1 : "",
+        j: common_vendor.o(($event) => (common_vendor.isRef(choose) ? choose.value = false : choose = false, allInfo.value = allInfoByUserName.value))
       } : {}, {
-        o: allInfoByTitle.value[0][0]
+        k: allInfoByTitle.value[0][0]
       }, allInfoByTitle.value[0][0] ? {
-        p: common_vendor.unref(choose) ? 1 : "",
-        q: common_vendor.o(($event) => (common_vendor.isRef(choose) ? choose.value = true : choose = true, allInfo.value = allInfoByTitle.value))
+        l: common_vendor.unref(choose) ? 1 : "",
+        m: common_vendor.o(($event) => (common_vendor.isRef(choose) ? choose.value = true : choose = true, allInfo.value = allInfoByTitle.value))
       } : {}) : {}, {
-        r: common_vendor.f(2, (i, index, i0) => {
+        n: common_vendor.f(2, (i, index, i0) => {
           return {
             a: common_vendor.f(allInfo.value[i - 1], (j, k1, i1) => {
               return {
@@ -179,17 +150,17 @@ const _sfc_defineComponent = common_vendor.defineComponent({
             b: index
           };
         }),
-        s: common_assets._imports_0,
-        t: common_vendor.unref(isShowChangePage)
+        o: common_assets._imports_0,
+        p: common_vendor.unref(isShowChangePage)
       }, common_vendor.unref(isShowChangePage) ? {
-        v: common_vendor.o(($event) => changePage(1)),
-        w: common_vendor.t(common_vendor.unref(curPage)),
-        x: common_vendor.o(($event) => changePage(2))
+        q: common_vendor.o(($event) => changePage(1)),
+        r: common_vendor.t(common_vendor.unref(curPage)),
+        s: common_vendor.o(($event) => changePage(2))
       } : {}, {
-        y: common_vendor.unref(goTop)
+        t: common_vendor.unref(goTop)
       }, common_vendor.unref(goTop) ? {
-        z: common_vendor.o(goTopFunc),
-        A: common_assets._imports_2
+        v: common_vendor.o(goTopFunc),
+        w: common_assets._imports_2
       } : {});
     };
   }

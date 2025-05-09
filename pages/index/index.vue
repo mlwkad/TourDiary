@@ -1,20 +1,5 @@
 <template>
 	<view class="home-container">
-
-
-
-		<!-- WebSocket测试区域 -->
-		<view style="padding: 20rpx;">
-			<input type="text" v-model="wsContent" placeholder="输入消息"
-				style="border: 1px solid #ccc; padding: 10rpx; margin-bottom: 10rpx;" />
-			<button @click="handleStreamChat" style="margin-bottom: 10rpx;">发送</button>
-			<view v-for="(msg, index) in messages" :key="index" style="margin-bottom: 10rpx;">
-				{{ msg }}
-			</view>
-		</view>
-
-
-
 		<view class="home-content">
 			<view class="home-input">
 				<image src="/static/public/search.png" class="home-search-icon"></image>
@@ -57,42 +42,6 @@ import { getAllReleases, searchReleases } from '../../api/api'
 import { onLoad, onReachBottom, onPageScroll, onShow } from '@dcloudio/uni-app'
 import { ref, watchEffect } from 'vue'
 import { validateSearch } from '../../utils/filter'
-
-
-
-
-// WebSocket相关
-import { streamChat } from '../../api/ws'
-
-let wsContent = ref<string>('')
-let messages = ref<string[]>([])
-
-const handleStreamChat = () => {
-	if (!wsContent.value.trim()) return
-
-	// 添加用户消息
-	messages.value.push(`我: ${wsContent.value}`)
-
-	// 发送消息
-	streamChat(wsContent.value, (update) => {
-		if (update.type === 'update') {
-			// 更新最后一条消息或添加新消息
-			if (messages.value.length > 0 && messages.value[messages.value.length - 1].startsWith('AI:')) {
-				messages.value[messages.value.length - 1] = `AI: ${update.content}`
-			} else {
-				messages.value.push(`AI: ${update.content}`)
-			}
-		} else if (update.type === 'error') {
-			console.error(update.error)
-		}
-	})
-
-	// 清空输入框
-	wsContent.value = ''
-}
-
-
-
 
 let searchContent = ref<string>('')
 let goTop = ref<boolean>(false)
@@ -205,9 +154,7 @@ onShow(() => {
 	searchContent.value = ''
 })
 
-onReachBottom(() => {
-
-})
+onReachBottom(() => { })
 
 onPageScroll((e) => {
 	if (e.scrollTop > 300) {

@@ -1,185 +1,153 @@
-// WebSocket聊天工具
-let socketTask = null;
-let isConnecting = false;
-let messageCallback = null;
-let connectionTimeout = null;
+// WebSocket
+let socketTask = null
+let isConnecting = false
+let messageCallback = null
+let connectionTimeout = null
 
 // 创建或获取WebSocket连接
 const getWebSocketConnection = () => {
     return new Promise((resolve, reject) => {
-        console.log('开始建立WebSocket连接...');
 
         // 如果已有连接，直接返回
         if (socketTask) {
-            console.log('使用现有WebSocket连接');
-            resolve(socketTask);
-            return;
+            resolve(socketTask)
+            return
         }
-
-        // 如果正在连接中，等待连接完成
+        // 正在连接 轮训检查
         if (isConnecting) {
-            console.log('WebSocket正在连接中，等待连接完成...');
             const checkConnection = setInterval(() => {
                 if (socketTask) {
-                    console.log('WebSocket连接等待完成');
-                    clearInterval(checkConnection);
-                    resolve(socketTask);
+                    clearInterval(checkConnection)
+                    resolve(socketTask)
                 }
-            }, 100);
-
+            }, 100)
             // 添加超时处理
             setTimeout(() => {
                 if (!socketTask) {
-                    console.log('WebSocket连接超时');
-                    clearInterval(checkConnection);
-                    isConnecting = false;
-                    reject(new Error('连接超时'));
+                    clearInterval(checkConnection)
+                    isConnecting = false
+                    reject(new Error('连接超时'))  // catch里打印err.message
                 }
-            }, 5000); // 5秒超时
-
-            return;
+            }, 5000)
+            return
         }
 
         // 创建新连接
-        console.log('创建新的WebSocket连接');
-        isConnecting = true;
-        const wsUrl = `ws://localhost:3000`;
-        console.log('WebSocket URL:', wsUrl);
-
+        isConnecting = true
+        const wsUrl = `ws://localhost:3000`
         try {
-            // 创建WebSocket连接
             socketTask = uni.connectSocket({
                 url: wsUrl,
-                success: () => {
-                    console.log('WebSocket连接请求已发送');
-                },
+                success: () => { },
                 fail: (error) => {
-                    console.error('WebSocket连接失败:', error);
-                    isConnecting = false;
-                    reject(error);
+                    console.log('WebSocket连接失败:', error)
+                    isConnecting = false
+                    reject(error)
                 }
-            });
-
+            })
             // 设置连接超时
             connectionTimeout = setTimeout(() => {
                 if (!socketTask) {
-                    console.log('WebSocket连接超时');
-                    isConnecting = false;
-                    reject(new Error('连接超时'));
+                    isConnecting = false
+                    reject(new Error('连接超时'))
                 }
-            }, 5000); // 5秒超时
-
+            }, 5000)
             // 监听WebSocket连接打开
             socketTask.onOpen(() => {
-                console.log('WebSocket连接已打开');
-                if (connectionTimeout) {
-                    clearTimeout(connectionTimeout);
-                }
-                isConnecting = false;
-                resolve(socketTask);
-            });
-
+                if (connectionTimeout) clearTimeout(connectionTimeout)
+                isConnecting = false
+                // 成功打开,返回socketTask实例
+                resolve(socketTask)
+                // resolve()或者reject()不会终止Promise内部代码的继续执行
+                // 只是将Promise的状态设置为resolve或者reject
+                // 此时可以使用.then()或者.catch()访问到resolve或者reject的值
+            })
             // 监听WebSocket消息
             socketTask.onMessage((res) => {
-                console.log('收到服务器消息:', res.data);
                 try {
-                    const data = JSON.parse(res.data);
-                    console.log('解析后的消息数据:', data);
-
+                    const data = JSON.parse(res.data)
                     if (messageCallback) {
                         switch (data.type) {
                             case 'chat':
-                                messageCallback({
+                                messageCallback({  // 触发回调函数
                                     type: 'update',
                                     content: data.content,
                                     onlineInfo: data.onlineInfo
-                                });
-                                break;
+                                })
+                                break
                             case 'done':
                                 messageCallback({
                                     type: 'complete',
                                     content: data.content,
                                     totalTokens: data.totalTokens
-                                });
-                                break;
+                                })
+                                break
                             case 'error':
                                 messageCallback({
                                     type: 'error',
                                     error: data.error
-                                });
-                                break;
+                                })
+                                break
                             case 'end':
                                 messageCallback({
                                     type: 'end'
-                                });
-                                break;
+                                })
+                                break
                         }
                     }
                 } catch (e) {
-                    console.error('解析WebSocket消息失败:', e);
+                    console.log('解析WebSocket消息失败:', e)
                 }
-            });
-
+            })
             // 监听WebSocket错误
-            socketTask.onError((res) => {
-                console.error('WebSocket发生错误:', res);
+            socketTask.onError((err) => {
+                console.log('socketTask发生错误:', err)
                 if (connectionTimeout) {
-                    clearTimeout(connectionTimeout);
+                    clearTimeout(connectionTimeout)
                 }
-                socketTask = null;
-                isConnecting = false;
-                reject(res);
-            });
-
+                socketTask = null
+                isConnecting = false
+                reject(err)
+            })
             // 监听WebSocket关闭
             socketTask.onClose(() => {
-                console.log('WebSocket连接已关闭');
+                console.log('WebSocket连接已关闭')
                 if (connectionTimeout) {
-                    clearTimeout(connectionTimeout);
+                    clearTimeout(connectionTimeout)
                 }
-                socketTask = null;
-                isConnecting = false;
-            });
-
+                socketTask = null
+                isConnecting = false
+            })
         } catch (error) {
-            console.error('创建WebSocket连接时发生错误:', error);
-            isConnecting = false;
-            reject(error);
+            console.log('创建WebSocket连接时发生错误:', error)
+            isConnecting = false
+            reject(error)
         }
-    });
-};
+    })
+}
 
 // 导出的主函数
 export const streamChat = (message, onUpdate) => {
-    console.log('开始发送消息:', message);
-
     // 保存回调函数
-    messageCallback = onUpdate;
-
+    messageCallback = onUpdate
     // 获取连接并发送消息
     getWebSocketConnection()
         .then((task) => {
-            console.log('WebSocket连接成功，准备发送消息');
-            // 发送消息
-            task.send({
+            task.send({  // 发送消息
                 data: JSON.stringify({
                     type: 'chat',
                     message: message
                 }),
-                success: () => {
-                    console.log('消息发送成功');
-                },
+                success: () => { },
                 fail: (error) => {
-                    console.error('发送消息失败:', error);
-                    onUpdate && onUpdate({
+                    onUpdate && onUpdate({  // 存在onUpdate回调函数,才触发回调函数
                         type: 'error',
-                        error: '发送消息失败'
-                    });
+                        error: '发送消息失败' + error.message
+                    })
                 }
-            });
+            })
         })
         .catch((error) => {
-            console.error('WebSocket连接失败:', error);
             onUpdate && onUpdate({
                 type: 'error',
                 error: 'WebSocket连接失败: ' + error.message
@@ -189,20 +157,19 @@ export const streamChat = (message, onUpdate) => {
 
 // 关闭WebSocket连接
 export const closeWebSocket = () => {
-    console.log('准备关闭WebSocket连接');
     if (connectionTimeout) {
-        clearTimeout(connectionTimeout);
+        clearTimeout(connectionTimeout)
     }
     if (socketTask) {
         socketTask.close({
             success: () => {
-                console.log('WebSocket连接已关闭');
+                console.log('WebSocket连接已关闭')
             },
             fail: (error) => {
-                console.error('关闭WebSocket连接失败:', error);
+                console.log('关闭WebSocket连接失败:', error)
             }
-        });
-        socketTask = null;
-        messageCallback = null;
+        })
+        socketTask = null
+        messageCallback = null
     }
-}; 
+}

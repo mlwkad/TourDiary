@@ -1,14 +1,10 @@
 <template>
     <view class="register-container">
-        <view class="register-header">
-            <image class="back-icon" src="/static/public/back.png" @click="goBack"></image>
-            <text class="header-title">用户注册</text>
-        </view>
         <view class="register-form">
             <view class="avatar-container">
-                <image class="avatar" src="/static/666.jpg" mode="aspectFill"></image>
+                <image class="avatar" :src="avatarUrl" mode="aspectFill"></image>
                 <view class="avatar-upload">
-                    <text>点击更换头像</text>
+                    <text @click="changeAvatar">点击更换头像</text>
                 </view>
             </view>
             <view class="input-group">
@@ -49,11 +45,13 @@
 import { ref, reactive } from 'vue'
 import { signUp } from '../../api/api'
 import { validateUsername, validatePassword } from '../../utils/filter'
+import { onShow } from '@dcloudio/uni-app'
 
 const username = ref<string>('')
 const confirmUsername = ref<string>('')
 const password = ref<string>('')
 const confirmPassword = ref<string>('')
+const avatarUrl = ref<string>('/static/public/defaultAvatar.png')
 
 // 错误信息
 const errors = reactive({
@@ -116,21 +114,22 @@ const handleRegister = () => {
 
     const userInfo = {
         nickName: username.value,
-        avatarUrl: '/static/666.jpg',
+        avatarUrl: '',
         userId: ''
     };
 
     try {
         signUp({
             userName: username.value,
-            passWord: password.value
+            passWord: password.value,
+            avatar: avatarUrl.value
         }).then(async res => {
-            console.log(res)
 
             userInfo.nickName = username.value
-            userInfo.avatarUrl = '/static/666.jpg'
+            userInfo.avatarUrl = avatarUrl.value
             userInfo.userId = res.userID
-            uni.setStorageSync('token', 'sample-token')
+
+            uni.setStorageSync('token', res.userID)
             uni.setStorageSync('userInfo', JSON.stringify(userInfo))
             uni.hideLoading()
             await new Promise(resolve => {
@@ -161,47 +160,24 @@ const handleRegister = () => {
     }
 }
 
-// 微信注册
-const wechatRegister = () => {
-    uni.showLoading({
-        title: '注册中...'
-    })
-
-    // 模拟微信注册
-    setTimeout(() => {
-        uni.hideLoading()
-
-        const userInfo = {
-            nickName: '微信用户',
-            avatarUrl: '/static/666.jpg',
-            userId: 'wx' + Date.now()
+const changeAvatar = () => {
+    uni.chooseImage({
+        count: 1,
+        success: (res) => {
+            avatarUrl.value = res.tempFilePaths
         }
-
-        uni.setStorageSync('token', 'wx-token');
-        uni.setStorageSync('userInfo', JSON.stringify(userInfo))
-
-        uni.showToast({
-            title: '注册成功',
-            icon: 'success'
-        })
-
-        setTimeout(() => {
-            uni.navigateBack({
-                delta: 2  // 返回两层，跳过登录页回到我的页面
-            })
-        }, 1500)
-    }, 1500)
-};
-
-// 返回上一页
-const goBack = () => {
-    uni.navigateBack()
+    })
 }
 
 // 跳转到登录页
 const goToLogin = () => {
     uni.navigateBack()
 }
+
+onShow(() => {
+    avatarUrl.value = '/static/public/defaultAvatar.png'
+})
+
 </script>
 
 <style lang="scss" scoped>
@@ -243,7 +219,7 @@ const goToLogin = () => {
                 width: 180rpx;
                 height: 180rpx;
                 border-radius: 50%;
-                border: 4rpx solid #4bb0ff;
+                border: 8rpx solid #4bb0ff;
             }
 
             .avatar-upload {
@@ -304,7 +280,7 @@ const goToLogin = () => {
         .register-button {
             width: 100%;
             height: 90rpx;
-            background: linear-gradient(to right, #4bb0ff, #61e4ff);
+            background: linear-gradient(to right, #3494E6, #EC6EAD);
             color: #fff;
             font-size: 32rpx;
             font-weight: bold;

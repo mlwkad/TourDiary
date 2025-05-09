@@ -1,13 +1,11 @@
 <template>
     <view class="login-container">
-        <view class="login-header">
-            <image class="back-icon" src="/static/public/back.png" @click="goBack"></image>
-            <text class="header-title">用户登录</text>
+        <view class="login-branding">
+            <image class="app-logo" src="/static/public/logo.png" mode="aspectFit"></image>
+            <view class="brand-title">旅游日记</view>
+            <view class="brand-slogan">记录旅途，分享精彩</view>
         </view>
         <view class="login-form">
-            <view class="avatar-container">
-                <image class="avatar" src="/static/666.jpg" mode="aspectFill"></image>
-            </view>
             <view class="input-group">
                 <view class="input-item">
                     <text class="input-label">用户名</text>
@@ -26,12 +24,6 @@
                 <text class="register-link" @click="goToRegister">没有账号? 去注册</text>
             </view>
             <button class="login-button" @click="handleLogin">登录</button>
-            <view class="wechat-login">
-                <text class="wechat-login-text">微信快速登录</text>
-                <button class="wechat-login-button" @click="wechatLogin">
-                    <text>微信登录</text>
-                </button>
-            </view>
         </view>
     </view>
 </template>
@@ -219,11 +211,6 @@ const wechatLogin = async () => {
     }
 }
 
-// 返回上一页
-const goBack = () => {
-    uni.navigateBack()
-}
-
 // 跳转到注册页
 const goToRegister = () => {
     uni.navigateTo({
@@ -235,7 +222,51 @@ const goToRegister = () => {
 <style lang="scss" scoped>
 .login-container {
     background-color: #ffffff;
-    min-height: 100vh;
+    // min-height: 100vh;
+
+    .login-branding {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 80rpx 0 40rpx;
+        background: linear-gradient(135deg, rgba(52, 148, 230, 0.05), rgba(236, 110, 173, 0.03));
+        border-radius: 0 0 30% 30%;
+        margin-bottom: 20rpx;
+        position: relative;
+
+        &::after {
+            z-index: 999999;
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 25%;
+            width: 50%;
+            height: 8rpx;
+            background: linear-gradient(to right, transparent, rgba(52, 148, 230, 0.3), rgba(236, 110, 173, 0.3), transparent);
+        }
+
+        .app-logo {
+            width: 180rpx;
+            height: 180rpx;
+            margin-bottom: 30rpx;
+        }
+
+        .brand-title {
+            font-size: 48rpx;
+            font-weight: bold;
+            background: linear-gradient(to right, #3494E6, #EC6EAD);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 16rpx;
+        }
+
+        .brand-slogan {
+            font-size: 28rpx;
+            color: #888;
+            letter-spacing: 2rpx;
+        }
+    }
 
     .login-header {
         display: flex;
@@ -326,7 +357,7 @@ const goToRegister = () => {
         .login-button {
             width: 100%;
             height: 90rpx;
-            background: linear-gradient(to right, #4bb0ff, #61e4ff);
+            background: linear-gradient(to right, #3494E6, #EC6EAD);
             color: #fff;
             font-size: 32rpx;
             font-weight: bold;

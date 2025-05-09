@@ -5,14 +5,12 @@
             <input class="note-title-input" placeholder="请输入标题..." v-model="note.title" maxlength="50"
                 @input="errors.title = ''" />
             <view class="error-text" v-if="errors.title">{{ errors.title }}</view>
-
             <view class="location-selector" @click="chooseLocation">
                 <image src="/static/public/search.png" mode="aspectFit"></image>
                 <text v-if="note.location">{{ note.location }}</text>
                 <text v-else class="placeholder">添加位置</text>
             </view>
             <view class="error-text" v-if="errors.location">{{ errors.location }}</view>
-
             <view class="detail-info">
                 <view class="info-item">
                     <image src="/static/public/money.png" class="info-icon"></image>
@@ -32,13 +30,11 @@
                 <view class="error-text" v-if="errors.personNum">人数: {{ errors.personNum }}</view>
                 <view class="error-text" v-if="errors.playTime">时间: {{ errors.playTime }}</view>
             </view>
-
             <view class="note-content-input">
                 <textarea class="note-content-input-content" placeholder="写下你的旅行记录..." v-model="note.content"
                     maxlength="5000" auto-height @input="errors.content = ''" />
             </view>
             <view class="error-text" v-if="errors.content">{{ errors.content }}</view>
-
             <view class="image-section">
                 <view class="image-list">
                     <view class="image-item" v-for="(img, index) in note.pictures" :key="index">
@@ -55,7 +51,6 @@
                 </view>
             </view>
             <view class="error-text" v-if="errors.pictures">{{ errors.pictures }}</view>
-
             <view class="video-section" v-if="note.videos && note.videos.length > 0">
                 <view class="video-container">
                     <video class="preview-video" :src="note.videos[0]" controls></video>
@@ -63,7 +58,6 @@
                         <image src="/static/public/close.png" mode="aspectFit"></image>
                     </view>
                 </view>
-
                 <view class="video-cover-section">
                     <text class="section-title">视频封面</text>
                     <view class="cover-container">
@@ -80,13 +74,11 @@
                     </view>
                 </view>
             </view>
-
             <view class="add-video-btn" @click="chooseVideo" v-if="!note.videos || note.videos.length === 0">
                 <text class="add-icon">+</text>
                 <text class="add-text" style="color: grey;">添加视频</text>
             </view>
         </scroll-view>
-
         <!-- 底部保存按钮 -->
         <view class="save-button" @click="saveNote">保存笔记</view>
     </view>
@@ -616,7 +608,7 @@ onLoad((options) => {
                     font-size: 32rpx;
                     font-weight: bold;
                     margin-bottom: 20rpx;
-                    background: linear-gradient(90deg, #3494E6, #555);
+                    background: linear-gradient(90deg, #3494E6, #3494E6);
                     -webkit-background-clip: text;
                     background-clip: text;
                     color: transparent;

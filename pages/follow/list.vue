@@ -1,8 +1,8 @@
 <template>
     <view class="follow-container">
         <!-- 内容区域 -->
-        <scroll-view scroll-y class="content-area" refresher-enabled @refresherrefresh="onRefresh"
-            :refresher-triggered="isRefreshing">
+        <!-- refresher-enabled @refresherrefresh="onRefresh" :refresher-triggered="isRefreshing" -->
+        <scroll-view scroll-y class="content-area">
             <template v-if="followList.length > 0">
                 <view class="follow-list">
                     <view class="follow-item" v-for="(item, index) in followList" :key="index"

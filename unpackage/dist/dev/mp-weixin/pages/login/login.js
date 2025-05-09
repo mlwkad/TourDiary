@@ -87,7 +87,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           await common_vendor.index.setStorageSync("userInfo", JSON.stringify(userInfo));
           common_vendor.index.navigateBack();
         }).catch((err) => {
-          common_vendor.index.__f__("log", "at pages/login/login.vue:146", err);
+          common_vendor.index.__f__("log", "at pages/login/login.vue:138", err);
           common_vendor.index.hideLoading();
           common_vendor.index.showToast({
             title: "登录失败，请检查用户名和密码",
@@ -95,66 +95,13 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           });
         });
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/login/login.vue:154", e);
+        common_vendor.index.__f__("log", "at pages/login/login.vue:146", e);
         common_vendor.index.hideLoading();
         common_vendor.index.showToast({
           title: "登录失败，请稍后重试",
           icon: "none"
         });
       }
-    };
-    const wechatLogin = async () => {
-      try {
-        const modalRes = await new Promise((resolve) => {
-          common_vendor.index.showModal({
-            title: "温馨提示",
-            content: "需要您授权获取个人信息",
-            success: resolve
-          });
-        });
-        if (!modalRes.confirm)
-          return;
-        const userProfileRes = await new Promise((resolve, reject) => {
-          common_vendor.index.getUserProfile({
-            desc: "需要获取您的微信昵称和头像",
-            success: resolve,
-            fail: reject
-          });
-        }).catch((err) => {
-          common_vendor.index.__f__("log", "at pages/login/login.vue:183", "获取用户信息失败", err);
-          common_vendor.index.showToast({ title: "获取用户信息失败", icon: "none" });
-          throw new Error("用户拒绝授权");
-        });
-        const { encryptedData, iv } = userProfileRes;
-        const loginRes = await new Promise((resolve) => {
-          common_vendor.index.login({ success: resolve });
-        });
-        try {
-          const sessionKeyRes = await api_api.getSessionKey("", { code: loginRes });
-          const userInfoRes = await api_api.getWXUserInfo("", {
-            encryptedData,
-            iv,
-            sessionKey: sessionKeyRes.sessionKey
-          }, "POST");
-          const userInfo = {
-            nickName: userInfoRes.nickName,
-            avatarUrl: userInfoRes.avatarUrl,
-            userId: ""
-          };
-          common_vendor.index.setStorageSync("token", "wx-token");
-          common_vendor.index.setStorageSync("userInfo", JSON.stringify(userInfo));
-          common_vendor.index.showToast({ title: "登录成功", icon: "success" });
-          setTimeout(() => common_vendor.index.navigateBack(), 1e3);
-        } catch (error) {
-          common_vendor.index.__f__("error", "at pages/login/login.vue:214", "微信登录失败", error);
-          common_vendor.index.showToast({ title: "登录失败，请稍后重试", icon: "none" });
-        }
-      } catch (error) {
-        common_vendor.index.__f__("error", "at pages/login/login.vue:218", "微信登录过程异常", error);
-      }
-    };
-    const goBack = () => {
-      common_vendor.index.navigateBack();
     };
     const goToRegister = () => {
       common_vendor.index.navigateTo({
@@ -163,24 +110,21 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     };
     return (_ctx, _cache) => {
       return common_vendor.e({
-        a: common_assets._imports_0$1,
-        b: common_vendor.o(goBack),
-        c: common_assets._imports_0,
-        d: common_vendor.o([($event) => username.value = $event.detail.value, ($event) => errors.username = ""]),
-        e: username.value,
-        f: errors.username
+        a: common_assets._imports_0$2,
+        b: common_vendor.o([($event) => username.value = $event.detail.value, ($event) => errors.username = ""]),
+        c: username.value,
+        d: errors.username
       }, errors.username ? {
-        g: common_vendor.t(errors.username)
+        e: common_vendor.t(errors.username)
       } : {}, {
-        h: common_vendor.o([($event) => password.value = $event.detail.value, ($event) => errors.password = ""]),
-        i: password.value,
-        j: errors.password
+        f: common_vendor.o([($event) => password.value = $event.detail.value, ($event) => errors.password = ""]),
+        g: password.value,
+        h: errors.password
       }, errors.password ? {
-        k: common_vendor.t(errors.password)
+        i: common_vendor.t(errors.password)
       } : {}, {
-        l: common_vendor.o(goToRegister),
-        m: common_vendor.o(handleLogin),
-        n: common_vendor.o(wechatLogin)
+        j: common_vendor.o(goToRegister),
+        k: common_vendor.o(handleLogin)
       });
     };
   }

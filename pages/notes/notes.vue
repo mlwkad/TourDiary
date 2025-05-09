@@ -5,8 +5,8 @@
     </view>
     <view class="notes-container">
         <!-- 内容区域 -->
-        <scroll-view scroll-y class="content-area" refresher-enabled @refresherrefresh="onRefresh"
-            :refresher-triggered="isRefreshing">
+        <!-- refresher-enabled @refresherrefresh="onRefresh" :refresher-triggered="isRefreshing" -->
+        <scroll-view scroll-y class="content-area">
             <!-- 笔记列表 -->
             <template v-if="notes.length > 0">
                 <view class="notes-list">

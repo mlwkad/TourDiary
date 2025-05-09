@@ -6,7 +6,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "list",
   setup(__props) {
     const followList = common_vendor.ref([]);
-    const isRefreshing = common_vendor.ref(false);
+    common_vendor.ref(false);
     const userID = common_vendor.ref("");
     const viewUserProfile = (userID2) => {
       common_vendor.index.navigateTo({
@@ -30,15 +30,6 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             });
           }
         }
-      });
-    };
-    const onRefresh = async () => {
-      isRefreshing.value = true;
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          isRefreshing.value = false;
-          resolve(null);
-        }, 500);
       });
     };
     const goToDiscover = () => {
@@ -84,9 +75,6 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }, followList.value.length > 5 ? {} : {}) : {
         e: common_assets._imports_3,
         f: common_vendor.o(goToDiscover)
-      }, {
-        g: common_vendor.o(onRefresh),
-        h: isRefreshing.value
       });
     };
   }

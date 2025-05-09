@@ -18,8 +18,8 @@
             </view>
         </view>
 
-        <scroll-view scroll-y class="content-area" refresher-enabled @refresherrefresh="onRefresh"
-            :refresher-triggered="isRefreshing">
+        <!-- refresher-enabled @refresherrefresh="onRefresh" :refresher-triggered="isRefreshing" -->
+        <scroll-view scroll-y class="content-area" >
             <template v-if="userWorks.length > 0">
                 <view class="works-list">
                     <view class="work-item" v-for="(item, index) in userWorks" :key="index"

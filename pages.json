@@ -13,12 +13,6 @@
 			}
 		},
 		{
-			"path": "pages/dev/dev",
-			"style": {
-				"navigationBarTitleText": "开发调试"
-			}
-		},
-		{
 			"path": "pages/My/My",
 			"style": {
 				"navigationBarTitleText": "我的"
@@ -33,15 +27,13 @@
 		{
 			"path": "pages/login/login",
 			"style": {
-				"navigationBarTitleText": "登录",
-				"navigationStyle": "custom"
+				"navigationBarTitleText": "登录"
 			}
 		},
 		{
 			"path": "pages/register/register",
 			"style": {
-				"navigationBarTitleText": "注册",
-				"navigationStyle": "custom"
+				"navigationBarTitleText": "注册"
 			}
 		},
 		{

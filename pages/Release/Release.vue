@@ -241,7 +241,7 @@ const submitForm = () => {
 			})
 			setTimeout(() => resolve(), 1000)
 		})
-		resetForm();
+		resetForm()
 		// setTimeout(() => {
 		// 	uni.navigateTo({
 		// 		url: '/pages/MyNotes/MyNotes'

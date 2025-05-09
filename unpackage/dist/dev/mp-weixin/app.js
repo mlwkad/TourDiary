@@ -5,7 +5,6 @@ const uni_modules_uviewPlus_index = require("./uni_modules/uview-plus/index.js")
 if (!Math) {
   "./pages/index/index.js";
   "./pages/detail/detail.js";
-  "./pages/dev/dev.js";
   "./pages/My/My.js";
   "./pages/Release/Release.js";
   "./pages/login/login.js";
@@ -17,22 +16,11 @@ if (!Math) {
   "./pages/follow/works.js";
 }
 const _sfc_main = {
-  // onLaunch: function () {
-  // 	uni.__f__('log','at App.vue:4','App Launch')
-  // 	// 导航页
-  // 	// 发布前注释掉
-  // 	setTimeout(() => {
-  // 		uni.reLaunch({
-  // 			url: '/pages/dev/dev'
-  // 		});
-  // 	}, 800);
-  // },
-  // onShow: function () {
-  // 	uni.__f__('log','at App.vue:15','App Show')
-  // },
-  // onHide: function () {
-  // 	uni.__f__('log','at App.vue:18','App Hide')
-  // }
+  __name: "App",
+  setup(__props) {
+    return () => {
+    };
+  }
 };
 function createApp() {
   const app = common_vendor.createSSRApp(_sfc_main);
