@@ -6,7 +6,6 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "list",
   setup(__props) {
     const followList = common_vendor.ref([]);
-    common_vendor.ref(false);
     const userID = common_vendor.ref("");
     const viewUserProfile = (userID2) => {
       common_vendor.index.navigateTo({
@@ -27,7 +26,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
                 icon: "success"
               });
             } catch (e) {
-              common_vendor.index.__f__("log", "at pages/follow/list.vue:67", e);
+              common_vendor.index.__f__("log", "at pages/follow/list.vue:66", e);
               common_vendor.index.showToast({
                 title: "操作失败，请稍后重试",
                 icon: "none"
@@ -43,6 +42,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         followList.value = [];
         for (const item of followingIds) {
           const res = await api_api.getUserInfo(item);
+          common_vendor.index.__f__("log", "at pages/follow/list.vue:84", res);
           const user = {
             userID: res.userID,
             userName: res.userName,

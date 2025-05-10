@@ -39,7 +39,6 @@ import { onLoad, onShow } from '@dcloudio/uni-app'
 import { getFollowingList, getUserInfo, unfollow } from '@/api/api'
 // 关注列表数据
 const followList = ref<any[]>([])
-const isRefreshing = ref(false)
 const userID = ref<string>('')
 
 // 查看用户主页
@@ -82,6 +81,7 @@ const fetchFollowingData = async () => {
         followList.value = []
         for (const item of followingIds) {
             const res = await getUserInfo(item)
+            console.log(res)
             const user = {
                 userID: res.userID,
                 userName: res.userName,

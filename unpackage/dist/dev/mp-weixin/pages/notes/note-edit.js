@@ -33,6 +33,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         errors[key] = "";
       }
     };
+    const prevPictures = common_vendor.ref([]);
+    const prevVideos = common_vendor.ref([]);
+    const prevCover = common_vendor.ref("");
     const getNoteDetail = (info) => {
       Object.assign(note, {
         id: info.releaseID,
@@ -47,6 +50,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         videos: info.videos,
         cover: info.cover || ""
       });
+      prevCover.value = info.cover;
+      prevVideos.value = info.videos;
+      prevPictures.value = info.pictures;
     };
     const validateForm = () => {
       let isValid = true;
@@ -92,27 +98,32 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }
       return isValid;
     };
-    common_vendor.onBackPress(() => {
-      if (note.title || note.content || note.pictures.length > 0) {
-        common_vendor.index.showModal({
-          title: "提示",
-          content: "是否放弃此次编辑？",
-          success: (res) => {
-            if (res.confirm) {
-              common_vendor.index.navigateBack();
-            }
-          }
-        });
-        return true;
-      }
-      return false;
-    });
     const saveNote = async () => {
       if (!validateForm()) {
         return;
       }
+      common_vendor.index.showLoading({
+        title: "正在处理..."
+      });
       try {
+        const newPictures = note.pictures.filter((pic) => !prevPictures.value.includes(pic));
+        const oldPictures = note.pictures.filter((pic) => prevPictures.value.includes(pic));
+        if (newPictures.length > 0) {
+          const pictureRes = await api_api.uploadFiles(newPictures, "image");
+          note.pictures = [...oldPictures, ...pictureRes.pictures];
+        }
+        const newVideos = note.videos.filter((vid) => !prevVideos.value.includes(vid));
+        const oldVideos = note.videos.filter((vid) => prevVideos.value.includes(vid));
+        if (newVideos.length > 0) {
+          const videoRes = await api_api.uploadFiles(newVideos, "video");
+          note.videos = [...oldVideos, ...videoRes.videos];
+        }
+        if (note.cover && note.cover !== prevCover.value) {
+          const coverRes = await api_api.uploadFiles(note.cover, "cover");
+          note.cover = coverRes.covers[0];
+        }
         await api_api.updateRelease(note.id, note);
+        common_vendor.index.hideLoading();
         common_vendor.index.showToast({
           title: "保存成功",
           icon: "success"
@@ -121,7 +132,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           common_vendor.index.navigateBack();
         }, 1e3);
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/notes/note-edit.vue:232", e);
+        common_vendor.index.__f__("log", "at pages/notes/note-edit.vue:244", e);
+        common_vendor.index.hideLoading();
         common_vendor.index.showToast({
           title: "保存失败",
           icon: "error"
@@ -135,7 +147,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           errors.location = "";
         },
         fail: (err) => {
-          common_vendor.index.__f__("error", "at pages/notes/note-edit.vue:250", "选择位置失败", err);
+          common_vendor.index.__f__("error", "at pages/notes/note-edit.vue:263", "选择位置失败", err);
         }
       });
     };

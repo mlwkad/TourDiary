@@ -65,8 +65,13 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         // 压缩后的图片 或 original:原图
         sourceType: ["album", "camera"],
         // 可以来自相册 相机
-        success: (res) => {
-          userInfo.avatarUrl = res.tempFilePaths;
+        success: async (res) => {
+          try {
+            const result = await api_api.uploadFiles(res.tempFilePaths, "image");
+            userInfo.avatarUrl = result.pictures[0];
+          } catch (e) {
+            common_vendor.index.__f__("log", "at pages/My/My.vue:162", e);
+          }
         }
       });
     };
@@ -84,7 +89,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           icon: "success"
         });
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/My/My.vue:180", e);
+        common_vendor.index.__f__("log", "at pages/My/My.vue:182", e);
         common_vendor.index.showToast({
           title: "修改失败",
           icon: "none"

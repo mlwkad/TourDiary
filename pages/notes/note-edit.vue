@@ -86,8 +86,8 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
-import { onLoad, onBackPress } from '@dcloudio/uni-app'
-import { updateRelease } from '../../api/api'
+import { onLoad } from '@dcloudio/uni-app'
+import { updateRelease, uploadFiles } from '../../api/api'
 import { validateTitle, validateContent, validateLocation } from '../../utils/filter'
 
 // 笔记数据
@@ -123,9 +123,13 @@ const clearErrors = () => {
     }
 }
 
+// 缓存图片视频防止重复上传
+const prevPictures = ref<Array>([])
+const prevVideos = ref<Array>([])
+const prevCover = ref<string>('')
+
 // 获取笔记详情
 const getNoteDetail = (info: any) => {
-    // 这里应该是从API获取数据，现在用模拟数据
     Object.assign(note, {
         id: info.releaseID,
         title: info.title,
@@ -139,6 +143,9 @@ const getNoteDetail = (info: any) => {
         videos: info.videos,
         cover: info.cover || ''
     })
+    prevCover.value = info.cover
+    prevVideos.value = info.videos
+    prevPictures.value = info.pictures
 }
 
 // 验证表单
@@ -196,31 +203,36 @@ const validateForm = () => {
     return isValid
 }
 
-// 处理后退按钮
-onBackPress(() => {
-    if (note.title || note.content || note.pictures.length > 0) {
-        uni.showModal({
-            title: '提示',
-            content: '是否放弃此次编辑？',
-            success: (res) => {
-                if (res.confirm) {
-                    uni.navigateBack()
-                }
-            }
-        })
-        return true
-    }
-    return false
-})
-
 // 保存笔记
 const saveNote = async () => {
     // 使用验证函数验证表单
     if (!validateForm()) {
         return // 如果验证失败，直接返回
     }
+    uni.showLoading({
+        title: '正在处理...'
+    })
     try {
+        // 只上传新的图片到云端
+        const newPictures = note.pictures.filter(pic => !prevPictures.value.includes(pic))
+        const oldPictures = note.pictures.filter(pic => prevPictures.value.includes(pic))
+        if (newPictures.length > 0) {
+            const pictureRes = await uploadFiles(newPictures, 'image')
+            note.pictures = [...oldPictures, ...pictureRes.pictures]
+        }
+        const newVideos = note.videos.filter(vid => !prevVideos.value.includes(vid))
+        const oldVideos = note.videos.filter(vid => prevVideos.value.includes(vid))
+        if (newVideos.length > 0) {
+            const videoRes = await uploadFiles(newVideos, 'video')
+            note.videos = [...oldVideos, ...videoRes.videos]
+        }
+        if (note.cover && note.cover !== prevCover.value) {
+            const coverRes = await uploadFiles(note.cover, 'cover')
+            note.cover = coverRes.covers[0]
+        }
+        // 更新笔记
         await updateRelease(note.id, note)
+        uni.hideLoading()
         uni.showToast({
             title: '保存成功',
             icon: 'success'
@@ -230,6 +242,7 @@ const saveNote = async () => {
         }, 1000)
     } catch (e) {
         console.log(e)
+        uni.hideLoading()
         uni.showToast({
             title: '保存失败',
             icon: 'error'
@@ -259,7 +272,7 @@ const chooseImage = () => {
         sizeType: ['compressed'],  // 压缩后的图片 或 original:原图
         sourceType: ['album', 'camera'],  // 可以来自相册 相机
         success: (res) => {
-            // 这里应该上传图片到服务器，目前直接使用本地路径
+            // 仅保存本地路径，上传将在保存笔记时执行
             note.pictures = [...note.pictures, ...res.tempFilePaths]
             // 清除图片错误信息
             errors.pictures = ''
@@ -278,8 +291,9 @@ const chooseVideo = () => {
         count: 1,
         sourceType: ['album', 'camera'],
         success: (res) => {
-            // 这里应该上传视频到服务器，目前直接使用本地路径
+            // 仅保存本地路径，上传将在保存笔记时执行
             note.videos = [res.tempFilePath]
+
         }
     })
 }
@@ -296,8 +310,9 @@ const chooseVideoCover = () => {
         sizeType: ['compressed'],
         sourceType: ['album', 'camera'],
         success: (res) => {
-            // 这里应该上传视频封面到服务器，目前直接使用本地路径
+            // 仅保存本地路径，上传将在保存笔记时执行
             note.cover = res.tempFilePaths[0]
+
         }
     })
 }

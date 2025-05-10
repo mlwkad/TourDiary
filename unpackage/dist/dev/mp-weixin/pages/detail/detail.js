@@ -20,7 +20,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
       location: "",
       money: "",
       personNum: 0,
-      pictures: ["/static/555.jpg", ".jpg"],
+      pictures: ["/static/555.jpg"],
       playTime: 0,
       releaseID: "release0",
       title: "",
@@ -143,7 +143,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
               } catch (e) {
                 common_vendor.index.__f__("log", "at pages/detail/detail.vue:295", e);
                 common_vendor.index.showToast({
-                  title: "关注失败",
+                  title: e,
                   icon: "none"
                 });
               }

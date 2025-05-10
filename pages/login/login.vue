@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
-import { getSessionKey, getWXUserInfo, checkLogin } from '../../api/api';
+import { getSessionKey, getWXUserInfo, checkLogin, uploadFiles } from '../../api/api';
 
 const username = ref<string>('')
 const password = ref<string>('')
@@ -77,21 +77,18 @@ const validatePassword = (password: string) => {
 // 验证表单
 const validateForm = () => {
     let isValid = true
-
     // 验证用户名
     const usernameVal = validateUsername(username.value)
     if (!usernameVal.isValid) {
         errors.username = usernameVal.message
         isValid = false
     }
-
     // 验证密码
     const passwordVal = validatePassword(password.value)
     if (!passwordVal.isValid) {
         errors.password = passwordVal.message
         isValid = false
     }
-
     return isValid
 }
 
@@ -101,17 +98,14 @@ const handleLogin = () => {
     if (!validateForm()) {
         return
     }
-
     uni.showLoading({
         title: '登录中...'
     })
-
     const userInfo = {
         nickName: username.value,
         avatarUrl: '/static/666.jpg',
         userId: '12345'
     }
-
     try {
         checkLogin({
             userName: username.value,

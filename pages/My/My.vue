@@ -83,7 +83,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
-import { updateUserInfo } from '../../api/api'
+import { updateUserInfo, uploadFiles } from '../../api/api'
 
 let isShow = ref<boolean>(false)
 
@@ -155,9 +155,11 @@ const chooseavatar = () => {
 		count: 1,  // 还能选几张
 		sizeType: ['compressed'],  // 压缩后的图片 或 original:原图
 		sourceType: ['album', 'camera'],  // 可以来自相册 相机
-		success: (res) => {
-			// 这里应该上传图片到服务器，目前直接使用本地路径
-			userInfo.avatarUrl = res.tempFilePaths
+		success: async (res) => {
+			try {
+				const result = await uploadFiles(res.tempFilePaths, 'image')
+				userInfo.avatarUrl = result.pictures[0]
+			} catch (e) { console.log(e) }
 		}
 	})
 }
@@ -267,6 +269,7 @@ onShow(() => {
 			align-items: center;
 
 			.user-avatar {
+				background-color: white;
 				width: 180rpx;
 				height: 180rpx;
 				border-radius: 50%;

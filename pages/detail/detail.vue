@@ -159,7 +159,7 @@ const info = ref({
     location: "",
     money: "",
     personNum: 0,
-    pictures: ["/static/555.jpg", ".jpg"],
+    pictures: ["/static/555.jpg"],
     playTime: 0,
     releaseID: "release0",
     title: "",
@@ -294,7 +294,7 @@ const followPublisher = () => {
                     } catch (e) {
                         console.log(e)
                         uni.showToast({
-                            title: '关注失败',
+                            title: e,
                             icon: 'none'
                         })
                     }

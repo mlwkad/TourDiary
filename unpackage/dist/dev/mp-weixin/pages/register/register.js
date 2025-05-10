@@ -57,6 +57,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       common_vendor.index.showLoading({
         title: "注册中..."
       });
+      const resultAvatar = await api_api.uploadFiles(avatarUrl.value, "image");
+      avatarUrl.value = resultAvatar.pictures[0];
       const userInfo = {
         nickName: username.value,
         avatarUrl: "",
@@ -82,7 +84,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           common_vendor.index.navigateBack();
         }, 1e3);
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/register/register.vue:138", e);
+        common_vendor.index.__f__("log", "at pages/register/register.vue:140", e);
         common_vendor.index.hideLoading();
         common_vendor.index.showToast({
           title: "注册失败，请稍后重试",
@@ -93,7 +95,11 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const changeAvatar = () => {
       common_vendor.index.chooseImage({
         count: 1,
-        success: (res) => {
+        sizeType: ["compressed"],
+        // 压缩后的图片 或 original:原图
+        sourceType: ["album", "camera"],
+        // 可以来自相册 相机
+        success: async (res) => {
           avatarUrl.value = res.tempFilePaths;
         }
       });

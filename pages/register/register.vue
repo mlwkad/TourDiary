@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
-import { signUp } from '../../api/api'
+import { signUp, uploadFiles } from '../../api/api'
 import { validateUsername, validatePassword } from '../../utils/filter'
 import { onShow } from '@dcloudio/uni-app'
 
@@ -110,6 +110,8 @@ const handleRegister = async () => {
     uni.showLoading({
         title: '注册中...'
     })
+    const resultAvatar = await uploadFiles(avatarUrl.value, 'image')
+    avatarUrl.value = resultAvatar.pictures[0]
     const userInfo = {
         nickName: username.value,
         avatarUrl: '',
@@ -147,7 +149,9 @@ const handleRegister = async () => {
 const changeAvatar = () => {
     uni.chooseImage({
         count: 1,
-        success: (res) => {
+        sizeType: ['compressed'],  // 压缩后的图片 或 original:原图
+        sourceType: ['album', 'camera'],  // 可以来自相册 相机
+        success: async (res) => {
             avatarUrl.value = res.tempFilePaths
         }
     })
