@@ -17,7 +17,6 @@
 				</view>
 			</view>
 		</view>
-
 		<!-- 功能选项区域 -->
 		<view class="options-section">
 			<view class="option-group">
@@ -26,14 +25,12 @@
 					<text class="option-text">我的收藏</text>
 					<image class="arrow-icon" src="/static/public/back.png"></image>
 				</view>
-
 				<view class="option-item" @click="navigateTo('notes')">
 					<image class="option-icon" style="transform: translateX(-4rpx);width: 50rpx;height: 55rpx;"
 						src="/static/public/note.png"></image>
 					<text class="option-text">我的笔记</text>
 					<image class="arrow-icon" src="/static/public/back.png"></image>
 				</view>
-
 				<view class="option-item" @click="navigateTo('follow')">
 					<image class="option-icon" style="width: 40rpx;height: 40rpx;" src="/static/public/followed.png">
 					</image>
@@ -41,7 +38,6 @@
 					<image class="arrow-icon" src="/static/public/back.png"></image>
 				</view>
 			</view>
-
 			<!-- <view class="option-group">
 				<view class="option-item" @click="navigateTo('settings')">
 					<image class="option-icon" src="/static/public/search.png"></image>
@@ -55,7 +51,6 @@
 					<image class="arrow-icon" src="/static/public/back.png"></image>
 				</view>
 			</view> -->
-
 			<view v-if="isLoggedIn" class="logout-btn" @click="handleLogout">
 				退出登录
 			</view>
@@ -86,9 +81,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
+import { ref, reactive } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
-import { updateUserInfo } from '../../api/api';
+import { updateUserInfo } from '../../api/api'
 
 let isShow = ref<boolean>(false)
 
@@ -98,7 +93,7 @@ const userInfo = reactive({
 	nickName: '',
 	avatarUrl: '',
 	userId: ''
-});
+})
 
 // 检查登录状态
 const checkLoginStatus = () => {
@@ -110,7 +105,7 @@ const checkLoginStatus = () => {
 			Object.assign(userInfo, JSON.parse(savedUserInfo))
 		}
 	}
-};
+}
 
 // 登录处理
 const handleLogin = () => {
@@ -126,8 +121,8 @@ const handleLogin = () => {
 const handleRegister = () => {
 	uni.navigateTo({
 		url: '/pages/register/register',
-	});
-};
+	})
+}
 
 // 退出登录
 const handleLogout = () => {
@@ -144,15 +139,15 @@ const handleLogout = () => {
 					nickName: '',
 					avatarUrl: '',
 					userId: ''
-				});
+				})
 				uni.showToast({
 					title: '已退出登录',
 					icon: 'success'
-				});
+				})
 			}
 		}
-	});
-};
+	})
+}
 
 // 更改头像
 const chooseavatar = () => {
@@ -168,19 +163,26 @@ const chooseavatar = () => {
 }
 
 // 提交更改
-const changeUserInfo = () => {
-	updateUserInfo(userInfo.userId, {
-		userID: userInfo.userId,
-		userName: userInfo.nickName,
-		avatar: userInfo.avatarUrl
-	}).then(res => {
+const changeUserInfo = async () => {
+	try {
+		await updateUserInfo(userInfo.userId, {
+			userID: userInfo.userId,
+			userName: userInfo.nickName,
+			avatar: userInfo.avatarUrl
+		})
 		uni.setStorageSync('userInfo', JSON.stringify(userInfo))
 		isShow.value = false
 		uni.showToast({
 			title: '修改成功',
 			icon: 'success'
 		})
-	})
+	} catch (e) {
+		console.log(e)
+		uni.showToast({
+			title: '修改失败',
+			icon: 'none'
+		})
+	}
 }
 
 // 页面导航

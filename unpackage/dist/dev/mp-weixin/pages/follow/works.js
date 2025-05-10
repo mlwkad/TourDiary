@@ -8,86 +8,84 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const userData = common_vendor.reactive({});
     let userID = common_vendor.ref("");
     const isFollowing = common_vendor.ref(true);
-    common_vendor.ref(false);
-    const userWorks = common_vendor.ref([
-      {
-        releaseID: "release1",
-        title: "北京三日游",
-        content: "游览了故宫、长城、颐和园等著名景点，感受了浓厚的历史文化氛围。",
-        createdAt: "2023-05-15T10:30:00.000Z",
-        location: "北京市",
-        pictures: ["/static/666.jpg"]
-      },
-      {
-        releaseID: "release2",
-        title: "杭州西湖一日游",
-        content: "西湖美景让人心旷神怡，苏堤春晓、断桥残雪都是绝佳的景点。",
-        createdAt: "2023-06-20T15:45:00.000Z",
-        location: "杭州市",
-        pictures: ["/static/666.jpg"]
-      },
-      {
-        releaseID: "release3",
-        title: "上海都市风光",
-        content: "上海的现代化都市风光令人惊叹，外滩夜景尤为壮观。",
-        createdAt: "2023-07-10T09:15:00.000Z",
-        location: "上海市",
-        pictures: ["/static/666.jpg"]
-      }
-    ]);
+    const userWorks = common_vendor.ref([]);
     const viewWorkDetail = async (releaseID) => {
       try {
         const info = await api_api.getReleaseDetail(releaseID);
         common_vendor.index.navigateTo({
           url: `/pages/detail/detail?info=${encodeURIComponent(JSON.stringify(info))}`
         });
-      } catch (error) {
+      } catch (e) {
+        common_vendor.index.__f__("log", "at pages/follow/works.vue:85", e);
         common_vendor.index.showToast({
           title: "获取详情失败",
           icon: "none"
         });
       }
     };
-    const toggleFollow = () => {
+    const toggleFollow = async () => {
       userID.value = JSON.parse(common_vendor.index.getStorageSync("userInfo")).userId;
       if (isFollowing.value) {
         common_vendor.index.showModal({
           title: "提示",
           content: `确定要取消关注"${userData.userName}"吗？`,
-          success: (res) => {
+          success: async (res) => {
             if (res.confirm) {
-              api_api.unfollow(userID.value, userData.userID).then((res2) => {
+              try {
+                await api_api.unfollow(userID.value, userData.userID);
                 isFollowing.value = false;
                 common_vendor.index.showToast({
                   title: "已取消关注",
                   icon: "success"
                 });
-              });
+              } catch (e) {
+                common_vendor.index.__f__("log", "at pages/follow/works.vue:110", e);
+                common_vendor.index.showToast({
+                  title: "操作失败",
+                  icon: "none"
+                });
+              }
             }
           }
         });
       } else {
-        api_api.follow(userID.value, { followUserID: userData.userID }).then((res) => {
+        try {
+          await api_api.follow(userID.value, { followUserID: userData.userID });
           isFollowing.value = true;
           common_vendor.index.showToast({
             title: "关注成功",
             icon: "success"
           });
-        });
+        } catch (e) {
+          common_vendor.index.__f__("log", "at pages/follow/works.vue:128", e);
+          common_vendor.index.showToast({
+            title: "关注失败",
+            icon: "none"
+          });
+        }
       }
     };
-    common_vendor.onLoad((options) => {
+    common_vendor.onLoad(async (options) => {
       if (options.userID) {
-        api_api.getUserReleases(options.userID).then((res) => {
-          userWorks.value = res;
-        });
-        api_api.getUserInfo(options.userID).then((res) => {
-          Object.assign(userData, res);
-        });
-        const userInfo = common_vendor.index.getStorageSync("userInfo");
-        api_api.getFollowingList(JSON.parse(userInfo).userId).then((res) => {
-          isFollowing.value = res.includes(options.userID);
-        });
+        try {
+          const [worksRes, userRes] = await Promise.all([
+            api_api.getUserReleases(options.userID),
+            api_api.getUserInfo(options.userID)
+          ]);
+          userWorks.value = worksRes;
+          Object.assign(userData, userRes);
+          const userInfo = common_vendor.index.getStorageSync("userInfo");
+          if (userInfo) {
+            const followingList = await api_api.getFollowingList(JSON.parse(userInfo).userId);
+            isFollowing.value = followingList.includes(options.userID);
+          }
+        } catch (e) {
+          common_vendor.index.__f__("log", "at pages/follow/works.vue:152", e);
+          common_vendor.index.showToast({
+            title: "获取数据失败",
+            icon: "none"
+          });
+        }
       }
     });
     return (_ctx, _cache) => {

@@ -70,19 +70,26 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         }
       });
     };
-    const changeUserInfo = () => {
-      api_api.updateUserInfo(userInfo.userId, {
-        userID: userInfo.userId,
-        userName: userInfo.nickName,
-        avatar: userInfo.avatarUrl
-      }).then((res) => {
+    const changeUserInfo = async () => {
+      try {
+        await api_api.updateUserInfo(userInfo.userId, {
+          userID: userInfo.userId,
+          userName: userInfo.nickName,
+          avatar: userInfo.avatarUrl
+        });
         common_vendor.index.setStorageSync("userInfo", JSON.stringify(userInfo));
         isShow.value = false;
         common_vendor.index.showToast({
           title: "修改成功",
           icon: "success"
         });
-      });
+      } catch (e) {
+        common_vendor.index.__f__("log", "at pages/My/My.vue:180", e);
+        common_vendor.index.showToast({
+          title: "修改失败",
+          icon: "none"
+        });
+      }
     };
     const navigateTo = (page) => {
       if (!isLoggedIn.value) {

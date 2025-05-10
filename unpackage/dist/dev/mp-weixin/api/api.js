@@ -1,6 +1,10 @@
 "use strict";
-require("../common/vendor.js");
+const common_vendor = require("../common/vendor.js");
 const api_http = require("./http.js");
+let baseUrl = "";
+{
+  baseUrl = "https://vkxvigkepssq.sealosbja.site";
+}
 const signUp = (data) => {
   return api_http.http("/api/signUp", data, "POST");
 };
@@ -55,6 +59,55 @@ const follow = (userID, data) => {
 const unfollow = (userID, followUserID) => {
   return api_http.http(`/api/user/${userID}/follow/${followUserID}`, {}, "DELETE");
 };
+const uploadSingleFile = (filePath, url) => {
+  return new Promise((resolve, reject) => {
+    common_vendor.index.uploadFile({
+      url,
+      filePath,
+      name: "file",
+      success: (res) => {
+        if (res.statusCode === 200) {
+          const data = JSON.parse(res.data);
+          resolve(data.success ? data.data : null);
+        } else {
+          reject(`服务器错误(${res.statusCode})`);
+        }
+      },
+      fail: (e) => reject(e)
+    });
+  });
+};
+const uploadFiles = async (filePaths, type = "") => {
+  const paths = Array.isArray(filePaths) ? filePaths : [filePaths];
+  if (paths.length === 0 || !paths[0]) {
+    return { pictures: [], videos: [], covers: [] };
+  }
+  let url = baseUrl + "/api/upload";
+  if (type) {
+    url += `?type=${type}`;
+  }
+  try {
+    common_vendor.index.showLoading({ title: "上传中..." });
+    const result = { pictures: [], videos: [], covers: [] };
+    for (const path of paths) {
+      const res = await uploadSingleFile(path, url);
+      if (res) {
+        if (res.pictures)
+          result.pictures.push(res.pictures);
+        if (res.videos)
+          result.videos.push(res.videos);
+        if (res.covers)
+          result.covers.push(res.covers);
+      }
+    }
+    return result;
+  } catch (e) {
+    common_vendor.index.__f__("log", "at api/api.js:160", e);
+    return { pictures: [], videos: [], covers: [] };
+  } finally {
+    common_vendor.index.hideLoading();
+  }
+};
 exports.addLiked = addLiked;
 exports.checkLogin = checkLogin;
 exports.createRelease = createRelease;
@@ -73,4 +126,5 @@ exports.unfollow = unfollow;
 exports.updateRelease = updateRelease;
 exports.updateState = updateState;
 exports.updateUserInfo = updateUserInfo;
+exports.uploadFiles = uploadFiles;
 //# sourceMappingURL=../../.sourcemap/mp-weixin/api/api.js.map

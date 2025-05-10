@@ -33,16 +33,19 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         target[1] = data.slice(7, 14);
       }
     };
-    common_vendor.watchEffect(() => {
+    common_vendor.watchEffect(async () => {
       if (!searchContent.value) {
-        api_api.getAllReleases(14, 0).then((res) => {
+        try {
+          const res = await api_api.getAllReleases(14, 0);
           distributeData(res.releases || [], allInfo.value);
-        });
+        } catch (e) {
+          common_vendor.index.__f__("log", "at pages/index/index.vue:84", e);
+        }
         isShowChoose.value = false;
         isShowChangePage.value = true;
       }
     });
-    const goSearch = () => {
+    const goSearch = async () => {
       searchError.value = "";
       const searchValidation = utils_filter.validateSearch(searchContent.value);
       if (!searchValidation.isValid) {
@@ -50,9 +53,8 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         return;
       }
       searchContent.value = searchValidation.filteredText;
-      api_api.searchReleases(
-        { userName: searchContent.value, title: searchContent.value }
-      ).then((res) => {
+      try {
+        const res = await api_api.searchReleases({ userName: searchContent.value, title: searchContent.value });
         isShowChoose.value = true;
         isShowChangePage.value = false;
         distributeData(res.byUserName || [], allInfoByUserName.value);
@@ -66,10 +68,10 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         } else {
           searchError.value = "未找到相关内容";
         }
-      }).catch((err) => {
-        common_vendor.index.__f__("error", "at pages/index/index.vue:113", err);
+      } catch (e) {
+        common_vendor.index.__f__("log", "at pages/index/index.vue:115", e);
         searchError.value = "搜索失败，请稍后再试";
-      });
+      }
     };
     const goDetail = (info) => {
       common_vendor.index.navigateTo({
@@ -82,27 +84,44 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         duration: 300
       });
     };
-    const changePage = (num) => {
+    const changePage = async (num) => {
       if (num === 1 && curPage.value !== 1) {
         offSet.value -= 14;
-        api_api.getAllReleases(14, offSet.value).then((res) => {
+        try {
+          const res = await api_api.getAllReleases(14, offSet.value);
           distributeData(res.releases || [], allInfo.value);
-        });
-        goTopFunc();
-        curPage.value--;
+          goTopFunc();
+          curPage.value--;
+        } catch (e) {
+          common_vendor.index.__f__("log", "at pages/index/index.vue:142", e);
+          common_vendor.index.showToast({
+            title: "获取数据失败",
+            icon: "none"
+          });
+        }
       } else if (num === 2) {
         offSet.value += 14;
-        api_api.getAllReleases(14, offSet.value).then((res) => {
+        try {
+          const res = await api_api.getAllReleases(14, offSet.value);
           distributeData(res.releases || [], allInfo.value);
-        });
-        goTopFunc();
-        curPage.value++;
+          goTopFunc();
+          curPage.value++;
+        } catch (e) {
+          common_vendor.index.__f__("log", "at pages/index/index.vue:157", e);
+          common_vendor.index.showToast({
+            title: "获取数据失败",
+            icon: "none"
+          });
+        }
       }
     };
-    common_vendor.onShow(() => {
-      api_api.getAllReleases(14, 0).then((res) => {
+    common_vendor.onShow(async () => {
+      try {
+        const res = await api_api.getAllReleases(14, 0);
         distributeData(res.releases || [], allInfo.value);
-      });
+      } catch (e) {
+        common_vendor.index.__f__("log", "at pages/index/index.vue:171", e);
+      }
       searchContent.value = "";
     });
     common_vendor.onReachBottom(() => {

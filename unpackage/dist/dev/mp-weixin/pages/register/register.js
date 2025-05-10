@@ -50,7 +50,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }
       return isValid;
     };
-    const handleRegister = () => {
+    const handleRegister = async () => {
       if (!validateForm()) {
         return;
       }
@@ -63,37 +63,26 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         userId: ""
       };
       try {
-        api_api.signUp({
+        const res = await api_api.signUp({
           userName: username.value,
           passWord: password.value,
           avatar: avatarUrl.value
-        }).then(async (res) => {
-          userInfo.nickName = username.value;
-          userInfo.avatarUrl = avatarUrl.value;
-          userInfo.userId = res.userID;
-          common_vendor.index.setStorageSync("token", res.userID);
-          common_vendor.index.setStorageSync("userInfo", JSON.stringify(userInfo));
-          common_vendor.index.hideLoading();
-          await new Promise((resolve) => {
-            common_vendor.index.showToast({
-              title: "注册成功",
-              icon: "success"
-            });
-            setTimeout(() => {
-              resolve();
-            }, 1e3);
-          });
-          common_vendor.index.navigateBack();
-        }).catch((err) => {
-          common_vendor.index.__f__("log", "at pages/register/register.vue:146", err);
-          common_vendor.index.hideLoading();
-          common_vendor.index.showToast({
-            title: "注册失败，请稍后重试",
-            icon: "none"
-          });
         });
-      } catch (error) {
-        common_vendor.index.__f__("log", "at pages/register/register.vue:154", error);
+        userInfo.nickName = username.value;
+        userInfo.avatarUrl = avatarUrl.value;
+        userInfo.userId = res.userID;
+        common_vendor.index.setStorageSync("token", res.userID);
+        common_vendor.index.setStorageSync("userInfo", JSON.stringify(userInfo));
+        common_vendor.index.hideLoading();
+        common_vendor.index.showToast({
+          title: "注册成功",
+          icon: "success"
+        });
+        setTimeout(() => {
+          common_vendor.index.navigateBack();
+        }, 1e3);
+      } catch (e) {
+        common_vendor.index.__f__("log", "at pages/register/register.vue:138", e);
         common_vendor.index.hideLoading();
         common_vendor.index.showToast({
           title: "注册失败，请稍后重试",

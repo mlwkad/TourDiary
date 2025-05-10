@@ -13,48 +13,59 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         url: `/pages/follow/works?userID=${userID2}`
       });
     };
-    const unfollowUser = (targetUserID, index) => {
+    const unfollowUser = async (targetUserID, index) => {
       common_vendor.index.showModal({
         title: "提示",
         content: "确定要取消关注该用户吗？",
-        success: (res) => {
+        success: async (res) => {
           if (res.confirm) {
-            api_api.unfollow(userID.value, targetUserID).then((res2) => {
+            try {
+              await api_api.unfollow(userID.value, targetUserID);
               followList.value.splice(index, 1);
               common_vendor.index.showToast({
                 title: "已取消关注",
                 icon: "success"
               });
-            }).catch((err) => {
-              common_vendor.index.__f__("log", "at pages/follow/list.vue:67", err);
-            });
+            } catch (e) {
+              common_vendor.index.__f__("log", "at pages/follow/list.vue:67", e);
+              common_vendor.index.showToast({
+                title: "操作失败，请稍后重试",
+                icon: "none"
+              });
+            }
           }
         }
       });
+    };
+    const fetchFollowingData = async () => {
+      try {
+        const followingIds = await api_api.getFollowingList(userID.value);
+        followList.value = [];
+        for (const item of followingIds) {
+          const res = await api_api.getUserInfo(item);
+          const user = {
+            userID: res.userID,
+            userName: res.userName,
+            worksCount: JSON.parse(res.release).length,
+            avatar: res.avatar
+          };
+          followList.value.push(user);
+        }
+      } catch (e) {
+        common_vendor.index.__f__("log", "at pages/follow/list.vue:94", e);
+      }
     };
     const goToDiscover = () => {
       common_vendor.index.switchTab({
         url: "/pages/index/index"
       });
     };
-    common_vendor.onShow(() => {
+    common_vendor.onShow(async () => {
       const userInfo = common_vendor.index.getStorageSync("userInfo");
       followList.value = [];
       if (userInfo) {
         userID.value = JSON.parse(userInfo).userId;
-        api_api.getFollowingList(userID.value).then((res) => {
-          res.forEach((item) => {
-            api_api.getUserInfo(item).then((res2) => {
-              const user = {
-                userID: res2.userID,
-                userName: res2.userName,
-                worksCount: JSON.parse(res2.release).length,
-                avatar: res2.avatar
-              };
-              followList.value.push(user);
-            });
-          });
-        });
+        await fetchFollowingData();
       }
     });
     return (_ctx, _cache) => {

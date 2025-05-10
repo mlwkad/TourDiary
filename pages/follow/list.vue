@@ -17,7 +17,6 @@
                         </view>
                     </view>
                 </view>
-
                 <!-- 底部提示 -->
                 <view class="list-footer" v-if="followList.length > 5">
                     <text>已经到底啦~</text>
@@ -51,36 +50,49 @@ const viewUserProfile = (userID: string) => {
 }
 
 // 取消关注
-const unfollowUser = (targetUserID: string, index: number) => {
+const unfollowUser = async (targetUserID: string, index: number) => {
     uni.showModal({
         title: '提示',
         content: '确定要取消关注该用户吗？',
-        success: (res) => {
+        success: async (res) => {
             if (res.confirm) {
-                unfollow(userID.value, targetUserID).then(res => {
+                try {
+                    await unfollow(userID.value, targetUserID)
                     followList.value.splice(index, 1)
                     uni.showToast({
                         title: '已取消关注',
                         icon: 'success'
                     })
-                }).catch(err => {
-                    console.log(err)
-                })
+                } catch (e) {
+                    console.log(e)
+                    uni.showToast({
+                        title: '操作失败，请稍后重试',
+                        icon: 'none'
+                    })
+                }
             }
         }
-    });
-};
-
-// 刷新数据
-const onRefresh = async () => {
-    isRefreshing.value = true
-    // 模拟获取关注列表的API调用
-    await new Promise((resolve) => {
-        setTimeout(() => {
-            isRefreshing.value = false
-            resolve(null)
-        }, 500);
     })
+}
+
+// 获取关注列表数据
+const fetchFollowingData = async () => {
+    try {
+        const followingIds = await getFollowingList(userID.value)
+        followList.value = []
+        for (const item of followingIds) {
+            const res = await getUserInfo(item)
+            const user = {
+                userID: res.userID,
+                userName: res.userName,
+                worksCount: JSON.parse(res.release).length,
+                avatar: res.avatar
+            }
+            followList.value.push(user)
+        }
+    } catch (e) {
+        console.log(e)
+    }
 }
 
 // 去发现页面
@@ -90,25 +102,12 @@ const goToDiscover = () => {
     })
 }
 
-onShow(() => {
+onShow(async () => {
     const userInfo = uni.getStorageSync('userInfo')
     followList.value = []
     if (userInfo) {
         userID.value = JSON.parse(userInfo).userId
-        // 这里应该获取关注列表
-        getFollowingList(userID.value).then(res => {
-            res.forEach(item => {
-                getUserInfo(item).then(res => {
-                    const user = {
-                        userID: res.userID,
-                        userName: res.userName,
-                        worksCount: JSON.parse(res.release).length,
-                        avatar: res.avatar
-                    }
-                    followList.value.push(user)
-                })
-            })
-        })
+        await fetchFollowingData()
     }
 })
 </script>

@@ -1,5 +1,14 @@
 import http from "./http.js";
 
+let baseUrl = ''
+
+// 判断环境
+if (process.env.NODE_ENV === 'development') {
+    baseUrl = 'https://vkxvigkepssq.sealosbja.site'
+} else {
+    baseUrl = 'https://ovmmqfovxbil.sealosbja.site'
+}
+
 // 首页
 export const getBanner = () => {
     return http('/api/getBanner')
@@ -105,44 +114,52 @@ export const unfollow = (userID, followUserID) => {
     return http(`/api/user/${userID}/follow/${followUserID}`, {}, 'DELETE')
 }
 
-// 上传文件
-export const uploadFiles = (filePaths) => {
+// 上传单个文件的辅助函数
+const uploadSingleFile = (filePath, url) => {
     return new Promise((resolve, reject) => {
-        const uploadTask = uni.uploadFile({
-            url: baseUrl + '/api/upload',
-            files: filePaths.map(path => ({
-                name: 'files',
-                uri: path
-            })),
-            name: 'files',
+        uni.uploadFile({
+            url,
+            filePath,
+            name: 'file',
             success: (res) => {
                 if (res.statusCode === 200) {
                     const data = JSON.parse(res.data);
-                    if (data.success) {
-                        resolve(data.data);
-                    } else {
-                        uni.showToast({
-                            title: data.message,
-                            icon: 'none'
-                        });
-                        reject(data.message);
-                    }
+                    resolve(data.success ? data.data : null);
                 } else {
-                    uni.showToast({
-                        title: '上传失败',
-                        icon: 'none'
-                    });
-                    reject('上传失败');
+                    reject(`服务器错误(${res.statusCode})`);
                 }
             },
-            fail: (err) => {
-                console.log(err);
-                uni.showToast({
-                    title: '上传请求异常',
-                    icon: 'none'
-                });
-                reject(err);
+            fail: (e) => reject(e)
+        })
+    })
+}
+
+// 上传文件
+export const uploadFiles = async (filePaths, type = '') => {  // image/video/cover
+    // 如果传入的不是数组，转换为数组
+    const paths = Array.isArray(filePaths) ? filePaths : [filePaths]
+    // 如果是空数组，直接返回
+    if (paths.length === 0 || !paths[0]) {
+        return { pictures: [], videos: [], covers: [] }
+    }
+    let url = baseUrl + '/api/upload'
+    if (type) { url += `?type=${type}` }
+    try {
+        uni.showLoading({ title: '上传中...' })
+        const result = { pictures: [], videos: [], covers: [] }
+        for (const path of paths) {  // 一张一张的传
+            const res = await uploadSingleFile(path, url)
+            if (res) {
+                if (res.pictures) result.pictures.push(res.pictures)
+                if (res.videos) result.videos.push(res.videos)
+                if (res.covers) result.covers.push(res.covers)
             }
-        });
-    });
+        }
+        return result
+    } catch (e) {
+        console.log(e)
+        return { pictures: [], videos: [], covers: [] }
+    } finally {
+        uni.hideLoading()
+    }
 }

@@ -75,28 +75,29 @@ const _sfc_defineComponent = common_vendor.defineComponent({
       XunFeiRes.value = "";
     };
     const liked = async () => {
-      const userId = JSON.parse(common_vendor.index.getStorageSync("userInfo")).userId;
       try {
+        const userId = JSON.parse(common_vendor.index.getStorageSync("userInfo")).userId;
         if (!isLiked.value) {
-          await api_api.addLiked(userId, info.value.releaseID).then((res) => {
-            common_vendor.index.showToast({
-              title: "收藏成功",
-              icon: "none"
-            });
+          await api_api.addLiked(userId, info.value.releaseID);
+          common_vendor.index.showToast({
+            title: "收藏成功",
+            icon: "none"
           });
         } else {
-          await api_api.removeLiked(userId, info.value.releaseID).then((res) => {
-            common_vendor.index.showToast({
-              title: "取消收藏",
-              icon: "none"
-            });
+          await api_api.removeLiked(userId, info.value.releaseID);
+          common_vendor.index.showToast({
+            title: "取消收藏",
+            icon: "none"
           });
         }
-        api_api.getUserInfo(userId).then((res) => {
-          isLiked.value = JSON.parse(res.liked).includes(info.value.releaseID);
-        });
+        const userInfoRes = await api_api.getUserInfo(userId);
+        isLiked.value = JSON.parse(userInfoRes.liked).includes(info.value.releaseID);
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/detail/detail.vue:244", e);
+        common_vendor.index.__f__("log", "at pages/detail/detail.vue:241", e);
+        common_vendor.index.showToast({
+          title: "操作失败",
+          icon: "none"
+        });
       }
     };
     const goUserPages = () => {
@@ -131,15 +132,21 @@ const _sfc_defineComponent = common_vendor.defineComponent({
           content: `确定要关注"${info.value.userName}"吗？`,
           success: async (res) => {
             if (res.confirm) {
-              await api_api.follow(userId, { followUserID: info.value.userID }).then((res2) => {
+              try {
+                await api_api.follow(userId, { followUserID: info.value.userID });
                 common_vendor.index.showToast({
                   title: "关注成功",
                   icon: "none"
                 });
-              });
-              api_api.getUserInfo(userId).then((res2) => {
-                isFollow.value = res2.follow.includes(info.value.userID);
-              });
+                const userInfoRes = await api_api.getUserInfo(userId);
+                isFollow.value = userInfoRes.follow.includes(info.value.userID);
+              } catch (e) {
+                common_vendor.index.__f__("log", "at pages/detail/detail.vue:295", e);
+                common_vendor.index.showToast({
+                  title: "关注失败",
+                  icon: "none"
+                });
+              }
             }
           }
         });
@@ -149,15 +156,21 @@ const _sfc_defineComponent = common_vendor.defineComponent({
           content: `确定要取消关注"${info.value.userName}"吗？`,
           success: async (res) => {
             if (res.confirm) {
-              await api_api.unfollow(userId, info.value.userID).then((res2) => {
+              try {
+                await api_api.unfollow(userId, info.value.userID);
                 common_vendor.index.showToast({
                   title: "已取消关注",
                   icon: "none"
                 });
-              });
-              api_api.getUserInfo(userId).then((res2) => {
-                isFollow.value = res2.follow.includes(info.value.userID);
-              });
+                const userInfoRes = await api_api.getUserInfo(userId);
+                isFollow.value = userInfoRes.follow.includes(info.value.userID);
+              } catch (e) {
+                common_vendor.index.__f__("log", "at pages/detail/detail.vue:319", e);
+                common_vendor.index.showToast({
+                  title: "操作失败",
+                  icon: "none"
+                });
+              }
             }
           }
         });
@@ -172,7 +185,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
       });
     };
     const videoError = (e) => {
-      common_vendor.index.__f__("error", "at pages/detail/detail.vue:343", "视频播放错误:", e.detail);
+      common_vendor.index.__f__("error", "at pages/detail/detail.vue:340", "视频播放错误:", e.detail);
       common_vendor.index.showToast({
         title: "视频播放失败",
         icon: "none"
@@ -193,7 +206,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
           });
         }
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/detail/detail.vue:380", e);
+        common_vendor.index.__f__("log", "at pages/detail/detail.vue:377", e);
       }
     });
     common_vendor.onShow(() => {
@@ -206,7 +219,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
           });
         }
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/detail/detail.vue:395", e);
+        common_vendor.index.__f__("log", "at pages/detail/detail.vue:392", e);
       }
     });
     return (_ctx, _cache) => {

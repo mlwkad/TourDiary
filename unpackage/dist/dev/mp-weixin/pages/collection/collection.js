@@ -9,10 +9,18 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     common_vendor.ref(false);
     let userID = common_vendor.ref("");
     const viewNote = async (releaseID) => {
-      const info = await api_api.getReleaseDetail(releaseID);
-      common_vendor.index.navigateTo({
-        url: `/pages/detail/detail?info=${encodeURIComponent(JSON.stringify(info))}`
-      });
+      try {
+        const info = await api_api.getReleaseDetail(releaseID);
+        common_vendor.index.navigateTo({
+          url: `/pages/detail/detail?info=${encodeURIComponent(JSON.stringify(info))}`
+        });
+      } catch (e) {
+        common_vendor.index.__f__("log", "at pages/collection/collection.vue:63", e);
+        common_vendor.index.showToast({
+          title: "获取详情失败",
+          icon: "none"
+        });
+      }
     };
     const removeCollection = (releaseID) => {
       common_vendor.index.showModal({
@@ -20,13 +28,21 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         content: "确定要移除这个收藏吗？",
         success: async (res) => {
           if (res.confirm) {
-            await api_api.removeLiked(userID, releaseID);
-            const res2 = await api_api.getUserLiked(userID);
-            collections.value = res2;
-            common_vendor.index.showToast({
-              title: "已移除收藏",
-              icon: "success"
-            });
+            try {
+              await api_api.removeLiked(userID, releaseID);
+              const res2 = await api_api.getUserLiked(userID);
+              collections.value = res2;
+              common_vendor.index.showToast({
+                title: "已移除收藏",
+                icon: "success"
+              });
+            } catch (e) {
+              common_vendor.index.__f__("log", "at pages/collection/collection.vue:87", e);
+              common_vendor.index.showToast({
+                title: "操作失败",
+                icon: "none"
+              });
+            }
           }
         }
       });

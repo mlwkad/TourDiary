@@ -42,10 +42,18 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         });
         return;
       }
-      const info = await api_api.getReleaseDetail(releaseID);
-      common_vendor.index.navigateTo({
-        url: `/pages/detail/detail?info=${encodeURIComponent(JSON.stringify(info))}`
-      });
+      try {
+        const info = await api_api.getReleaseDetail(releaseID);
+        common_vendor.index.navigateTo({
+          url: `/pages/detail/detail?info=${encodeURIComponent(JSON.stringify(info))}`
+        });
+      } catch (e) {
+        common_vendor.index.__f__("log", "at pages/notes/notes.vue:137", e);
+        common_vendor.index.showToast({
+          title: "获取详情失败",
+          icon: "none"
+        });
+      }
     };
     const editNote = (info, index) => {
       common_vendor.index.navigateTo({
@@ -58,13 +66,21 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         content: "确定要删除这个笔记吗？",
         success: async (res) => {
           if (res.confirm) {
-            await api_api.deleteRelease(info.releaseID, userID);
-            common_vendor.index.showToast({
-              title: "已删除",
-              icon: "success"
-            });
-            const res2 = await api_api.getUserReleases(userID);
-            notes.value = res2;
+            try {
+              await api_api.deleteRelease(info.releaseID, userID);
+              common_vendor.index.showToast({
+                title: "已删除",
+                icon: "success"
+              });
+              const res2 = await api_api.getUserReleases(userID);
+              notes.value = res2;
+            } catch (e) {
+              common_vendor.index.__f__("log", "at pages/notes/notes.vue:168", e);
+              common_vendor.index.showToast({
+                title: "删除失败",
+                icon: "none"
+              });
+            }
           }
         }
       });
@@ -74,11 +90,25 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         url: "/pages/Release/Release"
       });
     };
-    const changeState = (note) => {
-      api_api.updateState(
-        note.releaseID,
-        { state: state.value, reason: reason.value }
-      );
+    const changeState = async (note) => {
+      try {
+        await api_api.updateState(
+          note.releaseID,
+          { state: state.value, reason: reason.value }
+        );
+        common_vendor.index.showToast({
+          title: "状态已更新",
+          icon: "success"
+        });
+        const res = await api_api.getUserReleases(userID);
+        notes.value = res;
+      } catch (e) {
+        common_vendor.index.__f__("log", "at pages/notes/notes.vue:201", e);
+        common_vendor.index.showToast({
+          title: "更新状态失败",
+          icon: "none"
+        });
+      }
     };
     const previewImage = (images, current) => {
       common_vendor.index.previewImage({

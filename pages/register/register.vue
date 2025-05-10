@@ -102,56 +102,40 @@ const validateForm = () => {
 }
 
 // 注册处理
-const handleRegister = () => {
+const handleRegister = async () => {
     // 验证表单
     if (!validateForm()) {
         return
     }
-
     uni.showLoading({
         title: '注册中...'
     })
-
     const userInfo = {
         nickName: username.value,
         avatarUrl: '',
         userId: ''
-    };
-
+    }
     try {
-        signUp({
+        const res = await signUp({
             userName: username.value,
             passWord: password.value,
             avatar: avatarUrl.value
-        }).then(async res => {
-
-            userInfo.nickName = username.value
-            userInfo.avatarUrl = avatarUrl.value
-            userInfo.userId = res.userID
-
-            uni.setStorageSync('token', res.userID)
-            uni.setStorageSync('userInfo', JSON.stringify(userInfo))
-            uni.hideLoading()
-            await new Promise(resolve => {
-                uni.showToast({
-                    title: '注册成功',
-                    icon: 'success'
-                })
-                setTimeout(() => {
-                    resolve()
-                }, 1000)
-            })
-            uni.navigateBack()
-        }).catch(err => {
-            console.log(err)
-            uni.hideLoading()
-            uni.showToast({
-                title: '注册失败，请稍后重试',
-                icon: 'none'
-            })
         })
-    } catch (error) {
-        console.log(error)
+        userInfo.nickName = username.value
+        userInfo.avatarUrl = avatarUrl.value
+        userInfo.userId = res.userID
+        uni.setStorageSync('token', res.userID)
+        uni.setStorageSync('userInfo', JSON.stringify(userInfo))
+        uni.hideLoading()
+        uni.showToast({
+            title: '注册成功',
+            icon: 'success'
+        })
+        setTimeout(() => {
+            uni.navigateBack()
+        }, 1000)
+    } catch (e) {
+        console.log(e)
         uni.hideLoading()
         uni.showToast({
             title: '注册失败，请稍后重试',

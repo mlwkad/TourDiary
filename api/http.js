@@ -2,9 +2,11 @@ let baseUrl = ''
 
 // 判断环境
 if (process.env.NODE_ENV === 'development') {
-    baseUrl = 'http://localhost:3000'
+    // 开发环境(最新),后端开启,sealos的关联DevBox开机,功能稳定后迭代到生产环境(直接生成新版本)
+    baseUrl = 'https://vkxvigkepssq.sealosbja.site'
 } else {
-    // baseUrl: 'http://localhost:3000'
+    // 生产环境
+    baseUrl = 'https://ovmmqfovxbil.sealosbja.site'
 }
 
 export default function http(url, data = {}, method = 'GET') {

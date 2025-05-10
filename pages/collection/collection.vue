@@ -54,10 +54,18 @@ let userID = ref<string>('')
 
 // 查看详情
 const viewNote = async (releaseID: string) => {
-    const info = await getReleaseDetail(releaseID)
-    uni.navigateTo({
-        url: `/pages/detail/detail?info=${encodeURIComponent(JSON.stringify(info))}`
-    })
+    try {
+        const info = await getReleaseDetail(releaseID)
+        uni.navigateTo({
+            url: `/pages/detail/detail?info=${encodeURIComponent(JSON.stringify(info))}`
+        })
+    } catch (e) {
+        console.log(e)
+        uni.showToast({
+            title: '获取详情失败',
+            icon: 'none'
+        })
+    }
 }
 
 // 移除收藏
@@ -67,27 +75,23 @@ const removeCollection = (releaseID) => {
         content: '确定要移除这个收藏吗？',
         success: async (res) => {
             if (res.confirm) {
-                await removeLiked(userID, releaseID)
-                const res = await getUserLiked(userID)
-                collections.value = res
-                uni.showToast({
-                    title: '已移除收藏',
-                    icon: 'success'
-                })
+                try {
+                    await removeLiked(userID, releaseID)
+                    const res = await getUserLiked(userID)
+                    collections.value = res
+                    uni.showToast({
+                        title: '已移除收藏',
+                        icon: 'success'
+                    })
+                } catch (e) {
+                    console.log(e)
+                    uni.showToast({
+                        title: '操作失败',
+                        icon: 'none'
+                    })
+                }
             }
         }
-    });
-};
-
-// 刷新数据
-const onRefresh = async () => {
-    isRefreshing.value = true
-    await getUserLiked(userID).then(res => { collections.value = res })
-    await new Promise((resolve) => {
-        setTimeout(() => {
-            isRefreshing.value = false
-            resolve()
-        }, 500);
     })
 }
 

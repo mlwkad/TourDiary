@@ -2,7 +2,7 @@
 const common_vendor = require("../common/vendor.js");
 let baseUrl = "";
 {
-  baseUrl = "http://localhost:3000";
+  baseUrl = "https://vkxvigkepssq.sealosbja.site";
 }
 function http(url, data = {}, method = "GET") {
   return new Promise((resolve, reject) => {
@@ -34,7 +34,7 @@ function http(url, data = {}, method = "GET") {
         }
       },
       fail: (err) => {
-        common_vendor.index.__f__("log", "at api/http.js:40", err);
+        common_vendor.index.__f__("log", "at api/http.js:42", err);
         common_vendor.index.showToast({
           title: "服务请求异常",
           icon: "none"

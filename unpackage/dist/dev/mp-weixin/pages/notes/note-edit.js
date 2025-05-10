@@ -107,11 +107,12 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }
       return false;
     });
-    const saveNote = () => {
+    const saveNote = async () => {
       if (!validateForm()) {
         return;
       }
-      api_api.updateRelease(note.id, note).then((res) => {
+      try {
+        await api_api.updateRelease(note.id, note);
         common_vendor.index.showToast({
           title: "保存成功",
           icon: "success"
@@ -119,12 +120,13 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         setTimeout(() => {
           common_vendor.index.navigateBack();
         }, 1e3);
-      }).catch((e) => {
+      } catch (e) {
+        common_vendor.index.__f__("log", "at pages/notes/note-edit.vue:232", e);
         common_vendor.index.showToast({
           title: "保存失败",
           icon: "error"
         });
-      });
+      }
     };
     const chooseLocation = () => {
       common_vendor.index.chooseLocation({
@@ -133,7 +135,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           errors.location = "";
         },
         fail: (err) => {
-          common_vendor.index.__f__("error", "at pages/notes/note-edit.vue:259", "选择位置失败", err);
+          common_vendor.index.__f__("error", "at pages/notes/note-edit.vue:250", "选择位置失败", err);
         }
       });
     };

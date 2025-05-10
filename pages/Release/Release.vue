@@ -67,9 +67,9 @@
 				<view class="upload-area">
 					<view class="upload-preview" v-for="(item, index) in formData.pictures" :key="'pic-' + index">
 						<image class="preview-image" :src="item" mode="aspectFill"></image>
-						<text class="delete-icon" @click="deleteImage(index)">×</text>
+						<text class="delete-icon" @click="deleteFile('image', index)">×</text>
 					</view>
-					<view class="upload-btn" @click="chooseImage" v-if="formData.pictures.length < 9">
+					<view class="upload-btn" @click="chooseFile('image')" v-if="formData.pictures.length < 9">
 						<text class="upload-icon">+</text>
 					</view>
 				</view>
@@ -80,9 +80,9 @@
 				<view class="upload-area">
 					<view class="upload-preview" v-for="(item, index) in formData.videos" :key="'vid-' + index">
 						<video class="preview-video" :src="item"></video>
-						<text class="delete-icon" @click="deleteVideo(index)">×</text>
+						<text class="delete-icon" @click="deleteFile('video', index)">×</text>
 					</view>
-					<view class="upload-btn" @click="chooseVideo" v-if="formData.videos.length === 0">
+					<view class="upload-btn" @click="chooseFile('video')" v-if="formData.videos.length === 0">
 						<text class="upload-icon">+</text>
 					</view>
 				</view>
@@ -93,9 +93,9 @@
 				<view class="upload-area">
 					<view class="upload-preview" v-if="formData.cover">
 						<image class="preview-image" :src="formData.cover" mode="aspectFill"></image>
-						<text class="delete-icon" @click="deleteVideoCover">×</text>
+						<text class="delete-icon" @click="deleteFile('cover')">×</text>
 					</view>
-					<view class="upload-btn" @click="chooseVideoCover" v-if="!formData.cover">
+					<view class="upload-btn" @click="chooseFile('cover')" v-if="!formData.cover">
 						<text class="upload-icon">+</text>
 					</view>
 				</view>
@@ -106,10 +106,10 @@
 	</view>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import { onLoad, onShow } from '@dcloudio/uni-app'
-import { createRelease } from '../../api/api';
+import { createRelease, uploadFiles } from '../../api/api';
 import { validateTitle, validateContent, validateLocation } from '../../utils/filter';
 
 // 表单数据
@@ -124,7 +124,7 @@ const formData = reactive({
 	pictures: [],
 	videos: [],
 	cover: ''
-});
+})
 
 // 错误信息
 const errors = reactive({
@@ -140,12 +140,9 @@ const errors = reactive({
 // 表单验证
 const validateForm = () => {
 	let isValid = true
-
-	// 重置错误信息
 	for (let key in errors) {
 		errors[key] = ''
 	}
-
 	// 标题验证
 	const titleVal = validateTitle(formData.title)  // 检验敏感词,防SQL注入
 	if (!titleVal.isValid) {
@@ -154,7 +151,6 @@ const validateForm = () => {
 	} else {
 		formData.title = titleVal.filteredText
 	}
-
 	// 游玩时间验证
 	if (!formData.playTime) {
 		errors.playTime = '游玩时间不能为空'
@@ -163,7 +159,6 @@ const validateForm = () => {
 		errors.playTime = '请输入有效的游玩时间'
 		isValid = false
 	}
-
 	// 费用验证
 	if (!formData.money) {
 		errors.money = '费用不能为空'
@@ -172,7 +167,6 @@ const validateForm = () => {
 		errors.money = '请输入有效的费用金额'
 		isValid = false
 	}
-
 	// 人数验证
 	if (!formData.personNum) {
 		errors.personNum = '人数不能为空'
@@ -181,7 +175,6 @@ const validateForm = () => {
 		errors.personNum = '请输入有效的人数'
 		isValid = false
 	}
-
 	// 位置验证
 	const locationVal = validateLocation(formData.location)  // 不能为空或太长
 	if (!locationVal.isValid) {
@@ -190,7 +183,6 @@ const validateForm = () => {
 	} else {
 		formData.location = locationVal.filteredText
 	}
-
 	// 内容验证
 	const contentVal = validateContent(formData.content)  // 检验敏感词,防SQL注入
 	if (!contentVal.isValid) {
@@ -199,18 +191,16 @@ const validateForm = () => {
 	} else {
 		formData.content = contentVal.filteredText
 	}
-
 	// 图片验证
 	if (!formData.pictures || formData.pictures.length === 0) {
 		errors.pictures = '至少上传一张图片';
-		isValid = false;
+		isValid = false
 	}
-
-	return isValid;
+	return isValid
 }
 
 // 提交表单
-const submitForm = () => {
+const submitForm = async () => {
 	if (!validateForm()) {
 		uni.showToast({
 			title: '请完善表单信息',
@@ -218,44 +208,49 @@ const submitForm = () => {
 		})
 		return
 	}
-
-	// 转换数据类型
-	const submitData = {
-		...formData,
-		playTime: Number(formData.playTime),
-		money: Number(formData.money),
-		personNum: Number(formData.personNum)
-	};
-
-	// 提交表单到服务器
 	uni.showLoading({
-		title: '发布中...'
-	});
-
-	createRelease(submitData).then(async res => {
+		title: '正在处理...'
+	})
+	try {
+		if (formData.pictures.length > 0) {
+			const pictureRes = await uploadFiles(formData.pictures, 'image')
+			formData.pictures = pictureRes.pictures
+		}
+		if (formData.videos.length > 0) {
+			const videoRes = await uploadFiles(formData.videos, 'video')
+			formData.videos = videoRes.videos
+		}
+		if (formData.cover) {
+			const coverRes = await uploadFiles(formData.cover, 'cover')
+			formData.cover = coverRes.covers[0]
+		}
+		const submitData = {
+			...formData,
+			playTime: Number(formData.playTime),
+			money: Number(formData.money),
+			personNum: Number(formData.personNum)
+		}
+		await createRelease(submitData)
 		uni.hideLoading()
-		await new Promise((resolve) => {
-			uni.showToast({
-				title: '发布成功',
-				icon: 'success'
-			})
-			setTimeout(() => resolve(), 1000)
+		uni.showToast({
+			title: '发布成功',
+			icon: 'success'
 		})
 		resetForm()
-		// setTimeout(() => {
-		// 	uni.navigateTo({
-		// 		url: '/pages/MyNotes/MyNotes'
-		// 	});
-		// }, 1500);
-	}).catch(e => { console.log(e) })
+	} catch (e) {
+		console.log('发布过程失败:', e)
+		uni.hideLoading()
+		uni.showToast({
+			title: '发布失败，请重试',
+			icon: 'none'
+		})
+	}
 }
 
 // 重置表单
 const resetForm = () => {
 	// 保留用户ID，清空其他字段
 	const userID = formData.userID
-
-	// 重置表单数据
 	Object.assign(formData, {
 		userID,
 		title: '',
@@ -268,56 +263,46 @@ const resetForm = () => {
 		videos: [],
 		cover: ''
 	})
-
-	// 清空错误信息
 	for (let key in errors) {
 		errors[key] = ''
 	}
 }
 
-// 选择图片
-const chooseImage = () => {
-	uni.chooseImage({
-		count: 9 - formData.pictures.length,
-		success: (res) => {
-			formData.pictures = [...formData.pictures, ...res.tempFilePaths]
-		}
-	})
+// 选择文件
+const chooseFile = (type: string) => {
+	if (type === 'image') {
+		uni.chooseImage({
+			count: 9 - formData.pictures.length,
+			success: (res) => {
+				formData.pictures = [...formData.pictures, ...res.tempFilePaths];
+			}
+		})
+	} else if (type === 'video') {
+		uni.chooseVideo({
+			count: 1,
+			success: (res) => {
+				formData.videos = [res.tempFilePath];
+			}
+		})
+	} else if (type === 'cover') {
+		uni.chooseImage({
+			count: 1,
+			success: (res) => {
+				formData.cover = res.tempFilePaths[0];
+			}
+		})
+	}
 }
 
-// 删除图片
-const deleteImage = (index) => {
-	formData.pictures.splice(index, 1)
-}
-
-// 选择视频
-const chooseVideo = () => {
-	uni.chooseVideo({
-		count: 1,
-		success: (res) => {
-			formData.videos = [res.tempFilePath]
-		}
-	})
-}
-
-// 删除视频
-const deleteVideo = (index) => {
-	formData.videos.splice(index, 1)
-}
-
-// 选择视频封面
-const chooseVideoCover = () => {
-	uni.chooseImage({
-		count: 1,
-		success: (res) => {
-			formData.cover = res.tempFilePaths[0]
-		}
-	})
-}
-
-// 删除视频封面
-const deleteVideoCover = () => {
-	formData.cover = ''
+// 删除文件
+const deleteFile = (type: string, index?: number) => {
+	if (type === 'image') {
+		formData.pictures.splice(index, 1)
+	} else if (type === 'video') {
+		formData.videos.splice(index, 1)
+	} else if (type === 'cover') {
+		formData.cover = ''
+	}
 }
 
 // 选择位置

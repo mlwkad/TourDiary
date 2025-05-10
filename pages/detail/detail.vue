@@ -220,28 +220,30 @@ const delRes = () => {
 }
 
 const liked = async () => {
-    const userId = JSON.parse(uni.getStorageSync('userInfo')).userId
     try {
+        const userId = JSON.parse(uni.getStorageSync('userInfo')).userId
         if (!isLiked.value) {
-            await addLiked(userId, info.value.releaseID).then(res => {
-                uni.showToast({
-                    title: '收藏成功',
-                    icon: 'none'
-                })
+            await addLiked(userId, info.value.releaseID)
+            uni.showToast({
+                title: '收藏成功',
+                icon: 'none'
             })
         } else {
-            await removeLiked(userId, info.value.releaseID).then(res => {
-                uni.showToast({
-                    title: '取消收藏',
-                    icon: 'none'
-                })
+            await removeLiked(userId, info.value.releaseID)
+            uni.showToast({
+                title: '取消收藏',
+                icon: 'none'
             })
         }
-        getUserInfo(userId).then(res => {
-            isLiked.value = JSON.parse(res.liked).includes(info.value.releaseID)
-            // isFollow.value = res.follow.includes(info.value.userID)
+        const userInfoRes = await getUserInfo(userId)
+        isLiked.value = JSON.parse(userInfoRes.liked).includes(info.value.releaseID)
+    } catch (e) {
+        console.log(e)
+        uni.showToast({
+            title: '操作失败',
+            icon: 'none'
         })
-    } catch (e) { console.log(e) }
+    }
 }
 
 // 用户详情页
@@ -249,23 +251,6 @@ const goUserPages = () => {
     uni.navigateTo({
         url: `/pages/follow/works?userID=${info.value.userID}`
     })
-}
-
-// 分享功能
-const shareContent = () => {
-    // #ifdef MP-WEIXIN
-    uni.showShareMenu({
-        withShareTicket: true,
-        menus: ['shareAppMessage', 'shareTimeline']
-    });
-    // #endif
-
-    // 显示分享成功的提示
-    uni.showToast({
-        title: '分享成功',
-        icon: 'success',
-        duration: 2000
-    });
 }
 
 // 暴露微信小程序所需的分享方法,因为设置了setup
@@ -298,15 +283,21 @@ const followPublisher = () => {
             content: `确定要关注"${info.value.userName}"吗？`,
             success: async (res) => {
                 if (res.confirm) {
-                    await follow(userId, { followUserID: info.value.userID }).then(res => {
+                    try {
+                        await follow(userId, { followUserID: info.value.userID })
                         uni.showToast({
                             title: '关注成功',
                             icon: 'none'
                         })
-                    })
-                    getUserInfo(userId).then(res => {
-                        isFollow.value = res.follow.includes(info.value.userID)
-                    })
+                        const userInfoRes = await getUserInfo(userId)
+                        isFollow.value = userInfoRes.follow.includes(info.value.userID)
+                    } catch (e) {
+                        console.log(e)
+                        uni.showToast({
+                            title: '关注失败',
+                            icon: 'none'
+                        })
+                    }
                 }
             }
         })
@@ -316,15 +307,21 @@ const followPublisher = () => {
             content: `确定要取消关注"${info.value.userName}"吗？`,
             success: async (res) => {
                 if (res.confirm) {
-                    await unfollow(userId, info.value.userID).then(res => {
+                    try {
+                        await unfollow(userId, info.value.userID)
                         uni.showToast({
                             title: '已取消关注',
                             icon: 'none'
                         })
-                    })
-                    getUserInfo(userId).then(res => {
-                        isFollow.value = res.follow.includes(info.value.userID)
-                    })
+                        const userInfoRes = await getUserInfo(userId)
+                        isFollow.value = userInfoRes.follow.includes(info.value.userID)
+                    } catch (e) {
+                        console.log(e)
+                        uni.showToast({
+                            title: '操作失败',
+                            icon: 'none'
+                        })
+                    }
                 }
             }
         })

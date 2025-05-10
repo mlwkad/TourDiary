@@ -144,10 +144,8 @@ const getNoteDetail = (info: any) => {
 // 验证表单
 const validateForm = () => {
     let isValid = true
-
     // 清除所有错误
     clearErrors()
-
     // 标题验证
     const titleVal = validateTitle(note.title)
     if (!titleVal.isValid) {
@@ -157,7 +155,6 @@ const validateForm = () => {
         // 使用过滤后的文本
         note.title = titleVal.filteredText
     }
-
     // 内容验证
     const contentVal = validateContent(note.content);
     if (!contentVal.isValid) {
@@ -166,7 +163,6 @@ const validateForm = () => {
     } else {
         note.content = contentVal.filteredText
     }
-
     // 位置验证
     if (note.location) {
         const locationVal = validateLocation(note.location);
@@ -177,31 +173,26 @@ const validateForm = () => {
             note.location = locationVal.filteredText
         }
     }
-
     // 游玩时间验证
     if (note.playTime && (isNaN(Number(note.playTime)) || Number(note.playTime) <= 0)) {
         errors.playTime = '请输入有效的游玩时间'
         isValid = false
     }
-
     // 费用验证
     if (note.money && (isNaN(Number(note.money)) || Number(note.money) < 0)) {
         errors.money = '请输入有效的费用金额'
         isValid = false
     }
-
     // 人数验证
     if (note.personNum && (isNaN(Number(note.personNum)) || Number(note.personNum) <= 0 || !Number.isInteger(Number(note.personNum)))) {
         errors.personNum = '请输入有效的人数'
         isValid = false
     }
-
     // 图片验证
     if (!note.pictures || note.pictures.length === 0) {
         errors.pictures = '至少上传一张图片'
         isValid = false
     }
-
     return isValid
 }
 
@@ -223,27 +214,27 @@ onBackPress(() => {
 })
 
 // 保存笔记
-const saveNote = () => {
+const saveNote = async () => {
     // 使用验证函数验证表单
     if (!validateForm()) {
         return // 如果验证失败，直接返回
     }
-
-    updateRelease(note.id, note).then(res => {
+    try {
+        await updateRelease(note.id, note)
         uni.showToast({
             title: '保存成功',
             icon: 'success'
         })
-
         setTimeout(() => {
             uni.navigateBack()
         }, 1000)
-    }).catch(e => {
+    } catch (e) {
+        console.log(e)
         uni.showToast({
             title: '保存失败',
             icon: 'error'
         })
-    })
+    }
 }
 
 // 选择位置

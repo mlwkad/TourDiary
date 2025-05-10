@@ -34,7 +34,7 @@ const getWebSocketConnection = () => {
 
         // 创建新连接
         isConnecting = true
-        const wsUrl = `ws://localhost:3000`
+        const wsUrl = `wss://ovmmqfovxbil.sealosbja.site`
         try {
             socketTask = uni.connectSocket({
                 url: wsUrl,

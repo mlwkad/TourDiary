@@ -75,17 +75,20 @@ const distributeData = (data: any[], target: any[][]) => {
 	}
 }
 
-watchEffect(() => {
+watchEffect(async () => {
 	if (!searchContent.value) {
-		getAllReleases(14, 0).then(res => {
+		try {
+			const res = await getAllReleases(14, 0)
 			distributeData(res.releases || [], allInfo.value)
-		})
+		} catch (e) {
+			console.log(e)
+		}
 		isShowChoose.value = false
 		isShowChangePage.value = true
 	}
 })
 
-const goSearch = () => {
+const goSearch = async () => {
 	searchError.value = ''
 	const searchValidation = validateSearch(searchContent.value)
 	if (!searchValidation.isValid) {
@@ -93,9 +96,8 @@ const goSearch = () => {
 		return
 	}
 	searchContent.value = searchValidation.filteredText
-	searchReleases(
-		{ userName: searchContent.value, title: searchContent.value }
-	).then(res => {
+	try {
+		const res = await searchReleases({ userName: searchContent.value, title: searchContent.value })
 		isShowChoose.value = true
 		isShowChangePage.value = false
 		distributeData(res.byUserName || [], allInfoByUserName.value)
@@ -109,10 +111,10 @@ const goSearch = () => {
 		} else {
 			searchError.value = '未找到相关内容'
 		}
-	}).catch(err => {
-		console.error(err)
+	} catch (e) {
+		console.log(e)
 		searchError.value = '搜索失败，请稍后再试'
-	})
+	}
 }
 
 const goDetail = (info) => {
@@ -128,29 +130,46 @@ const goTopFunc = () => {
 	})
 }
 
-const changePage = (num: number) => {
+const changePage = async (num: number) => {
 	if (num === 1 && curPage.value !== 1) {
 		offSet.value -= 14
-		getAllReleases(14, offSet.value).then(res => {
+		try {
+			const res = await getAllReleases(14, offSet.value)
 			distributeData(res.releases || [], allInfo.value)
-		})
-		goTopFunc()
-		curPage.value--
+			goTopFunc()
+			curPage.value--
+		} catch (e) {
+			console.log(e)
+			uni.showToast({
+				title: '获取数据失败',
+				icon: 'none'
+			})
+		}
 	}
 	else if (num === 2) {
 		offSet.value += 14
-		getAllReleases(14, offSet.value).then(res => {
+		try {
+			const res = await getAllReleases(14, offSet.value)
 			distributeData(res.releases || [], allInfo.value)
-		})
-		goTopFunc()
-		curPage.value++
+			goTopFunc()
+			curPage.value++
+		} catch (e) {
+			console.log(e)
+			uni.showToast({
+				title: '获取数据失败',
+				icon: 'none'
+			})
+		}
 	}
 }
 
-onShow(() => {
-	getAllReleases(14, 0).then(res => {
+onShow(async () => {
+	try {
+		const res = await getAllReleases(14, 0)
 		distributeData(res.releases || [], allInfo.value)
-	})
+	} catch (e) {
+		console.log(e)
+	}
 	searchContent.value = ''
 })
 

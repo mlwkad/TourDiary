@@ -84,7 +84,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref } from 'vue';
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { getUserReleases, getReleaseDetail, deleteRelease, updateState } from '../../api/api';
 
@@ -128,18 +128,26 @@ const viewNote = async (releaseID: string, state: string) => {
         })
         return
     }
-    const info = await getReleaseDetail(releaseID)
-    uni.navigateTo({
-        url: `/pages/detail/detail?info=${encodeURIComponent(JSON.stringify(info))}`
-    });
-};
+    try {
+        const info = await getReleaseDetail(releaseID)
+        uni.navigateTo({
+            url: `/pages/detail/detail?info=${encodeURIComponent(JSON.stringify(info))}`
+        })
+    } catch (e) {
+        console.log(e)
+        uni.showToast({
+            title: '获取详情失败',
+            icon: 'none'
+        })
+    }
+}
 
 // 编辑笔记
 const editNote = (info: any, index: number) => {
     uni.navigateTo({
         url: `/pages/notes/note-edit?info=${encodeURIComponent(JSON.stringify(info))}`
-    });
-};
+    })
+}
 
 // 删除笔记
 const deleteNote = (info: any, index: number) => {
@@ -148,17 +156,24 @@ const deleteNote = (info: any, index: number) => {
         content: '确定要删除这个笔记吗？',
         success: async (res) => {
             if (res.confirm) {
-                // 这里应该调用API删除笔记
-                await deleteRelease(info.releaseID, userID)
-                uni.showToast({
-                    title: '已删除',
-                    icon: 'success'
-                });
-                const res = await getUserReleases(userID)
-                notes.value = res
+                try {
+                    await deleteRelease(info.releaseID, userID)
+                    uni.showToast({
+                        title: '已删除',
+                        icon: 'success'
+                    })
+                    const res = await getUserReleases(userID)
+                    notes.value = res
+                } catch (e) {
+                    console.log(e)
+                    uni.showToast({
+                        title: '删除失败',
+                        icon: 'none'
+                    })
+                }
             }
         }
-    });
+    })
 };
 
 // 创建新笔记
@@ -169,21 +184,27 @@ const createNote = () => {
 };
 
 // 改变状态
-const changeState = (note) => {
-    updateState(
-        note.releaseID,
-        { state: state.value, reason: reason.value }
-    )
+const changeState = async (note) => {
+    try {
+        await updateState(
+            note.releaseID,
+            { state: state.value, reason: reason.value }
+        )
+        uni.showToast({
+            title: '状态已更新',
+            icon: 'success'
+        })
+        // 刷新笔记列表
+        const res = await getUserReleases(userID)
+        notes.value = res
+    } catch (e) {
+        console.log(e)
+        uni.showToast({
+            title: '更新状态失败',
+            icon: 'none'
+        })
+    }
 }
-
-// 刷新数据
-const onRefresh = async () => {
-    isRefreshing.value = true;
-    const res = await getUserReleases(userID)
-    notes.value = res
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    isRefreshing.value = false;
-};
 
 // 预览图片
 const previewImage = (images: string[], current: number) => {

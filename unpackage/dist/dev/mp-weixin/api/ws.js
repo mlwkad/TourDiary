@@ -27,7 +27,7 @@ const getWebSocketConnection = () => {
       return;
     }
     isConnecting = true;
-    const wsUrl = `ws://localhost:3000`;
+    const wsUrl = `wss://ovmmqfovxbil.sealosbja.site`;
     try {
       socketTask = common_vendor.index.connectSocket({
         url: wsUrl,
