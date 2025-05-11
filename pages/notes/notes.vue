@@ -208,8 +208,9 @@ const changeState = async (note) => {
 
 // 预览图片
 const previewImage = (images: string[], current: number) => {
+    const stringUrls = images.map(img => String(img))
     uni.previewImage({
-        urls: images,  // [url1,url2] 图片地址数组  
+        urls: stringUrls,  // [url1,url2] 图片地址数组  
         current: images[current]  // 当前显示的图片索引
     });
 };

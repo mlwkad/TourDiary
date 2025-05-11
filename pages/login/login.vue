@@ -124,8 +124,7 @@ const handleLogin = () => {
             userInfo.userId = res.userID
             userInfo.nickName = username.value
             userInfo.avatarUrl = '/static/666.jpg'
-            // 随便设置一个token
-            await uni.setStorageSync('token', 'sample-token')
+            await uni.setStorageSync('token', res.userID)
             await uni.setStorageSync('userInfo', JSON.stringify(userInfo))
             uni.navigateBack()
         }).catch(err => {

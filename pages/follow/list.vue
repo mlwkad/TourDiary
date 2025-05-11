@@ -81,7 +81,6 @@ const fetchFollowingData = async () => {
         followList.value = []
         for (const item of followingIds) {
             const res = await getUserInfo(item)
-            console.log(res)
             const user = {
                 userID: res.userID,
                 userName: res.userName,

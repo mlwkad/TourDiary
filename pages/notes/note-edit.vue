@@ -268,12 +268,39 @@ const chooseLocation = () => {
 // 选择图片
 const chooseImage = () => {
     uni.chooseImage({
-        count: 9 - note.pictures.length,  // 还能选几张
-        sizeType: ['compressed'],  // 压缩后的图片 或 original:原图
-        sourceType: ['album', 'camera'],  // 可以来自相册 相机
+        count: 5 - note.pictures.length,  // 限制最多5张图片
+        sizeType: ['compressed'],  // 压缩后的图片
+        sourceType: ['album', 'camera'],  // 可以来自相册或相机
         success: (res) => {
-            // 仅保存本地路径，上传将在保存笔记时执行
-            note.pictures = [...note.pictures, ...res.tempFilePaths]
+            uni.showLoading({ title: '处理图片中...' })
+            let count = 0
+            const totalImages = res.tempFilePaths.length
+            res.tempFilePaths.forEach(imagePath => {
+                uni.compressImage({
+                    src: imagePath,
+                    quality: 80,  // 压缩质量(0-100),正比于照片质量,反比于压缩率
+                    success: (compressRes) => {
+                        note.pictures.push(compressRes.tempFilePath)
+                        count++
+                        if (count >= totalImages) {
+                            uni.hideLoading()
+                        }
+                    },
+                    fail: () => {
+                        // 压缩失败则使用原图
+                        note.pictures.push(imagePath)
+                        uni.showToast({
+                            title: '部分图片压缩失败',
+                            icon: 'none',
+                            duration: 1000
+                        })
+                        count++
+                        if (count >= totalImages) {
+                            uni.hideLoading()
+                        }
+                    }
+                })
+            })
             // 清除图片错误信息
             errors.pictures = ''
         }
@@ -289,11 +316,29 @@ const removeImage = (index: number) => {
 const chooseVideo = () => {
     uni.chooseVideo({
         count: 1,
+        compressed: true, // 开启视频压缩
         sourceType: ['album', 'camera'],
         success: (res) => {
-            // 仅保存本地路径，上传将在保存笔记时执行
-            note.videos = [res.tempFilePath]
-
+            uni.showLoading({ title: '处理视频中...' })
+            // 视频大小和时长检查
+            uni.getVideoInfo({
+                src: res.tempFilePath,
+                success: (videoInfo) => {
+                    uni.hideLoading()
+                    if (videoInfo.duration > 60) {
+                        uni.showToast({
+                            title: '视频时长不能超过1分钟',
+                            icon: 'none'
+                        })
+                    } else {
+                        note.videos = [res.tempFilePath]
+                    }
+                },
+                fail: () => {
+                    uni.hideLoading()
+                    note.videos = [res.tempFilePath]
+                }
+            })
         }
     })
 }
@@ -310,9 +355,25 @@ const chooseVideoCover = () => {
         sizeType: ['compressed'],
         sourceType: ['album', 'camera'],
         success: (res) => {
-            // 仅保存本地路径，上传将在保存笔记时执行
-            note.cover = res.tempFilePaths[0]
-
+            uni.showLoading({ title: '处理封面中...' })
+            uni.compressImage({
+                src: res.tempFilePaths[0],
+                quality: 80,
+                success: (compressRes) => {
+                    uni.hideLoading()
+                    note.cover = compressRes.tempFilePath
+                },
+                fail: () => {
+                    uni.hideLoading()
+                    // 压缩失败则使用原图
+                    note.cover = res.tempFilePaths[0]
+                    uni.showToast({
+                        title: '封面压缩失败',
+                        icon: 'none',
+                        duration: 1000
+                    })
+                }
+            })
         }
     })
 }

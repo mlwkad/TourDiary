@@ -42,7 +42,6 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         followList.value = [];
         for (const item of followingIds) {
           const res = await api_api.getUserInfo(item);
-          common_vendor.index.__f__("log", "at pages/follow/list.vue:84", res);
           const user = {
             userID: res.userID,
             userName: res.userName,
@@ -52,7 +51,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           followList.value.push(user);
         }
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/follow/list.vue:94", e);
+        common_vendor.index.__f__("log", "at pages/follow/list.vue:93", e);
       }
     };
     const goToDiscover = () => {

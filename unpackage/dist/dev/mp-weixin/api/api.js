@@ -102,7 +102,7 @@ const uploadFiles = async (filePaths, type = "") => {
     }
     return result;
   } catch (e) {
-    common_vendor.index.__f__("log", "at api/api.js:160", e);
+    common_vendor.index.__f__("log", "at api/api.js:159", e);
     return { pictures: [], videos: [], covers: [] };
   } finally {
     common_vendor.index.hideLoading();

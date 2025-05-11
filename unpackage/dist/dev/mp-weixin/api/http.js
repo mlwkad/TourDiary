@@ -34,7 +34,7 @@ function http(url, data = {}, method = "GET") {
         }
       },
       fail: (err) => {
-        common_vendor.index.__f__("log", "at api/http.js:42", err);
+        common_vendor.index.__f__("log", "at api/http.js:60", err);
         common_vendor.index.showToast({
           title: "服务请求异常",
           icon: "none"

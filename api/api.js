@@ -136,7 +136,6 @@ const uploadSingleFile = (filePath, url) => {
 
 // 上传文件
 export const uploadFiles = async (filePaths, type = '') => {  // image/video/cover
-    // 如果传入的不是数组，转换为数组
     const paths = Array.isArray(filePaths) ? filePaths : [filePaths]
     // 如果是空数组，直接返回
     if (paths.length === 0 || !paths[0]) {

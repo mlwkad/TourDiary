@@ -153,14 +153,42 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     };
     const chooseImage = () => {
       common_vendor.index.chooseImage({
-        count: 9 - note.pictures.length,
-        // 还能选几张
+        count: 5 - note.pictures.length,
+        // 限制最多5张图片
         sizeType: ["compressed"],
-        // 压缩后的图片 或 original:原图
+        // 压缩后的图片
         sourceType: ["album", "camera"],
-        // 可以来自相册 相机
+        // 可以来自相册或相机
         success: (res) => {
-          note.pictures = [...note.pictures, ...res.tempFilePaths];
+          common_vendor.index.showLoading({ title: "处理图片中..." });
+          let count = 0;
+          const totalImages = res.tempFilePaths.length;
+          res.tempFilePaths.forEach((imagePath) => {
+            common_vendor.index.compressImage({
+              src: imagePath,
+              quality: 80,
+              // 压缩质量(0-100),正比于照片质量,反比于压缩率
+              success: (compressRes) => {
+                note.pictures.push(compressRes.tempFilePath);
+                count++;
+                if (count >= totalImages) {
+                  common_vendor.index.hideLoading();
+                }
+              },
+              fail: () => {
+                note.pictures.push(imagePath);
+                common_vendor.index.showToast({
+                  title: "部分图片压缩失败",
+                  icon: "none",
+                  duration: 1e3
+                });
+                count++;
+                if (count >= totalImages) {
+                  common_vendor.index.hideLoading();
+                }
+              }
+            });
+          });
           errors.pictures = "";
         }
       });
@@ -171,9 +199,29 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const chooseVideo = () => {
       common_vendor.index.chooseVideo({
         count: 1,
+        compressed: true,
+        // 开启视频压缩
         sourceType: ["album", "camera"],
         success: (res) => {
-          note.videos = [res.tempFilePath];
+          common_vendor.index.showLoading({ title: "处理视频中..." });
+          common_vendor.index.getVideoInfo({
+            src: res.tempFilePath,
+            success: (videoInfo) => {
+              common_vendor.index.hideLoading();
+              if (videoInfo.duration > 60) {
+                common_vendor.index.showToast({
+                  title: "视频时长不能超过1分钟",
+                  icon: "none"
+                });
+              } else {
+                note.videos = [res.tempFilePath];
+              }
+            },
+            fail: () => {
+              common_vendor.index.hideLoading();
+              note.videos = [res.tempFilePath];
+            }
+          });
         }
       });
     };
@@ -186,7 +234,24 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         sizeType: ["compressed"],
         sourceType: ["album", "camera"],
         success: (res) => {
-          note.cover = res.tempFilePaths[0];
+          common_vendor.index.showLoading({ title: "处理封面中..." });
+          common_vendor.index.compressImage({
+            src: res.tempFilePaths[0],
+            quality: 80,
+            success: (compressRes) => {
+              common_vendor.index.hideLoading();
+              note.cover = compressRes.tempFilePath;
+            },
+            fail: () => {
+              common_vendor.index.hideLoading();
+              note.cover = res.tempFilePaths[0];
+              common_vendor.index.showToast({
+                title: "封面压缩失败",
+                icon: "none",
+                duration: 1e3
+              });
+            }
+          });
         }
       });
     };

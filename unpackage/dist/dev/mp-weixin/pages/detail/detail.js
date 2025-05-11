@@ -56,7 +56,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         if (update.type === "update") {
           XunFeiRes.value += update.content;
         } else if (update.type === "error") {
-          common_vendor.index.__f__("log", "at pages/detail/detail.vue:201", update.error);
+          common_vendor.index.__f__("log", "at pages/detail/detail.vue:194", update.error);
         }
       });
     };
@@ -93,7 +93,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         const userInfoRes = await api_api.getUserInfo(userId);
         isLiked.value = JSON.parse(userInfoRes.liked).includes(info.value.releaseID);
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/detail/detail.vue:241", e);
+        common_vendor.index.__f__("log", "at pages/detail/detail.vue:234", e);
         common_vendor.index.showToast({
           title: "操作失败",
           icon: "none"
@@ -141,7 +141,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
                 const userInfoRes = await api_api.getUserInfo(userId);
                 isFollow.value = userInfoRes.follow.includes(info.value.userID);
               } catch (e) {
-                common_vendor.index.__f__("log", "at pages/detail/detail.vue:295", e);
+                common_vendor.index.__f__("log", "at pages/detail/detail.vue:288", e);
                 common_vendor.index.showToast({
                   title: e,
                   icon: "none"
@@ -165,7 +165,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
                 const userInfoRes = await api_api.getUserInfo(userId);
                 isFollow.value = userInfoRes.follow.includes(info.value.userID);
               } catch (e) {
-                common_vendor.index.__f__("log", "at pages/detail/detail.vue:319", e);
+                common_vendor.index.__f__("log", "at pages/detail/detail.vue:312", e);
                 common_vendor.index.showToast({
                   title: "操作失败",
                   icon: "none"
@@ -177,15 +177,36 @@ const _sfc_defineComponent = common_vendor.defineComponent({
       }
     };
     const previewImage = (images, current) => {
+      const stringUrls = images.map((img) => String(img));
       common_vendor.index.previewImage({
-        urls: images,
-        // [url1,url2] 图片地址数组  
-        current: images[current]
-        // 当前显示的图片索引
+        urls: stringUrls,
+        // 地址列表
+        current: stringUrls[current],
+        // 显示第几张
+        fail: (e) => {
+          common_vendor.index.__f__("error", "at pages/detail/detail.vue:331", "预览失败:", e);
+        }
       });
     };
+    const fullScreen = (event) => {
+      const isFullScreen = event.detail.fullScreen || event.detail.fullscreen;
+      const direction = event.detail.direction;
+      if (isFullScreen) {
+        common_vendor.index.showToast({
+          title: `已进入${direction === "vertical" ? "竖向" : "横向"}全屏模式`,
+          icon: "none",
+          duration: 1500
+        });
+      } else {
+        common_vendor.index.showToast({
+          title: "已退出全屏模式",
+          icon: "none",
+          duration: 1500
+        });
+      }
+    };
     const videoError = (e) => {
-      common_vendor.index.__f__("error", "at pages/detail/detail.vue:340", "视频播放错误:", e.detail);
+      common_vendor.index.__f__("error", "at pages/detail/detail.vue:357", "视频播放错误:", e.detail);
       common_vendor.index.showToast({
         title: "视频播放失败",
         icon: "none"
@@ -206,7 +227,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
           });
         }
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/detail/detail.vue:377", e);
+        common_vendor.index.__f__("log", "at pages/detail/detail.vue:380", e);
       }
     });
     common_vendor.onShow(() => {
@@ -219,7 +240,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
           });
         }
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/detail/detail.vue:392", e);
+        common_vendor.index.__f__("log", "at pages/detail/detail.vue:395", e);
       }
     });
     return (_ctx, _cache) => {
@@ -238,8 +259,9 @@ const _sfc_defineComponent = common_vendor.defineComponent({
           return {
             a: item,
             b: "video-" + index,
-            c: common_vendor.o(videoError, "vid-" + index),
-            d: "vid-" + index
+            c: common_vendor.o(fullScreen, "vid-" + index),
+            d: common_vendor.o(videoError, "vid-" + index),
+            e: "vid-" + index
           };
         }),
         d: info.value.cover,

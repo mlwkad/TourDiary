@@ -12,9 +12,8 @@
         <swiper class="detail-swiper" v-else indicator-dots :indicator-active-color="'#3494E6'"
             :indicator-color="'rgba(255,255,255,0.5)'" :interval="3000" :duration="500" circular>
             <swiper-item v-for="(item, index) in info.videos" :key="'vid-' + index">
-                <video class="swiper-video" :src="item" :poster="info.cover" controls show-fullscreen-btn
-                    show-center-play-btn picture-in-picture-mode="push" show-picture-in-picture-btn
-                    :id="'video-' + index" enable-auto-rotation @error="videoError">
+                <video class="swiper-video" :src="item" :poster="info.cover" controls direction :id="'video-' + index"
+                    show-fullscreen-btn show-center-play-btn @fullscreenchange="fullScreen" @error="videoError">
                 </video>
             </swiper-item>
             <swiper-item v-for="(item, index) in info.pictures" :key="'pic-' + index">
@@ -38,7 +37,6 @@
                 </view>
             </view>
         </view>
-
         <!-- 发布者信息部分 -->
         <view class="publisher-container">
             <view class="publisher-info">
@@ -59,14 +57,12 @@
                 </view>
             </view>
         </view>
-
         <!-- 内容详情部分 -->
         <view class="detail-content">
             <view class="section-heading">旅行详情</view>
             <view class="detail-item content-box">
                 <text class="item-value0">{{ info.content }}</text>
             </view>
-
             <view class="detail-item location-box">
                 <text class="item-label">旅游地点</text>
                 <view class="location-wrapper">
@@ -80,18 +76,15 @@
                     </view>
                 </view>
             </view>
-
             <view class="detail-info">
                 <view class="info-item price-item">
                     <image src="/static/public/money.png" class="info-icon"></image>
                     <text>{{ info.money }}元</text>
                 </view>
-
                 <view class="info-item person-item">
                     <image src="/static/public/person.png" class="info-icon"></image>
                     <text>{{ info.personNum }}人</text>
                 </view>
-
                 <view class="info-item time-item">
                     <image src="/static/public/time.png" class="info-icon"></image>
                     <text>{{ info.playTime }}天</text>
@@ -329,10 +322,34 @@ const followPublisher = () => {
 }
 
 const previewImage = (images: string[], current: number) => {
+    // 直接将每个图片转换为字符串
+    const stringUrls = images.map(img => String(img))
     uni.previewImage({
-        urls: images,  // [url1,url2] 图片地址数组  
-        current: images[current]  // 当前显示的图片索引
+        urls: stringUrls,  // 地址列表
+        current: stringUrls[current],  // 显示第几张
+        fail: (e) => {
+            console.error('预览失败:', e)
+        }
     })
+}
+
+// 全屏播放提示
+const fullScreen = (event) => {
+    const isFullScreen = event.detail.fullScreen || event.detail.fullscreen
+    const direction = event.detail.direction
+    if (isFullScreen) {
+        uni.showToast({
+            title: `已进入${direction === 'vertical' ? '竖向' : '横向'}全屏模式`,
+            icon: 'none',
+            duration: 1500
+        })
+    } else {
+        uni.showToast({
+            title: '已退出全屏模式',
+            icon: 'none',
+            duration: 1500
+        })
+    }
 }
 
 // 视频播放错误处理
@@ -342,20 +359,6 @@ const videoError = (e) => {
         title: '视频播放失败',
         icon: 'none'
     })
-}
-
-// 进入画中画模式的回调
-const onEnterPIP = (e) => {
-    // console.log('进入小窗播放模式', e)
-    // uni.showToast({
-    //     title: '已进入小窗播放',
-    //     icon: 'none'
-    // })
-}
-
-// 退出画中画模式的回调
-const onLeavePIP = (e) => {
-    console.log('退出小窗播放模式', e)
 }
 
 onLoad(async (options) => {

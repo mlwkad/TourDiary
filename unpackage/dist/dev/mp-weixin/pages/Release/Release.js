@@ -117,8 +117,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           icon: "success"
         });
         resetForm();
+        common_vendor.index.navigateTo({ url: "/pages/notes/notes" });
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/Release/Release.vue:241", "发布过程失败:", e);
+        common_vendor.index.__f__("log", "at pages/Release/Release.vue:242", "发布过程失败:", e);
         common_vendor.index.hideLoading();
         common_vendor.index.showToast({
           title: "发布失败，请重试",
@@ -147,23 +148,88 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const chooseFile = (type) => {
       if (type === "image") {
         common_vendor.index.chooseImage({
-          count: 9 - formData.pictures.length,
+          count: 5 - formData.pictures.length,
           success: (res) => {
-            formData.pictures = [...formData.pictures, ...res.tempFilePaths];
+            common_vendor.index.showLoading({ title: "处理图片中..." });
+            let count = 0;
+            const totalImages = res.tempFilePaths.length;
+            res.tempFilePaths.forEach((imagePath) => {
+              common_vendor.index.compressImage({
+                src: imagePath,
+                quality: 80,
+                // 压缩质量(0-100),正比于照片质量,反比于压缩率
+                success: (compressRes) => {
+                  formData.pictures.push(compressRes.tempFilePath);
+                  count++;
+                  if (count >= totalImages) {
+                    common_vendor.index.hideLoading();
+                  }
+                },
+                fail: () => {
+                  formData.pictures.push(imagePath);
+                  common_vendor.index.showToast({
+                    title: "部分图片压缩失败",
+                    icon: "none",
+                    duration: 1e3
+                  });
+                  count++;
+                  if (count >= totalImages) {
+                    common_vendor.index.hideLoading();
+                  }
+                }
+              });
+            });
           }
         });
       } else if (type === "video") {
         common_vendor.index.chooseVideo({
           count: 1,
+          compressed: true,
+          // 开启视频压缩
           success: (res) => {
-            formData.videos = [res.tempFilePath];
+            common_vendor.index.showLoading({ title: "处理视频中..." });
+            common_vendor.index.getVideoInfo({
+              src: res.tempFilePath,
+              success: (videoInfo) => {
+                common_vendor.index.hideLoading();
+                if (videoInfo.duration > 60) {
+                  common_vendor.index.showToast({
+                    title: "视频时长不能超过1分钟",
+                    icon: "none"
+                  });
+                } else {
+                  formData.videos = [res.tempFilePath];
+                }
+              },
+              fail: () => {
+                common_vendor.index.hideLoading();
+                formData.videos = [res.tempFilePath];
+              }
+            });
           }
         });
       } else if (type === "cover") {
         common_vendor.index.chooseImage({
           count: 1,
           success: (res) => {
-            formData.cover = res.tempFilePaths[0];
+            common_vendor.index.showLoading({ title: "处理封面中..." });
+            common_vendor.index.compressImage({
+              src: res.tempFilePaths[0],
+              quality: 80,
+              success: (compressRes) => {
+                common_vendor.index.hideLoading();
+                formData.cover = compressRes.tempFilePath;
+              },
+              fail: () => {
+                common_vendor.index.hideLoading();
+                formData.cover = res.tempFilePaths[0];
+                common_vendor.index.showToast({
+                  title: "封面压缩失败",
+                  icon: "none",
+                  duration: 1e3
+                });
+              }
+            });
           }
         });
       }
@@ -204,7 +270,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           }
         },
         fail: (err) => {
-          common_vendor.index.__f__("log", "at pages/Release/Release.vue:340", "获取设置失败", err);
+          common_vendor.index.__f__("log", "at pages/Release/Release.vue:407", "获取设置失败", err);
           showManualLocationInput();
         }
       });
@@ -216,7 +282,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             formData.location = res.name;
           },
           fail: (err) => {
-            common_vendor.index.__f__("log", "at pages/Release/Release.vue:356", "选择位置失败", err);
+            common_vendor.index.__f__("log", "at pages/Release/Release.vue:423", "选择位置失败", err);
             if (err.errMsg && err.errMsg.includes("requiredPrivateInfos")) {
               common_vendor.index.showToast({
                 title: "位置服务未配置",
@@ -227,7 +293,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           }
         });
       } catch (e) {
-        common_vendor.index.__f__("error", "at pages/Release/Release.vue:368", "调用选择位置接口失败", e);
+        common_vendor.index.__f__("error", "at pages/Release/Release.vue:435", "调用选择位置接口失败", e);
         showManualLocationInput();
       }
     };
@@ -267,7 +333,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           });
         }
       } catch (e) {
-        common_vendor.index.__f__("error", "at pages/Release/Release.vue:415", "获取用户信息失败", e);
+        common_vendor.index.__f__("error", "at pages/Release/Release.vue:482", "获取用户信息失败", e);
       }
     });
     return (_ctx, _cache) => {

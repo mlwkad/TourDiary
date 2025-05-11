@@ -237,6 +237,7 @@ const submitForm = async () => {
 			icon: 'success'
 		})
 		resetForm()
+		uni.navigateTo({url:'/pages/notes/notes'})
 	} catch (e) {
 		console.log('发布过程失败:', e)
 		uni.hideLoading()
@@ -272,23 +273,89 @@ const resetForm = () => {
 const chooseFile = (type: string) => {
 	if (type === 'image') {
 		uni.chooseImage({
-			count: 9 - formData.pictures.length,
+			count: 5 - formData.pictures.length,
 			success: (res) => {
-				formData.pictures = [...formData.pictures, ...res.tempFilePaths];
+				uni.showLoading({ title: '处理图片中...' })
+				let count = 0
+				const totalImages = res.tempFilePaths.length
+				res.tempFilePaths.forEach(imagePath => {
+					uni.compressImage({
+						src: imagePath,
+						quality: 80,  // 压缩质量(0-100),正比于照片质量,反比于压缩率
+						success: (compressRes) => {
+							formData.pictures.push(compressRes.tempFilePath)
+							count++
+							if (count >= totalImages) {
+								uni.hideLoading()
+							}
+						},
+						fail: () => {
+							// 压缩失败则使用原图
+							formData.pictures.push(imagePath);
+							uni.showToast({
+								title: '部分图片压缩失败',
+								icon: 'none',
+								duration: 1000
+							});
+							count++
+							if (count >= totalImages) {
+								uni.hideLoading()
+							}
+						}
+					})
+				})
 			}
 		})
 	} else if (type === 'video') {
 		uni.chooseVideo({
 			count: 1,
+			compressed: true, // 开启视频压缩
 			success: (res) => {
-				formData.videos = [res.tempFilePath];
+				uni.showLoading({ title: '处理视频中...' })
+				// 视频大小和时长检查
+				uni.getVideoInfo({
+					src: res.tempFilePath,
+					success: (videoInfo) => {
+						uni.hideLoading()
+						if (videoInfo.duration > 60) {
+							uni.showToast({
+								title: '视频时长不能超过1分钟',
+								icon: 'none'
+							})
+						} else {
+							formData.videos = [res.tempFilePath]
+						}
+					},
+					fail: () => {
+						uni.hideLoading()
+						formData.videos = [res.tempFilePath]
+					}
+				})
 			}
 		})
 	} else if (type === 'cover') {
 		uni.chooseImage({
 			count: 1,
 			success: (res) => {
-				formData.cover = res.tempFilePaths[0];
+				uni.showLoading({ title: '处理封面中...' })
+				uni.compressImage({
+					src: res.tempFilePaths[0],
+					quality: 80,
+					success: (compressRes) => {
+						uni.hideLoading()
+						formData.cover = compressRes.tempFilePath
+					},
+					fail: () => {
+						uni.hideLoading()
+						// 压缩失败则使用原图
+						formData.cover = res.tempFilePaths[0]
+						uni.showToast({
+							title: '封面压缩失败',
+							icon: 'none',
+							duration: 1000
+						})
+					}
+				})
 			}
 		})
 	}

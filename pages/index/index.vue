@@ -19,7 +19,7 @@
 		<view class="home-waterfall">
 			<view class="home-waterfall-box" v-for="(i, index) in 2" :key="index">
 				<view class="home-waterfall-content" v-for="j in allInfo[i - 1]" :key="j.name" @click="goDetail(j)">
-					<image class="waterfall-img" :src="j.pictures[0]" mode="widthFix"></image>
+					<image class="waterfall-img" :src="j.pictures[0]" mode="widthFix" lazy-load="true"></image>
 					<view class="waterfall-title">{{ j.title }}</view>
 					<view class="person-info">
 						<image class="waterfall-avatar" src="/static/666.jpg" mode="aspectFill"></image>

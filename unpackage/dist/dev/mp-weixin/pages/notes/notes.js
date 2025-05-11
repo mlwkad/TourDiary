@@ -111,8 +111,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }
     };
     const previewImage = (images, current) => {
+      const stringUrls = images.map((img) => String(img));
       common_vendor.index.previewImage({
-        urls: images,
+        urls: stringUrls,
         // [url1,url2] 图片地址数组  
         current: images[current]
         // 当前显示的图片索引
