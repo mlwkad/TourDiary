@@ -1,6 +1,6 @@
 {
   "libVersion": "3.8.3",
-  "projectname": "%25E6%2597%2585%25E6%25B8%25B8%25E6%2597%25A5%25E8%25AE%25B0uniapp",
+  "projectname": "%2525E6%252597%252585%2525E6%2525B8%2525B8%2525E6%252597%2525A5%2525E8%2525AE%2525B0uniapp",
   "setting": {
     "urlCheck": false,
     "coverView": true,
@@ -9,6 +9,14 @@
     "preloadBackgroundData": false,
     "autoAudits": false,
     "showShadowRootInWxmlPanel": true,
-    "compileHotReLoad": true
+    "compileHotReLoad": true,
+    "useApiHook": true,
+    "useApiHostProcess": true,
+    "useStaticServer": false,
+    "useLanDebug": false,
+    "showES6CompileOption": false,
+    "checkInvalidKey": true,
+    "ignoreDevUnusedFiles": true,
+    "bigPackageSizeSupport": false
   }
 }

@@ -1,0 +1,1 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const e=require("./common/vendor.js");Math;const t={__name:"App",setup:e=>()=>{}};function p(){return{app:e.createSSRApp(t)}}p().app.mount("#app"),exports.createApp=p;

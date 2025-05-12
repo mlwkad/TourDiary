@@ -123,10 +123,10 @@ const uploadSingleFile = (filePath, url) => {
             name: 'file',
             success: (res) => {
                 if (res.statusCode === 200) {
-                    const data = JSON.parse(res.data);
-                    resolve(data.success ? data.data : null);
+                    const data = JSON.parse(res.data)
+                    resolve(data.success ? data.data : null)
                 } else {
-                    reject(`服务器错误(${res.statusCode})`);
+                    reject(`服务器错误(${res.statusCode})`)
                 }
             },
             fail: (e) => reject(e)

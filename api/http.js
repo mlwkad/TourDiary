@@ -33,12 +33,12 @@ export default function http(url, data = {}, method = 'GET') {
             url: baseUrl + url,
             data,
             method,
-            header: { // 注意这里修正了拼写错误 hearder -> header
+            header: { 
                 'token': uni.getStorageSync('token') || ''
             },
             success: (res) => {
-                if (res.statusCode === 200 || res.statusCode === 201) {  // 包含创建成功状态码
-                    if (res.data.success === true) {  // 我们的API使用success表示成功
+                if (res.statusCode === 200 || res.statusCode === 201) {  
+                    if (res.data.success === true) {  
                         resolve(res.data.data || res.data)
                     }
                     else {

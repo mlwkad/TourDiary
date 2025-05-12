@@ -76,7 +76,7 @@
     </view>
     <view v-if="showAllReason" class="reason-popup" @click.stop="showAllReason = false">
         <view class="reason-popup-content" @click.stop>
-            <view class="reason-popup-title">拒绝原因</view>
+            <view class="reason-popup-title">未通过原因</view>
             <view class="reason-popup-text">{{ allReason }}</view>
             <view class="reason-popup-close" @click="showAllReason = false">关闭</view>
         </view>

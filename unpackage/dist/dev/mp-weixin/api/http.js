@@ -11,7 +11,6 @@ function http(url, data = {}, method = "GET") {
       data,
       method,
       header: {
-        // 注意这里修正了拼写错误 hearder -> header
         "token": common_vendor.index.getStorageSync("token") || ""
       },
       success: (res) => {
