@@ -123,7 +123,7 @@ const handleLogin = () => {
             })
             userInfo.userId = res.userID
             userInfo.nickName = username.value
-            userInfo.avatarUrl = '/static/666.jpg'
+            userInfo.avatarUrl = res.avatar
             await uni.setStorageSync('token', res.userID)
             await uni.setStorageSync('userInfo', JSON.stringify(userInfo))
             uni.navigateBack()

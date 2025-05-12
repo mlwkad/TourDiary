@@ -72,8 +72,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             f: common_vendor.o(($event) => viewNote(item.releaseID), index)
           };
         }),
-        c: common_assets._imports_0,
-        d: common_assets._imports_1$1,
+        c: common_assets._imports_0$3,
+        d: common_assets._imports_1$2,
         e: collections.value.length > 5
       }, collections.value.length > 5 ? {} : {}) : {
         f: common_assets._imports_3,

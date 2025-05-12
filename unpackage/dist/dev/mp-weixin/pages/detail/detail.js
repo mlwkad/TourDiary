@@ -276,7 +276,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         f: common_vendor.t(info.value.title),
         g: isLiked.value ? "red" : "white",
         h: common_vendor.o(liked),
-        i: common_assets._imports_0,
+        i: info.value.avatar,
         j: common_vendor.o(goUserPages),
         k: common_vendor.t(info.value.userName),
         l: common_vendor.o(goUserPages),
@@ -284,33 +284,33 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         n: common_vendor.o(goUserPages),
         o: !isFollow.value
       }, !isFollow.value ? {
-        p: common_assets._imports_1$2,
+        p: common_assets._imports_0,
         q: common_vendor.o(followPublisher)
       } : {
         r: common_assets._imports_5,
         s: common_vendor.o(followPublisher)
       }, {
         t: common_vendor.t(info.value.content),
-        v: common_assets._imports_2$1,
+        v: common_assets._imports_2,
         w: common_vendor.t(info.value.location),
-        x: common_assets._imports_4$1,
+        x: common_assets._imports_3$1,
         y: common_vendor.o(($event) => isShowWantLocation.value = true),
-        z: common_assets._imports_1,
+        z: common_assets._imports_1$1,
         A: common_vendor.t(info.value.money),
-        B: common_assets._imports_2$2,
+        B: common_assets._imports_2$1,
         C: common_vendor.t(info.value.personNum),
-        D: common_assets._imports_1$1,
+        D: common_assets._imports_1$2,
         E: common_vendor.t(info.value.playTime),
         F: isShowWantLocation.value
       }, isShowWantLocation.value ? common_vendor.e({
         G: XunFeiRes.value.length > 0
       }, XunFeiRes.value.length > 0 ? {
-        H: common_assets._imports_8,
+        H: common_assets._imports_7,
         I: common_vendor.o(copyRes)
       } : {}, {
         J: XunFeiRes.value.length > 0
       }, XunFeiRes.value.length > 0 ? {
-        K: common_assets._imports_9,
+        K: common_assets._imports_8,
         L: common_vendor.o(delRes)
       } : {}, {
         M: common_assets._imports_4,

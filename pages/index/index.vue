@@ -22,7 +22,7 @@
 					<image class="waterfall-img" :src="j.pictures[0]" mode="widthFix" lazy-load="true"></image>
 					<view class="waterfall-title">{{ j.title }}</view>
 					<view class="person-info">
-						<image class="waterfall-avatar" src="/static/666.jpg" mode="aspectFill"></image>
+						<image class="waterfall-avatar" :src="j.avatar" mode="aspectFill"></image>
 						<view class="waterfall-name">{{ j.userName }}</view>
 					</view>
 				</view>

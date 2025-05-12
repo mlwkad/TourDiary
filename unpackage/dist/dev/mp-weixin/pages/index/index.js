@@ -161,25 +161,25 @@ const _sfc_defineComponent = common_vendor.defineComponent({
               return {
                 a: j.pictures[0],
                 b: common_vendor.t(j.title),
-                c: common_vendor.t(j.userName),
-                d: j.name,
-                e: common_vendor.o(($event) => goDetail(j), j.name)
+                c: j.avatar,
+                d: common_vendor.t(j.userName),
+                e: j.name,
+                f: common_vendor.o(($event) => goDetail(j), j.name)
               };
             }),
             b: index
           };
         }),
-        o: common_assets._imports_0,
-        p: common_vendor.unref(isShowChangePage)
+        o: common_vendor.unref(isShowChangePage)
       }, common_vendor.unref(isShowChangePage) ? {
-        q: common_vendor.o(($event) => changePage(1)),
-        r: common_vendor.t(common_vendor.unref(curPage)),
-        s: common_vendor.o(($event) => changePage(2))
+        p: common_vendor.o(($event) => changePage(1)),
+        q: common_vendor.t(common_vendor.unref(curPage)),
+        r: common_vendor.o(($event) => changePage(2))
       } : {}, {
-        t: common_vendor.unref(goTop)
+        s: common_vendor.unref(goTop)
       }, common_vendor.unref(goTop) ? {
-        v: common_vendor.o(goTopFunc),
-        w: common_assets._imports_2
+        t: common_vendor.o(goTopFunc),
+        v: common_assets._imports_1
       } : {});
     };
   }

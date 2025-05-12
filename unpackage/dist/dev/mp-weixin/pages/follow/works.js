@@ -90,7 +90,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     });
     return (_ctx, _cache) => {
       return common_vendor.e({
-        a: common_assets._imports_0,
+        a: common_assets._imports_0$3,
         b: common_vendor.t(userData.userName),
         c: common_vendor.t(userWorks.value.length),
         d: common_vendor.t(isFollowing.value ? "已关注" : "+ 关注"),
@@ -103,19 +103,19 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             b: common_vendor.t(item.content),
             c: item.createdAt
           }, item.createdAt ? {
-            d: common_assets._imports_1$1,
+            d: common_assets._imports_1$2,
             e: common_vendor.t(item.createdAt.slice(0, 10))
           } : {}, {
             f: item.location
           }, item.location ? {
-            g: common_assets._imports_2$1,
+            g: common_assets._imports_2,
             h: common_vendor.t(item.location)
           } : {}, {
             i: index,
             j: common_vendor.o(($event) => viewWorkDetail(item.releaseID), index)
           });
         }),
-        h: common_assets._imports_0,
+        h: common_assets._imports_0$3,
         i: userWorks.value.length > 5
       }, userWorks.value.length > 5 ? {} : {}) : {
         j: common_assets._imports_3

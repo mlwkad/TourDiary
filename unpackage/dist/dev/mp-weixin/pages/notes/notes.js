@@ -157,7 +157,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           } : {}, {
             m: note.location
           }, note.location ? {
-            n: common_assets._imports_2$1,
+            n: common_assets._imports_2,
             o: common_vendor.t(note.location)
           } : {}, {
             p: common_vendor.t(note.createdAt.slice(0, 10)),
@@ -179,7 +179,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         g: common_assets._imports_3,
         h: common_vendor.o(createNote)
       }, {
-        i: common_assets._imports_2$4,
+        i: common_assets._imports_2$3,
         j: common_vendor.o(createNote),
         k: showAllReason.value
       }, showAllReason.value ? {

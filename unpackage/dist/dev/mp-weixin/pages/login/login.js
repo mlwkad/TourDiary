@@ -82,7 +82,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           });
           userInfo.userId = res.userID;
           userInfo.nickName = username.value;
-          userInfo.avatarUrl = "/static/666.jpg";
+          userInfo.avatarUrl = res.avatar;
           await common_vendor.index.setStorageSync("token", res.userID);
           await common_vendor.index.setStorageSync("userInfo", JSON.stringify(userInfo));
           common_vendor.index.navigateBack();

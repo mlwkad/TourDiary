@@ -139,14 +139,14 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         h: common_vendor.o(handleRegister)
       }, {
         i: isLoggedIn.value ? 1 : "",
-        j: common_assets._imports_2$3,
-        k: common_assets._imports_3$1,
+        j: common_assets._imports_2$2,
+        k: common_assets._imports_3$2,
         l: common_vendor.o(($event) => navigateTo("collection")),
-        m: common_assets._imports_4$2,
-        n: common_assets._imports_3$1,
+        m: common_assets._imports_4$1,
+        n: common_assets._imports_3$2,
         o: common_vendor.o(($event) => navigateTo("notes")),
         p: common_assets._imports_5,
-        q: common_assets._imports_3$1,
+        q: common_assets._imports_3$2,
         r: common_vendor.o(($event) => navigateTo("follow")),
         s: isLoggedIn.value
       }, isLoggedIn.value ? {

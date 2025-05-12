@@ -40,7 +40,7 @@
         <!-- 发布者信息部分 -->
         <view class="publisher-container">
             <view class="publisher-info">
-                <image class="user-avatar" src="/static/666.jpg" mode="aspectFill" @click="goUserPages"></image>
+                <image class="user-avatar" :src="info.avatar" mode="aspectFill" @click="goUserPages"></image>
                 <view class="user-details">
                     <text class="user-name" @click="goUserPages">{{ info.userName }}</text>
                     <text class="publish-time" @click="goUserPages">发布于 {{ info.createdAt.slice(0, 10) }}</text>

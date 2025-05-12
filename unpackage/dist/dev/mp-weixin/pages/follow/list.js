@@ -80,7 +80,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             e: common_vendor.o(($event) => viewUserProfile(item.userID), index)
           };
         }),
-        c: common_assets._imports_0,
+        c: common_assets._imports_0$3,
         d: followList.value.length > 5
       }, followList.value.length > 5 ? {} : {}) : {
         e: common_assets._imports_3,
