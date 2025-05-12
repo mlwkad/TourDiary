@@ -33,9 +33,6 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         errors[key] = "";
       }
     };
-    const prevPictures = common_vendor.ref([]);
-    const prevVideos = common_vendor.ref([]);
-    const prevCover = common_vendor.ref("");
     const getNoteDetail = (info) => {
       Object.assign(note, {
         id: info.releaseID,
@@ -50,9 +47,6 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         videos: info.videos,
         cover: info.cover || ""
       });
-      prevCover.value = info.cover;
-      prevVideos.value = info.videos;
-      prevPictures.value = info.pictures;
     };
     const validateForm = () => {
       let isValid = true;
@@ -106,21 +100,35 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         title: "正在处理..."
       });
       try {
-        const newPictures = note.pictures.filter((pic) => !prevPictures.value.includes(pic));
-        const oldPictures = note.pictures.filter((pic) => prevPictures.value.includes(pic));
-        if (newPictures.length > 0) {
-          const pictureRes = await api_api.uploadFiles(newPictures, "image");
-          note.pictures = [...oldPictures, ...pictureRes.pictures];
+        if (note.pictures.length > 0) {
+          const newPictures = note.pictures.filter((pic) => !String(pic).startsWith("https://objectstorageapi"));
+          const existingPictures = note.pictures.filter((pic) => String(pic).startsWith("https://objectstorageapi"));
+          if (newPictures.length > 0) {
+            const pictureRes = await api_api.uploadFiles(newPictures, "image");
+            note.pictures = [...existingPictures, ...pictureRes.pictures];
+          } else {
+            note.pictures = [...existingPictures];
+          }
         }
-        const newVideos = note.videos.filter((vid) => !prevVideos.value.includes(vid));
-        const oldVideos = note.videos.filter((vid) => prevVideos.value.includes(vid));
-        if (newVideos.length > 0) {
-          const videoRes = await api_api.uploadFiles(newVideos, "video");
-          note.videos = [...oldVideos, ...videoRes.videos];
+        if (note.videos.length > 0) {
+          const newVideos = note.videos.filter((video) => !String(video).startsWith("https://objectstorageapi"));
+          const existingVideos = note.videos.filter((video) => String(video).startsWith("https://objectstorageapi"));
+          if (newVideos.length > 0) {
+            const videoRes = await api_api.uploadFiles(newVideos, "video");
+            note.videos = [...existingVideos, ...videoRes.videos];
+          } else {
+            note.videos = [...existingVideos];
+          }
+        } else {
+          note.videos = [];
         }
-        if (note.cover && note.cover !== prevCover.value) {
-          const coverRes = await api_api.uploadFiles(note.cover, "cover");
-          note.cover = coverRes.covers[0];
+        if (note.cover) {
+          if (!String(note.cover).startsWith("https://objectstorageapi")) {
+            const coverRes = await api_api.uploadFiles(note.cover, "cover");
+            note.cover = coverRes.covers[0];
+          }
+        } else {
+          note.cover = "";
         }
         await api_api.updateRelease(note.id, note);
         common_vendor.index.hideLoading();
@@ -132,7 +140,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           common_vendor.index.navigateBack();
         }, 1e3);
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/notes/note-edit.vue:244", e);
+        common_vendor.index.__f__("log", "at pages/notes/note-edit.vue:250", e);
         common_vendor.index.hideLoading();
         common_vendor.index.showToast({
           title: "保存失败",
@@ -147,7 +155,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           errors.location = "";
         },
         fail: (err) => {
-          common_vendor.index.__f__("error", "at pages/notes/note-edit.vue:263", "选择位置失败", err);
+          common_vendor.index.__f__("error", "at pages/notes/note-edit.vue:269", "选择位置失败", err);
         }
       });
     };

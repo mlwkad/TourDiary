@@ -123,11 +123,6 @@ const clearErrors = () => {
     }
 }
 
-// 缓存图片视频防止重复上传
-const prevPictures = ref<Array>([])
-const prevVideos = ref<Array>([])
-const prevCover = ref<string>('')
-
 // 获取笔记详情
 const getNoteDetail = (info: any) => {
     Object.assign(note, {
@@ -143,9 +138,6 @@ const getNoteDetail = (info: any) => {
         videos: info.videos,
         cover: info.cover || ''
     })
-    prevCover.value = info.cover
-    prevVideos.value = info.videos
-    prevPictures.value = info.pictures
 }
 
 // 验证表单
@@ -213,22 +205,36 @@ const saveNote = async () => {
         title: '正在处理...'
     })
     try {
-        // 只上传新的图片到云端
-        const newPictures = note.pictures.filter(pic => !prevPictures.value.includes(pic))
-        const oldPictures = note.pictures.filter(pic => prevPictures.value.includes(pic))
-        if (newPictures.length > 0) {
-            const pictureRes = await uploadFiles(newPictures, 'image')
-            note.pictures = [...oldPictures, ...pictureRes.pictures]
+        if (note.pictures.length > 0) {
+            // 过滤掉已经上传的图片(以https://objectstorageapi开头的URL)
+            const newPictures = note.pictures.filter(pic => !String(pic).startsWith('https://objectstorageapi'))
+            const existingPictures = note.pictures.filter(pic => String(pic).startsWith('https://objectstorageapi'))
+            if (newPictures.length > 0) {
+                const pictureRes = await uploadFiles(newPictures, 'image')
+                note.pictures = [...existingPictures, ...pictureRes.pictures]
+            } else {
+                note.pictures = [...existingPictures]
+            }
         }
-        const newVideos = note.videos.filter(vid => !prevVideos.value.includes(vid))
-        const oldVideos = note.videos.filter(vid => prevVideos.value.includes(vid))
-        if (newVideos.length > 0) {
-            const videoRes = await uploadFiles(newVideos, 'video')
-            note.videos = [...oldVideos, ...videoRes.videos]
+        if (note.videos.length > 0) {
+            const newVideos = note.videos.filter(video => !String(video).startsWith('https://objectstorageapi'))
+            const existingVideos = note.videos.filter(video => String(video).startsWith('https://objectstorageapi'))
+            if (newVideos.length > 0) {
+                const videoRes = await uploadFiles(newVideos, 'video')
+                note.videos = [...existingVideos, ...videoRes.videos]
+            } else {
+                note.videos = [...existingVideos]
+            }
+        } else {
+            note.videos = []
         }
-        if (note.cover && note.cover !== prevCover.value) {
-            const coverRes = await uploadFiles(note.cover, 'cover')
-            note.cover = coverRes.covers[0]
+        if (note.cover) {
+            if (!String(note.cover).startsWith('https://objectstorageapi')) {
+                const coverRes = await uploadFiles(note.cover, 'cover')
+                note.cover = coverRes.covers[0]
+            }
+        } else {
+            note.cover = ''
         }
         // 更新笔记
         await updateRelease(note.id, note)
