@@ -131,7 +131,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }, isLoggedIn.value ? {
         b: userInfo.avatarUrl,
         c: common_vendor.t(userInfo.nickName || "用户"),
-        d: common_assets._imports_0$1,
+        d: common_assets._imports_0$2,
         e: common_vendor.o(($event) => common_vendor.isRef(isShow) ? isShow.value = true : isShow = true)
       } : {
         f: common_assets._imports_1$3,
@@ -140,13 +140,13 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }, {
         i: isLoggedIn.value ? 1 : "",
         j: common_assets._imports_2$2,
-        k: common_assets._imports_3$2,
+        k: common_assets._imports_3$1,
         l: common_vendor.o(($event) => navigateTo("collection")),
         m: common_assets._imports_4$1,
-        n: common_assets._imports_3$2,
+        n: common_assets._imports_3$1,
         o: common_vendor.o(($event) => navigateTo("notes")),
         p: common_assets._imports_5,
-        q: common_assets._imports_3$2,
+        q: common_assets._imports_3$1,
         r: common_vendor.o(($event) => navigateTo("follow")),
         s: isLoggedIn.value
       }, isLoggedIn.value ? {

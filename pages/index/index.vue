@@ -24,21 +24,20 @@
 					<view class="person-info">
 						<image class="waterfall-avatar" :src="j.avatar" mode="aspectFill"></image>
 						<view class="waterfall-name">{{ j.userName }}</view>
+						<view class="like-btn" @click.stop="toggleLike(j)">
+							<text class="like-icon" :style="{ color: j.isLiked ? 'red' : '#666' }">♥</text>
+						</view>
 					</view>
 				</view>
 			</view>
 		</view>
-		<view class="home-page" v-if="isShowChangePage">
-			<view class="home-page-change" @click="changePage(1)">上一页</view>
-			<view class="home-page-curPage">第{{ curPage }}页</view>
-			<view class="home-page-change" @click="changePage(2)">下一页</view>
-		</view>
+		<view class="loading-text" v-if="isLoading">加载中...</view>
 		<image class="home-gotop" v-if="goTop" @click="goTopFunc" src="/static/public/goTop.png"></image>
 	</view>
 </template>
 
 <script setup lang="ts">
-import { getAllReleases, searchReleases } from '../../api/api'
+import { getAllReleases, searchReleases, addLiked, removeLiked, getUserInfo } from '../../api/api'
 import { onLoad, onReachBottom, onPageScroll, onShow } from '@dcloudio/uni-app'
 import { ref, watchEffect } from 'vue'
 import { validateSearch } from '../../utils/filter'
@@ -49,7 +48,7 @@ let choose = ref<boolean>(false)
 let isShowChoose = ref<boolean>(false)
 let curPage = ref<number>(1)
 let offSet = ref<number>(0)
-let isShowChangePage = ref<boolean>(true)
+let isLoading = ref<boolean>(false)
 let searchError = ref<string>('')
 
 const allInfo = ref<any>([[], []])
@@ -84,7 +83,8 @@ watchEffect(async () => {
 			console.log(e)
 		}
 		isShowChoose.value = false
-		isShowChangePage.value = true
+		curPage.value = 1
+		offSet.value = 0
 	}
 })
 
@@ -99,7 +99,13 @@ const goSearch = async () => {
 	try {
 		const res = await searchReleases({ userName: searchContent.value, title: searchContent.value })
 		isShowChoose.value = true
-		isShowChangePage.value = false
+		// 检查收藏状态
+		if (res.byUserName && res.byUserName.length > 0) {
+			await checkLikedStatus(res.byUserName)
+		}
+		if (res.byTitle && res.byTitle.length > 0) {
+			await checkLikedStatus(res.byTitle)
+		}
 		distributeData(res.byUserName || [], allInfoByUserName.value)
 		distributeData(res.byTitle || [], allInfoByTitle.value)
 		if (res.byUserName.length > 0) {
@@ -130,51 +136,100 @@ const goTopFunc = () => {
 	})
 }
 
-const changePage = async (num: number) => {
-	if (num === 1 && curPage.value !== 1) {
-		offSet.value -= 14
-		try {
-			const res = await getAllReleases(14, offSet.value)
-			distributeData(res.releases || [], allInfo.value)
-			goTopFunc()
-			curPage.value--
-		} catch (e) {
-			console.log(e)
+// 收藏
+const toggleLike = async (item) => {
+	try {
+		const userId = JSON.parse(uni.getStorageSync('userInfo')).userId
+		if (!item.isLiked) {
+			await addLiked(userId, item.releaseID)
 			uni.showToast({
-				title: '获取数据失败',
+				title: '收藏成功',
 				icon: 'none'
 			})
+			item.isLiked = true
+		} else {
+			await removeLiked(userId, item.releaseID)
+			uni.showToast({
+				title: '取消收藏',
+				icon: 'none'
+			})
+			item.isLiked = false
 		}
+	} catch (e) {
+		console.log(e)
+		uni.showToast({
+			title: '操作失败',
+			icon: 'none'
+		})
 	}
-	else if (num === 2) {
-		offSet.value += 14
-		try {
-			const res = await getAllReleases(14, offSet.value)
-			distributeData(res.releases || [], allInfo.value)
-			goTopFunc()
-			curPage.value++
-		} catch (e) {
-			console.log(e)
-			uni.showToast({
-				title: '获取数据失败',
-				icon: 'none'
-			})
-		}
+}
+
+// 检查是否已收藏
+const checkLikedStatus = async (data) => {
+	try {
+		const userId = JSON.parse(uni.getStorageSync('userInfo')).userId
+		const userInfoRes = await getUserInfo(userId)
+		const likedReleases = JSON.parse(userInfoRes.liked || '[]')
+		// 更新数据中的收藏状态
+		data.forEach(item => {
+			item.isLiked = likedReleases.includes(item.releaseID)
+		})
+	} catch (e) {
+		console.log(e)
 	}
 }
 
 onShow(async () => {
 	try {
 		const res = await getAllReleases(14, 0)
-		distributeData(res.releases || [], allInfo.value)
+		if (res.releases && res.releases.length > 0) {
+			await checkLikedStatus(res.releases)
+			distributeData(res.releases || [], allInfo.value)
+		}
 	} catch (e) {
 		console.log(e)
 	}
 	searchContent.value = ''
+	offSet.value = 0
+	curPage.value = 1
 })
 
-onReachBottom(() => { })
-
+// 滑动到底部加载更多数据
+onReachBottom(async () => {
+	if (searchContent.value || isShowChoose.value) return // 搜索状态不触发加载更多
+	if (isLoading.value) return
+	isLoading.value = true
+	offSet.value += 14
+	curPage.value++
+	try {
+		const res = await getAllReleases(14, offSet.value)
+		if (res.releases && res.releases.length > 0) {
+			await checkLikedStatus(res.releases)
+			const newAllInfo = [[], []]
+			distributeData(res.releases, newAllInfo)
+			// 将新数据添加到现有数据中
+			allInfo.value[0] = [...allInfo.value[0], ...newAllInfo[0]]
+			allInfo.value[1] = [...allInfo.value[1], ...newAllInfo[1]]
+		} else {
+			uni.showToast({
+				title: '没有更多数据了',
+				icon: 'none'
+			})
+			offSet.value -= 14
+			curPage.value--
+		}
+	} catch (e) {
+		console.log(e)
+		uni.showToast({
+			title: '加载失败',
+			icon: 'none'
+		})
+		offSet.value -= 14
+		curPage.value--
+	} finally {
+		isLoading.value = false
+	}
+})
 
 onPageScroll((e) => {
 	if (e.scrollTop > 300) {
@@ -183,7 +238,6 @@ onPageScroll((e) => {
 		goTop.value = false
 	}
 })
-
 
 </script>
 
@@ -369,36 +423,37 @@ onPageScroll((e) => {
 						font-weight: 500;
 						font-size: 24rpx;
 					}
+
+					.like-btn {
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						margin-left: auto;
+						padding: 8rpx 15rpx;
+						border-radius: 20rpx;
+						background: rgba(255, 255, 255, 0.8);
+						box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.1);
+						transition: all 0.3s ease;
+
+						&:active {
+							transform: scale(0.9);
+						}
+					}
+
+					.like-icon {
+						font-size: 32rpx;
+						font-weight: bold;
+					}
 				}
 			}
 		}
 	}
 
-	.home-page {
-		display: flex;
-		justify-content: center;
-		margin-top: 28rpx;
-		gap: 25rpx;
-
-		.home-page-change {
-			background: linear-gradient(135deg, #3494E6, #EC6EAD);
-			padding: 15rpx;
-			border-radius: 50rpx;
-			color: white;
-			display: flex;
-			align-items: center;
-		}
-
-		.home-page-curPage {
-			display: flex;
-			width: fit-content;
-			background: linear-gradient(135deg, #3494E6, #EC6EAD);
-			padding: 15rpx 25rpx;
-			border-radius: 50rpx;
-			color: white;
-			display: flex;
-			align-items: center;
-		}
+	.loading-text {
+		text-align: center;
+		color: #666;
+		padding: 20rpx 0;
+		font-size: 28rpx;
 	}
 
 	.home-gotop {
@@ -410,7 +465,7 @@ onPageScroll((e) => {
 		background: linear-gradient(135deg, #06ff01, #7adbfe);
 		padding: 5rpx;
 		border-radius: 50%;
-		box-shadow: 0 5rpx 20rpx rgba(255, 255, 255, 0.5);
+		box-shadow: 0 5rpx 20rpx rgba(0, 0, 0, 0.3);
 		transition: all 0.3s ease;
 		z-index: 10;
 

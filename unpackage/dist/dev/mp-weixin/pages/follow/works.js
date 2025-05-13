@@ -16,7 +16,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           url: `/pages/detail/detail?info=${encodeURIComponent(JSON.stringify(info))}`
         });
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/follow/works.vue:85", e);
+        common_vendor.index.__f__("log", "at pages/follow/works.vue:86", e);
         common_vendor.index.showToast({
           title: "获取详情失败",
           icon: "none"
@@ -39,7 +39,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
                   icon: "success"
                 });
               } catch (e) {
-                common_vendor.index.__f__("log", "at pages/follow/works.vue:110", e);
+                common_vendor.index.__f__("log", "at pages/follow/works.vue:111", e);
                 common_vendor.index.showToast({
                   title: "操作失败",
                   icon: "none"
@@ -57,7 +57,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             icon: "success"
           });
         } catch (e) {
-          common_vendor.index.__f__("log", "at pages/follow/works.vue:128", e);
+          common_vendor.index.__f__("log", "at pages/follow/works.vue:129", e);
           common_vendor.index.showToast({
             title: "关注失败",
             icon: "none"
@@ -80,7 +80,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             isFollowing.value = followingList.includes(options.userID);
           }
         } catch (e) {
-          common_vendor.index.__f__("log", "at pages/follow/works.vue:152", e);
+          common_vendor.index.__f__("log", "at pages/follow/works.vue:153", e);
           common_vendor.index.showToast({
             title: "获取数据失败",
             icon: "none"
@@ -90,7 +90,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     });
     return (_ctx, _cache) => {
       return common_vendor.e({
-        a: common_assets._imports_0$3,
+        a: userData.avatar,
         b: common_vendor.t(userData.userName),
         c: common_vendor.t(userWorks.value.length),
         d: common_vendor.t(isFollowing.value ? "已关注" : "+ 关注"),
@@ -100,25 +100,25 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         g: common_vendor.f(userWorks.value, (item, index, i0) => {
           return common_vendor.e({
             a: common_vendor.t(item.title),
-            b: common_vendor.t(item.content),
-            c: item.createdAt
+            b: item.pictures[0],
+            c: common_vendor.t(item.content),
+            d: item.createdAt
           }, item.createdAt ? {
-            d: common_assets._imports_1$2,
-            e: common_vendor.t(item.createdAt.slice(0, 10))
+            e: common_assets._imports_0,
+            f: common_vendor.t(item.createdAt.slice(0, 10))
           } : {}, {
-            f: item.location
+            g: item.location
           }, item.location ? {
-            g: common_assets._imports_2,
-            h: common_vendor.t(item.location)
+            h: common_assets._imports_1$1,
+            i: common_vendor.t(item.location)
           } : {}, {
-            i: index,
-            j: common_vendor.o(($event) => viewWorkDetail(item.releaseID), index)
+            j: index,
+            k: common_vendor.o(($event) => viewWorkDetail(item.releaseID), index)
           });
         }),
-        h: common_assets._imports_0$3,
-        i: userWorks.value.length > 5
+        h: userWorks.value.length > 5
       }, userWorks.value.length > 5 ? {} : {}) : {
-        j: common_assets._imports_3
+        i: common_assets._imports_2
       });
     };
   }

@@ -11,6 +11,9 @@ const _sfc_defineComponent = common_vendor.defineComponent({
     const isShowWantLocation = common_vendor.ref(false);
     const wantGoInput = common_vendor.ref("");
     const XunFeiRes = common_vendor.ref("");
+    const daziji = common_vendor.ref("");
+    const interval = common_vendor.ref(null);
+    const isDone = common_vendor.ref(true);
     const selectedChoose = common_vendor.ref([]);
     const info = common_vendor.ref({
       avatar: "",
@@ -20,7 +23,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
       location: "",
       money: "",
       personNum: 0,
-      pictures: ["/static/555.jpg"],
+      pictures: [""],
       playTime: 0,
       releaseID: "release0",
       title: "",
@@ -52,13 +55,36 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         allChooseTitle += item.title + ",";
       });
       const finalContent = `我想去${wantGoInput.value}游玩,并为我提供${allChooseTitle}的建议,分点明确(一级标题:一,二 二级标题:1,2),不要出现*#等特殊符号`;
+      isDone.value = false;
+      turnDaziji();
       api_ws.streamChat(finalContent, (update) => {
         if (update.type === "update") {
           XunFeiRes.value += update.content;
         } else if (update.type === "error") {
-          common_vendor.index.__f__("log", "at pages/detail/detail.vue:194", update.error);
+          common_vendor.index.__f__("log", "at pages/detail/detail.vue:200", update.error);
+        } else if (update.type === "done" || "end") {
+          isDone.value = true;
         }
       });
+    };
+    const turnDaziji = () => {
+      let index = 0;
+      const typeNextChar = () => {
+        if (XunFeiRes.value.length >= index) {
+          daziji.value = XunFeiRes.value.slice(0, index);
+          index++;
+          const delay = Math.max(5, 50 - Math.floor(index / 20));
+          interval.value = setTimeout(typeNextChar, delay);
+        } else {
+          if (isDone.value && interval.value) {
+            clearTimeout(interval.value);
+            interval.value = null;
+          } else {
+            interval.value = setTimeout(typeNextChar, 100);
+          }
+        }
+      };
+      typeNextChar();
     };
     const copyRes = () => {
       common_vendor.index.setClipboardData({
@@ -93,7 +119,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         const userInfoRes = await api_api.getUserInfo(userId);
         isLiked.value = JSON.parse(userInfoRes.liked).includes(info.value.releaseID);
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/detail/detail.vue:234", e);
+        common_vendor.index.__f__("log", "at pages/detail/detail.vue:262", e);
         common_vendor.index.showToast({
           title: "操作失败",
           icon: "none"
@@ -141,7 +167,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
                 const userInfoRes = await api_api.getUserInfo(userId);
                 isFollow.value = userInfoRes.follow.includes(info.value.userID);
               } catch (e) {
-                common_vendor.index.__f__("log", "at pages/detail/detail.vue:288", e);
+                common_vendor.index.__f__("log", "at pages/detail/detail.vue:316", e);
                 common_vendor.index.showToast({
                   title: e,
                   icon: "none"
@@ -165,7 +191,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
                 const userInfoRes = await api_api.getUserInfo(userId);
                 isFollow.value = userInfoRes.follow.includes(info.value.userID);
               } catch (e) {
-                common_vendor.index.__f__("log", "at pages/detail/detail.vue:312", e);
+                common_vendor.index.__f__("log", "at pages/detail/detail.vue:340", e);
                 common_vendor.index.showToast({
                   title: "操作失败",
                   icon: "none"
@@ -184,7 +210,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         current: stringUrls[current],
         // 显示第几张
         fail: (e) => {
-          common_vendor.index.__f__("error", "at pages/detail/detail.vue:331", "预览失败:", e);
+          common_vendor.index.__f__("error", "at pages/detail/detail.vue:359", "预览失败:", e);
         }
       });
     };
@@ -206,7 +232,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
       }
     };
     const videoError = (e) => {
-      common_vendor.index.__f__("error", "at pages/detail/detail.vue:357", "视频播放错误:", e.detail);
+      common_vendor.index.__f__("error", "at pages/detail/detail.vue:385", "视频播放错误:", e.detail);
       common_vendor.index.showToast({
         title: "视频播放失败",
         icon: "none"
@@ -227,7 +253,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
           });
         }
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/detail/detail.vue:380", e);
+        common_vendor.index.__f__("log", "at pages/detail/detail.vue:408", e);
       }
     });
     common_vendor.onShow(() => {
@@ -240,7 +266,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
           });
         }
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/detail/detail.vue:395", e);
+        common_vendor.index.__f__("log", "at pages/detail/detail.vue:423", e);
       }
     });
     return (_ctx, _cache) => {
@@ -284,22 +310,22 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         n: common_vendor.o(goUserPages),
         o: !isFollow.value
       }, !isFollow.value ? {
-        p: common_assets._imports_0,
+        p: common_assets._imports_0$1,
         q: common_vendor.o(followPublisher)
       } : {
         r: common_assets._imports_5,
         s: common_vendor.o(followPublisher)
       }, {
         t: common_vendor.t(info.value.content),
-        v: common_assets._imports_2,
+        v: common_assets._imports_1$1,
         w: common_vendor.t(info.value.location),
-        x: common_assets._imports_3$1,
+        x: common_assets._imports_3,
         y: common_vendor.o(($event) => isShowWantLocation.value = true),
-        z: common_assets._imports_1$1,
+        z: common_assets._imports_1$2,
         A: common_vendor.t(info.value.money),
         B: common_assets._imports_2$1,
         C: common_vendor.t(info.value.personNum),
-        D: common_assets._imports_1$2,
+        D: common_assets._imports_0,
         E: common_vendor.t(info.value.playTime),
         F: isShowWantLocation.value
       }, isShowWantLocation.value ? common_vendor.e({
@@ -332,9 +358,10 @@ const _sfc_defineComponent = common_vendor.defineComponent({
       }, XunFeiRes.value.length === 0 ? {
         R: wantGoInput.value,
         S: common_vendor.o(($event) => wantGoInput.value = $event.detail.value),
-        T: common_vendor.o(getRes)
+        T: common_vendor.t(interval.value ? "加载中" : "GO"),
+        U: common_vendor.o(getRes)
       } : {
-        U: common_vendor.t(XunFeiRes.value)
+        V: common_vendor.t(daziji.value)
       }) : {});
     };
   }

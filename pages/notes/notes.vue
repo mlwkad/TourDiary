@@ -43,7 +43,7 @@
                         </view>
                         <view class="note-images" v-if="note.pictures && note.pictures.length">
                             <image v-for="(img, imgIndex) in note.pictures" :key="imgIndex" :src="img" mode="aspectFill"
-                                @click.stop="previewImage(note.pictures, imgIndex)"></image>
+                                @click.stop="previewImage(note.pictures, imgIndex)" lazy-load="true"></image>
                         </view>
 
                         <!-- 提示点击查看详情 -->
@@ -95,8 +95,8 @@ const userID = JSON.parse(uni.getStorageSync('userInfo')).userId
 const showAllReason = ref<boolean>(false)
 const allReason = ref<string>('')
 
-let state = ref<string>('555')
-let reason = ref<string>('555')
+let state = ref<string>('resolve')
+let reason = ref<string>('通过')
 
 // 获取拒绝原因
 const getRejectReason = (reason: string) => {

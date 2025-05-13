@@ -64,20 +64,20 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }, collections.value.length > 0 ? common_vendor.e({
         b: common_vendor.f(collections.value, (item, index, i0) => {
           return {
-            a: common_vendor.t(item.title),
-            b: common_vendor.t(item.content),
-            c: common_vendor.t(item.createdAt.slice(0, 10)),
-            d: common_vendor.o(($event) => removeCollection(item.releaseID), index),
-            e: index,
-            f: common_vendor.o(($event) => viewNote(item.releaseID), index)
+            a: item.pictures[0],
+            b: common_vendor.t(item.title),
+            c: common_vendor.t(item.content),
+            d: common_vendor.t(item.createdAt.slice(0, 10)),
+            e: common_vendor.o(($event) => removeCollection(item.releaseID), index),
+            f: index,
+            g: common_vendor.o(($event) => viewNote(item.releaseID), index)
           };
         }),
-        c: common_assets._imports_0$3,
-        d: common_assets._imports_1$2,
-        e: collections.value.length > 5
+        c: common_assets._imports_0,
+        d: collections.value.length > 5
       }, collections.value.length > 5 ? {} : {}) : {
-        f: common_assets._imports_3,
-        g: common_vendor.o(goToDiscover)
+        e: common_assets._imports_2,
+        f: common_vendor.o(goToDiscover)
       });
     };
   }

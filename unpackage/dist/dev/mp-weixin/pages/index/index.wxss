@@ -193,30 +193,29 @@
   font-weight: 500;
   font-size: 24rpx;
 }
-.home-container .home-page.data-v-1cf27b2a {
+.home-container .home-waterfall-box .home-waterfall-content .person-info .like-btn.data-v-1cf27b2a {
   display: flex;
+  align-items: center;
   justify-content: center;
-  margin-top: 28rpx;
-  gap: 25rpx;
+  margin-left: auto;
+  padding: 8rpx 15rpx;
+  border-radius: 20rpx;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
-.home-container .home-page .home-page-change.data-v-1cf27b2a {
-  background: linear-gradient(135deg, #3494E6, #EC6EAD);
-  padding: 15rpx;
-  border-radius: 50rpx;
-  color: white;
-  display: flex;
-  align-items: center;
+.home-container .home-waterfall-box .home-waterfall-content .person-info .like-btn.data-v-1cf27b2a:active {
+  transform: scale(0.9);
 }
-.home-container .home-page .home-page-curPage.data-v-1cf27b2a {
-  display: flex;
-  width: -webkit-fit-content;
-  width: fit-content;
-  background: linear-gradient(135deg, #3494E6, #EC6EAD);
-  padding: 15rpx 25rpx;
-  border-radius: 50rpx;
-  color: white;
-  display: flex;
-  align-items: center;
+.home-container .home-waterfall-box .home-waterfall-content .person-info .like-icon.data-v-1cf27b2a {
+  font-size: 32rpx;
+  font-weight: bold;
+}
+.home-container .loading-text.data-v-1cf27b2a {
+  text-align: center;
+  color: #666;
+  padding: 20rpx 0;
+  font-size: 28rpx;
 }
 .home-container .home-gotop.data-v-1cf27b2a {
   position: fixed;
@@ -227,7 +226,7 @@
   background: linear-gradient(135deg, #06ff01, #7adbfe);
   padding: 5rpx;
   border-radius: 50%;
-  box-shadow: 0 5rpx 20rpx rgba(255, 255, 255, 0.5);
+  box-shadow: 0 5rpx 20rpx rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
   z-index: 10;
 }

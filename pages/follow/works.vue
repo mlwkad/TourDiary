@@ -1,7 +1,7 @@
 <template>
     <view class="works-container">
         <view class="user-profile">
-            <image class="user-avatar" src="/static/666.jpg" mode="aspectFill"></image>
+            <image class="user-avatar" :src="userData.avatar" mode="aspectFill"></image>
             <view class="user-info">
                 <view class="user-name">{{ userData.userName }}</view>
                 <view class="user-stats">
@@ -27,7 +27,8 @@
                             <view class="work-title">{{ item.title }}</view>
                         </view>
                         <view class="work-body">
-                            <image class="work-image" src="/static/666.jpg" mode="aspectFill"></image>
+                            <image class="work-image" :src="item.pictures[0]" mode="aspectFill" lazy-load="true">
+                            </image>
                             <view class="work-content">
                                 <view class="work-desc">{{ item.content }}</view>
                             </view>

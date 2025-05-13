@@ -121,10 +121,10 @@
         <view class="detail-float-input" v-if="XunFeiRes.length === 0">
             我也想去
             <input v-model="wantGoInput">
-            <view class="detail-float-input-go" @click="getRes">GO</view>
+            <view class="detail-float-input-go" @click="getRes">{{ interval ? '加载中' : 'GO' }}</view>
         </view>
         <view v-else class="detail-float-res">
-            <view class="detail-float-res-content">{{ XunFeiRes }}</view>
+            <view class="detail-float-res-content">{{ daziji }}</view>
         </view>
     </view>
 </template>
@@ -141,6 +141,10 @@ const isFollow = ref<boolean>(false)
 const isShowWantLocation = ref<boolean>(false)
 const wantGoInput = ref<any>('')  // onLoad里赋值
 const XunFeiRes = ref<string>('')
+const daziji = ref<string>('')
+const interval = ref<any>(null)
+const isDone = ref<boolean>(true)
+
 const selectedChoose = ref([])
 
 // 初始化info对象
@@ -152,7 +156,7 @@ const info = ref({
     location: "",
     money: "",
     personNum: 0,
-    pictures: ["/static/555.jpg"],
+    pictures: [""],
     playTime: 0,
     releaseID: "release0",
     title: "",
@@ -187,13 +191,37 @@ const getRes = () => {
         allChooseTitle += (item.title + ',')
     })
     const finalContent = `我想去${wantGoInput.value}游玩,并为我提供${allChooseTitle}的建议,分点明确(一级标题:一,二 二级标题:1,2),不要出现*#等特殊符号`
+    isDone.value = false
+    turnDaziji()
     streamChat(finalContent, (update) => {
         if (update.type === 'update') {
             XunFeiRes.value += update.content
         } else if (update.type === 'error') {
             console.log(update.error)
+        } else if (update.type === 'done' || 'end') {
+            isDone.value = true
         }
     })
+}
+
+const turnDaziji = () => {
+    let index = 0
+    const typeNextChar = () => {
+        if (XunFeiRes.value.length >= index) {
+            daziji.value = XunFeiRes.value.slice(0, index)
+            index++
+            const delay = Math.max(5, 50 - Math.floor(index / 20))
+            interval.value = setTimeout(typeNextChar, delay)
+        } else {
+            if (isDone.value && interval.value) {
+                clearTimeout(interval.value)
+                interval.value = null
+            } else {
+                interval.value = setTimeout(typeNextChar, 100)
+            }
+        }
+    }
+    typeNextChar()
 }
 
 const copyRes = () => {

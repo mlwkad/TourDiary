@@ -283,7 +283,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }, errors.title ? {
         d: common_vendor.t(errors.title)
       } : {}, {
-        e: common_assets._imports_3,
+        e: common_assets._imports_2,
         f: note.location
       }, note.location ? {
         g: common_vendor.t(note.location)
@@ -293,13 +293,13 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }, errors.location ? {
         j: common_vendor.t(errors.location)
       } : {}, {
-        k: common_assets._imports_1$1,
+        k: common_assets._imports_1$2,
         l: common_vendor.o([($event) => note.money = $event.detail.value, ($event) => errors.money = ""]),
         m: note.money,
         n: common_assets._imports_2$1,
         o: common_vendor.o([($event) => note.personNum = $event.detail.value, ($event) => errors.personNum = ""]),
         p: note.personNum,
-        q: common_assets._imports_1$2,
+        q: common_assets._imports_0,
         r: common_vendor.o([($event) => note.playTime = $event.detail.value, ($event) => errors.playTime = ""]),
         s: note.playTime,
         t: errors.money

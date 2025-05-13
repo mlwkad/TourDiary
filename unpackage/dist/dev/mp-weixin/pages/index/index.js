@@ -12,7 +12,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
     let isShowChoose = common_vendor.ref(false);
     let curPage = common_vendor.ref(1);
     let offSet = common_vendor.ref(0);
-    let isShowChangePage = common_vendor.ref(true);
+    let isLoading = common_vendor.ref(false);
     let searchError = common_vendor.ref("");
     const allInfo = common_vendor.ref([[], []]);
     const allInfoByUserName = common_vendor.ref([[], []]);
@@ -39,10 +39,11 @@ const _sfc_defineComponent = common_vendor.defineComponent({
           const res = await api_api.getAllReleases(14, 0);
           distributeData(res.releases || [], allInfo.value);
         } catch (e) {
-          common_vendor.index.__f__("log", "at pages/index/index.vue:84", e);
+          common_vendor.index.__f__("log", "at pages/index/index.vue:83", e);
         }
         isShowChoose.value = false;
-        isShowChangePage.value = true;
+        curPage.value = 1;
+        offSet.value = 0;
       }
     });
     const goSearch = async () => {
@@ -56,7 +57,12 @@ const _sfc_defineComponent = common_vendor.defineComponent({
       try {
         const res = await api_api.searchReleases({ userName: searchContent.value, title: searchContent.value });
         isShowChoose.value = true;
-        isShowChangePage.value = false;
+        if (res.byUserName && res.byUserName.length > 0) {
+          await checkLikedStatus(res.byUserName);
+        }
+        if (res.byTitle && res.byTitle.length > 0) {
+          await checkLikedStatus(res.byTitle);
+        }
         distributeData(res.byUserName || [], allInfoByUserName.value);
         distributeData(res.byTitle || [], allInfoByTitle.value);
         if (res.byUserName.length > 0) {
@@ -69,7 +75,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
           searchError.value = "未找到相关内容";
         }
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/index/index.vue:115", e);
+        common_vendor.index.__f__("log", "at pages/index/index.vue:121", e);
         searchError.value = "搜索失败，请稍后再试";
       }
     };
@@ -84,47 +90,93 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         duration: 300
       });
     };
-    const changePage = async (num) => {
-      if (num === 1 && curPage.value !== 1) {
-        offSet.value -= 14;
-        try {
-          const res = await api_api.getAllReleases(14, offSet.value);
-          distributeData(res.releases || [], allInfo.value);
-          goTopFunc();
-          curPage.value--;
-        } catch (e) {
-          common_vendor.index.__f__("log", "at pages/index/index.vue:142", e);
+    const toggleLike = async (item) => {
+      try {
+        const userId = JSON.parse(common_vendor.index.getStorageSync("userInfo")).userId;
+        if (!item.isLiked) {
+          await api_api.addLiked(userId, item.releaseID);
           common_vendor.index.showToast({
-            title: "获取数据失败",
+            title: "收藏成功",
             icon: "none"
           });
-        }
-      } else if (num === 2) {
-        offSet.value += 14;
-        try {
-          const res = await api_api.getAllReleases(14, offSet.value);
-          distributeData(res.releases || [], allInfo.value);
-          goTopFunc();
-          curPage.value++;
-        } catch (e) {
-          common_vendor.index.__f__("log", "at pages/index/index.vue:157", e);
+          item.isLiked = true;
+        } else {
+          await api_api.removeLiked(userId, item.releaseID);
           common_vendor.index.showToast({
-            title: "获取数据失败",
+            title: "取消收藏",
             icon: "none"
           });
+          item.isLiked = false;
         }
+      } catch (e) {
+        common_vendor.index.__f__("log", "at pages/index/index.vue:159", e);
+        common_vendor.index.showToast({
+          title: "操作失败",
+          icon: "none"
+        });
+      }
+    };
+    const checkLikedStatus = async (data) => {
+      try {
+        const userId = JSON.parse(common_vendor.index.getStorageSync("userInfo")).userId;
+        const userInfoRes = await api_api.getUserInfo(userId);
+        const likedReleases = JSON.parse(userInfoRes.liked || "[]");
+        data.forEach((item) => {
+          item.isLiked = likedReleases.includes(item.releaseID);
+        });
+      } catch (e) {
+        common_vendor.index.__f__("log", "at pages/index/index.vue:178", e);
       }
     };
     common_vendor.onShow(async () => {
       try {
         const res = await api_api.getAllReleases(14, 0);
-        distributeData(res.releases || [], allInfo.value);
+        if (res.releases && res.releases.length > 0) {
+          await checkLikedStatus(res.releases);
+          distributeData(res.releases || [], allInfo.value);
+        }
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/index/index.vue:171", e);
+        common_vendor.index.__f__("log", "at pages/index/index.vue:190", e);
       }
       searchContent.value = "";
+      offSet.value = 0;
+      curPage.value = 1;
     });
-    common_vendor.onReachBottom(() => {
+    common_vendor.onReachBottom(async () => {
+      if (searchContent.value || isShowChoose.value)
+        return;
+      if (isLoading.value)
+        return;
+      isLoading.value = true;
+      offSet.value += 14;
+      curPage.value++;
+      try {
+        const res = await api_api.getAllReleases(14, offSet.value);
+        if (res.releases && res.releases.length > 0) {
+          await checkLikedStatus(res.releases);
+          const newAllInfo = [[], []];
+          distributeData(res.releases, newAllInfo);
+          allInfo.value[0] = [...allInfo.value[0], ...newAllInfo[0]];
+          allInfo.value[1] = [...allInfo.value[1], ...newAllInfo[1]];
+        } else {
+          common_vendor.index.showToast({
+            title: "没有更多数据了",
+            icon: "none"
+          });
+          offSet.value -= 14;
+          curPage.value--;
+        }
+      } catch (e) {
+        common_vendor.index.__f__("log", "at pages/index/index.vue:222", e);
+        common_vendor.index.showToast({
+          title: "加载失败",
+          icon: "none"
+        });
+        offSet.value -= 14;
+        curPage.value--;
+      } finally {
+        isLoading.value = false;
+      }
     });
     common_vendor.onPageScroll((e) => {
       if (e.scrollTop > 300) {
@@ -135,7 +187,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
     });
     return (_ctx, _cache) => {
       return common_vendor.e({
-        a: common_assets._imports_3,
+        a: common_assets._imports_2,
         b: common_vendor.unref(searchContent),
         c: common_vendor.o(($event) => common_vendor.isRef(searchContent) ? searchContent.value = $event.detail.value : searchContent = $event.detail.value),
         d: common_vendor.o(goSearch),
@@ -163,23 +215,21 @@ const _sfc_defineComponent = common_vendor.defineComponent({
                 b: common_vendor.t(j.title),
                 c: j.avatar,
                 d: common_vendor.t(j.userName),
-                e: j.name,
-                f: common_vendor.o(($event) => goDetail(j), j.name)
+                e: j.isLiked ? "red" : "#666",
+                f: common_vendor.o(($event) => toggleLike(j), j.name),
+                g: j.name,
+                h: common_vendor.o(($event) => goDetail(j), j.name)
               };
             }),
             b: index
           };
         }),
-        o: common_vendor.unref(isShowChangePage)
-      }, common_vendor.unref(isShowChangePage) ? {
-        p: common_vendor.o(($event) => changePage(1)),
-        q: common_vendor.t(common_vendor.unref(curPage)),
-        r: common_vendor.o(($event) => changePage(2))
-      } : {}, {
-        s: common_vendor.unref(goTop)
+        o: common_vendor.unref(isLoading)
+      }, common_vendor.unref(isLoading) ? {} : {}, {
+        p: common_vendor.unref(goTop)
       }, common_vendor.unref(goTop) ? {
-        t: common_vendor.o(goTopFunc),
-        v: common_assets._imports_1
+        q: common_vendor.o(goTopFunc),
+        r: common_assets._imports_1
       } : {});
     };
   }

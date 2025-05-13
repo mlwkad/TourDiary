@@ -10,8 +10,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const userID = JSON.parse(common_vendor.index.getStorageSync("userInfo")).userId;
     const showAllReason = common_vendor.ref(false);
     const allReason = common_vendor.ref("");
-    let state = common_vendor.ref("555");
-    let reason = common_vendor.ref("555");
+    let state = common_vendor.ref("resolve");
+    let reason = common_vendor.ref("通过");
     const getRejectReason = (reason2) => {
       allReason.value = reason2;
       showAllReason.value = true;
@@ -157,7 +157,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           } : {}, {
             m: note.location
           }, note.location ? {
-            n: common_assets._imports_2,
+            n: common_assets._imports_1$1,
             o: common_vendor.t(note.location)
           } : {}, {
             p: common_vendor.t(note.createdAt.slice(0, 10)),
@@ -176,7 +176,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           });
         })
       } : {
-        g: common_assets._imports_3,
+        g: common_assets._imports_2,
         h: common_vendor.o(createNote)
       }, {
         i: common_assets._imports_2$3,

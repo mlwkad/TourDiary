@@ -73,18 +73,18 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }, followList.value.length > 0 ? common_vendor.e({
         b: common_vendor.f(followList.value, (item, index, i0) => {
           return {
-            a: common_vendor.t(item.userName),
-            b: common_vendor.t(item.worksCount || 0),
-            c: common_vendor.o(($event) => unfollowUser(item.userID, index), index),
-            d: index,
-            e: common_vendor.o(($event) => viewUserProfile(item.userID), index)
+            a: item.avatar,
+            b: common_vendor.t(item.userName),
+            c: common_vendor.t(item.worksCount || 0),
+            d: common_vendor.o(($event) => unfollowUser(item.userID, index), index),
+            e: index,
+            f: common_vendor.o(($event) => viewUserProfile(item.userID), index)
           };
         }),
-        c: common_assets._imports_0$3,
-        d: followList.value.length > 5
+        c: followList.value.length > 5
       }, followList.value.length > 5 ? {} : {}) : {
-        e: common_assets._imports_3,
-        f: common_vendor.o(goToDiscover)
+        d: common_assets._imports_2,
+        e: common_vendor.o(goToDiscover)
       });
     };
   }

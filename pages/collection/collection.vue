@@ -8,7 +8,7 @@
                 <view class="collection-list">
                     <view class="collection-item" v-for="(item, index) in collections" :key="index"
                         @click="viewNote(item.releaseID)">
-                        <image class="item-image" src="/static/666.jpg" mode="aspectFill"></image>
+                        <image class="item-image" :src="item.pictures[0]" mode="aspectFill" lazy-load="true"></image>
                         <view class="item-content">
                             <view class="item-title">{{ item.title }}</view>
                             <view class="item-desc">{{ item.content }}</view>

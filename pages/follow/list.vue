@@ -7,7 +7,7 @@
                 <view class="follow-list">
                     <view class="follow-item" v-for="(item, index) in followList" :key="index"
                         @click="viewUserProfile(item.userID)">
-                        <image class="user-avatar" src="/static/666.jpg" mode="aspectFill"></image>
+                        <image class="user-avatar" :src="item.avatar" mode="aspectFill"></image>
                         <view class="user-info">
                             <view class="user-name">{{ item.userName }}</view>
                             <view class="works-count">作品数: {{ item.worksCount || 0 }}</view>
