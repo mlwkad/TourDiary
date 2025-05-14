@@ -1,8 +1,4 @@
 <template>
-    <view class="status-inputs">
-        状态:<input v-model="state" style="border: 1rpx solid;width:50%" />
-        原因:<input v-model="reason" style="border: 1rpx solid;width:50%" />
-    </view>
     <view class="notes-container">
         <!-- 内容区域 -->
         <!-- refresher-enabled @refresherrefresh="onRefresh" :refresher-triggered="isRefreshing" -->

@@ -48,7 +48,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           url: `/pages/detail/detail?info=${encodeURIComponent(JSON.stringify(info))}`
         });
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/notes/notes.vue:137", e);
+        common_vendor.index.__f__("log", "at pages/notes/notes.vue:133", e);
         common_vendor.index.showToast({
           title: "获取详情失败",
           icon: "none"
@@ -75,7 +75,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
               const res2 = await api_api.getUserReleases(userID);
               notes.value = res2;
             } catch (e) {
-              common_vendor.index.__f__("log", "at pages/notes/notes.vue:168", e);
+              common_vendor.index.__f__("log", "at pages/notes/notes.vue:164", e);
               common_vendor.index.showToast({
                 title: "删除失败",
                 icon: "none"
@@ -103,7 +103,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         const res = await api_api.getUserReleases(userID);
         notes.value = res;
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/notes/notes.vue:201", e);
+        common_vendor.index.__f__("log", "at pages/notes/notes.vue:197", e);
         common_vendor.index.showToast({
           title: "更新状态失败",
           icon: "none"
@@ -129,13 +129,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     });
     return (_ctx, _cache) => {
       return common_vendor.e({
-        a: common_vendor.unref(state),
-        b: common_vendor.o(($event) => common_vendor.isRef(state) ? state.value = $event.detail.value : state = $event.detail.value),
-        c: common_vendor.unref(reason),
-        d: common_vendor.o(($event) => common_vendor.isRef(reason) ? reason.value = $event.detail.value : reason = $event.detail.value),
-        e: notes.value.length > 0
+        a: notes.value.length > 0
       }, notes.value.length > 0 ? {
-        f: common_vendor.f(notes.value, (note, index, i0) => {
+        b: common_vendor.f(notes.value, (note, index, i0) => {
           return common_vendor.e({
             a: common_vendor.t(note.title),
             b: common_vendor.o(($event) => deleteNote(note), index),
@@ -176,18 +172,18 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           });
         })
       } : {
-        g: common_assets._imports_2,
-        h: common_vendor.o(createNote)
+        c: common_assets._imports_2,
+        d: common_vendor.o(createNote)
       }, {
-        i: common_assets._imports_2$3,
-        j: common_vendor.o(createNote),
-        k: showAllReason.value
+        e: common_assets._imports_2$3,
+        f: common_vendor.o(createNote),
+        g: showAllReason.value
       }, showAllReason.value ? {
-        l: common_vendor.t(allReason.value),
-        m: common_vendor.o(($event) => showAllReason.value = false),
-        n: common_vendor.o(() => {
+        h: common_vendor.t(allReason.value),
+        i: common_vendor.o(($event) => showAllReason.value = false),
+        j: common_vendor.o(() => {
         }),
-        o: common_vendor.o(($event) => showAllReason.value = false)
+        k: common_vendor.o(($event) => showAllReason.value = false)
       } : {});
     };
   }
