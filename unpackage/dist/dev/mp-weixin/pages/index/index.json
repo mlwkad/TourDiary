@@ -1,4 +1,6 @@
 {
   "navigationBarTitleText": "首页",
-  "usingComponents": {}
+  "usingComponents": {
+    "up-waterfall": "../../uni_modules/uview-plus/components/u-waterfall/u-waterfall"
+  }
 }

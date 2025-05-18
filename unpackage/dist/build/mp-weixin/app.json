@@ -10,7 +10,8 @@
     "pages/notes/notes",
     "pages/notes/note-edit",
     "pages/follow/list",
-    "pages/follow/works"
+    "pages/follow/works",
+    "pages/feedback/feedback"
   ],
   "window": {
     "navigationBarTextStyle": "black",

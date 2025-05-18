@@ -311,7 +311,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         p: common_assets._imports_0$1,
         q: common_vendor.o(followPublisher)
       } : {
-        r: common_assets._imports_5,
+        r: common_assets._imports_4$1,
         s: common_vendor.o(followPublisher)
       }, {
         t: common_vendor.t(info.value.content),

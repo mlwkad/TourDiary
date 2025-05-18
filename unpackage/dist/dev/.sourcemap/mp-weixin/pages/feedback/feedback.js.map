@@ -1,0 +1,1 @@
+{"version":3,"file":"feedback.js","sources":["../../uniapp/HBuilderX.4.64.2025042916/HBuilderX/plugins/uniapp-cli-vite/uniPage:/cGFnZXMvZmVlZGJhY2svZmVlZGJhY2sudnVl"],"sourcesContent":["import MiniProgramPage from 'D:/uniappProject/旅游日记uniapp/pages/feedback/feedback.vue'\nwx.createPage(MiniProgramPage)"],"names":[],"mappings":";;;;;;;;;;;AACA,GAAG,WAAW,eAAe;"}

@@ -1,5 +1,11 @@
 "use strict";
+const common_vendor = require("../common/vendor.js");
 const sensitive = /(赌博|色情|暴力|政治|违法)/gi;
+function filterSql(text) {
+  if (!text)
+    return "";
+  return common_vendor.sqlstring.escape(text).replace(/[<>'"]/g, "").trim();
+}
 function validateUsername(username) {
   if (!username || !username.trim())
     return { isValid: false, message: "用户名不能为空", filteredText: "" };

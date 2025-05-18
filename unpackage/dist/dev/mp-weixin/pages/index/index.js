@@ -3,49 +3,54 @@ const common_vendor = require("../../common/vendor.js");
 const common_assets = require("../../common/assets.js");
 const api_api = require("../../api/api.js");
 const utils_filter = require("../../utils/filter.js");
+if (!Array) {
+  const _easycom_up_waterfall2 = common_vendor.resolveComponent("up-waterfall");
+  _easycom_up_waterfall2();
+}
+const _easycom_up_waterfall = () => "../../uni_modules/uview-plus/components/u-waterfall/u-waterfall.js";
+if (!Math) {
+  _easycom_up_waterfall();
+}
 const _sfc_defineComponent = common_vendor.defineComponent({
   __name: "index",
   setup(__props) {
-    let searchContent = common_vendor.ref("");
-    let goTop = common_vendor.ref(false);
-    let choose = common_vendor.ref(false);
-    let isShowChoose = common_vendor.ref(false);
-    let curPage = common_vendor.ref(1);
-    let offSet = common_vendor.ref(0);
-    let isLoading = common_vendor.ref(false);
-    let searchError = common_vendor.ref("");
-    const allInfo = common_vendor.ref([[], []]);
-    const allInfoByUserName = common_vendor.ref([[], []]);
-    const allInfoByTitle = common_vendor.ref([[], []]);
-    const distributeData = (data, target) => {
-      const totalCount = data.length;
-      if (totalCount === 0) {
-        target[0] = [];
-        target[1] = [];
-        return;
-      }
-      if (totalCount < 14 || totalCount > 14) {
-        const leftCount = Math.ceil(totalCount / 2);
-        target[0] = data.slice(0, leftCount);
-        target[1] = data.slice(leftCount);
-      } else {
-        target[0] = data.slice(0, 7);
-        target[1] = data.slice(7, 14);
-      }
-    };
-    common_vendor.watchEffect(async () => {
-      if (!searchContent.value) {
-        try {
-          const res = await api_api.getAllReleases(14, 0);
-          distributeData(res.releases || [], allInfo.value);
-        } catch (e) {
-          common_vendor.index.__f__("log", "at pages/index/index.vue:83", e);
-        }
+    const searchContent = common_vendor.ref("");
+    const goTop = common_vendor.ref(false);
+    const isLoading = common_vendor.ref(false);
+    const searchError = common_vendor.ref("");
+    const curPage = common_vendor.ref(1);
+    const offSet = common_vendor.ref(0);
+    const isShowChoose = common_vendor.ref(false);
+    const choose = common_vendor.ref(false);
+    const isShowUserName = common_vendor.ref(false);
+    const isShowTitle = common_vendor.ref(false);
+    const showWaterfall = common_vendor.ref(true);
+    const isSearch = common_vendor.ref(false);
+    const flowList = common_vendor.ref([]);
+    const allInfoByUserName = common_vendor.ref([]);
+    const allInfoByTitle = common_vendor.ref([]);
+    common_vendor.watch(searchContent, async (newVal) => {
+      if (!newVal) {
+        isSearch.value = false;
+        showWaterfall.value = false;
+        await fetchData();
+        showWaterfall.value = true;
         isShowChoose.value = false;
-        curPage.value = 1;
-        offSet.value = 0;
+        isShowUserName.value = false;
+        isShowTitle.value = false;
+      } else {
+        isSearch.value = true;
       }
     });
+    const fetchData = async () => {
+      const res = await api_api.getAllReleases(20, 0);
+      flowList.value = (res.releases || []).map((item) => ({
+        ...item,
+        id: item.releaseID,
+        imgWidth: 300,
+        imgHeight: 200
+      }));
+    };
     const goSearch = async () => {
       searchError.value = "";
       const searchValidation = utils_filter.validateSearch(searchContent.value);
@@ -54,30 +59,63 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         return;
       }
       searchContent.value = searchValidation.filteredText;
+      showWaterfall.value = false;
       try {
         const res = await api_api.searchReleases({ userName: searchContent.value, title: searchContent.value });
-        isShowChoose.value = true;
-        if (res.byUserName && res.byUserName.length > 0) {
-          await checkLikedStatus(res.byUserName);
-        }
-        if (res.byTitle && res.byTitle.length > 0) {
-          await checkLikedStatus(res.byTitle);
-        }
-        distributeData(res.byUserName || [], allInfoByUserName.value);
-        distributeData(res.byTitle || [], allInfoByTitle.value);
-        if (res.byUserName.length > 0) {
-          allInfo.value = allInfoByUserName.value;
-          choose.value = false;
-        } else if (res.byTitle.length > 0) {
-          allInfo.value = allInfoByTitle.value;
-          choose.value = true;
-        } else {
+        allInfoByUserName.value = res.byUserName.map((item) => ({
+          ...item,
+          id: item.releaseID,
+          imgWidth: 300,
+          imgHeight: 200
+        }));
+        allInfoByTitle.value = res.byTitle.map((item) => ({
+          ...item,
+          id: item.releaseID,
+          imgWidth: 300,
+          imgHeight: 200
+        }));
+        if (allInfoByUserName.value.length === 0 && allInfoByTitle.value.length === 0) {
           searchError.value = "未找到相关内容";
+        } else if (allInfoByUserName.value.length > 0 && allInfoByTitle.value.length === 0) {
+          showWaterfall.value = true;
+          isShowChoose.value = true;
+          isShowUserName.value = true;
+          choose.value = false;
+          flowList.value = allInfoByUserName.value;
+        } else if (allInfoByUserName.value.length === 0 && allInfoByTitle.value.length > 0) {
+          showWaterfall.value = true;
+          isShowChoose.value = true;
+          isShowTitle.value = true;
+          choose.value = true;
+          flowList.value = allInfoByTitle.value;
+        } else {
+          showWaterfall.value = true;
+          isShowChoose.value = true;
+          isShowUserName.value = true;
+          isShowTitle.value = true;
+          choose.value = false;
+          flowList.value = allInfoByUserName.value;
         }
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/index/index.vue:121", e);
+        common_vendor.index.__f__("log", "at pages/index/index.vue:147", e);
         searchError.value = "搜索失败，请稍后再试";
       }
+    };
+    const chooseToUser = () => {
+      showWaterfall.value = false;
+      choose.value = false;
+      flowList.value = allInfoByUserName.value;
+      setTimeout(() => {
+        showWaterfall.value = true;
+      }, 10);
+    };
+    const chooseToRelease = () => {
+      showWaterfall.value = false;
+      choose.value = true;
+      flowList.value = allInfoByTitle.value;
+      setTimeout(() => {
+        showWaterfall.value = true;
+      }, 10);
     };
     const goDetail = (info) => {
       common_vendor.index.navigateTo({
@@ -95,25 +133,16 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         const userId = JSON.parse(common_vendor.index.getStorageSync("userInfo")).userId;
         if (!item.isLiked) {
           await api_api.addLiked(userId, item.releaseID);
-          common_vendor.index.showToast({
-            title: "收藏成功",
-            icon: "none"
-          });
+          common_vendor.index.showToast({ title: "收藏成功", icon: "none" });
           item.isLiked = true;
         } else {
           await api_api.removeLiked(userId, item.releaseID);
-          common_vendor.index.showToast({
-            title: "取消收藏",
-            icon: "none"
-          });
+          common_vendor.index.showToast({ title: "取消收藏", icon: "none" });
           item.isLiked = false;
         }
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/index/index.vue:159", e);
-        common_vendor.index.showToast({
-          title: "操作失败",
-          icon: "none"
-        });
+        common_vendor.index.__f__("log", "at pages/index/index.vue:196", e);
+        common_vendor.index.showToast({ title: "操作失败", icon: "none" });
       }
     };
     const checkLikedStatus = async (data) => {
@@ -125,111 +154,137 @@ const _sfc_defineComponent = common_vendor.defineComponent({
           item.isLiked = likedReleases.includes(item.releaseID);
         });
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/index/index.vue:178", e);
+        common_vendor.index.__f__("log", "at pages/index/index.vue:210", e);
       }
     };
+    common_vendor.onMounted(() => {
+      fetchData();
+    });
     common_vendor.onShow(async () => {
-      try {
-        const res = await api_api.getAllReleases(14, 0);
-        if (res.releases && res.releases.length > 0) {
-          await checkLikedStatus(res.releases);
-          distributeData(res.releases || [], allInfo.value);
-        }
-      } catch (e) {
-        common_vendor.index.__f__("log", "at pages/index/index.vue:190", e);
-      }
+      await fetchData();
       searchContent.value = "";
       offSet.value = 0;
       curPage.value = 1;
     });
     common_vendor.onReachBottom(async () => {
-      if (searchContent.value || isShowChoose.value)
-        return;
       if (isLoading.value)
         return;
+      if (isSearch.value)
+        return;
       isLoading.value = true;
-      offSet.value += 14;
+      offSet.value += 20;
       curPage.value++;
       try {
-        const res = await api_api.getAllReleases(14, offSet.value);
+        const res = await api_api.getAllReleases(20, offSet.value);
         if (res.releases && res.releases.length > 0) {
           await checkLikedStatus(res.releases);
-          const newAllInfo = [[], []];
-          distributeData(res.releases, newAllInfo);
-          allInfo.value[0] = [...allInfo.value[0], ...newAllInfo[0]];
-          allInfo.value[1] = [...allInfo.value[1], ...newAllInfo[1]];
+          flowList.value = [...flowList.value, ...res.releases.map((item) => ({
+            ...item,
+            id: item.releaseID,
+            imgWidth: 300,
+            imgHeight: 200
+          }))];
         } else {
-          common_vendor.index.showToast({
-            title: "没有更多数据了",
-            icon: "none"
-          });
-          offSet.value -= 14;
+          common_vendor.index.showToast({ title: "没有更多数据了", icon: "none" });
+          offSet.value -= 20;
           curPage.value--;
         }
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/index/index.vue:222", e);
-        common_vendor.index.showToast({
-          title: "加载失败",
-          icon: "none"
-        });
-        offSet.value -= 14;
+        common_vendor.index.__f__("log", "at pages/index/index.vue:247", e);
+        common_vendor.index.showToast({ title: "加载失败", icon: "none" });
+        offSet.value -= 20;
         curPage.value--;
       } finally {
         isLoading.value = false;
       }
     });
     common_vendor.onPageScroll((e) => {
-      if (e.scrollTop > 300) {
-        goTop.value = true;
-      } else {
-        goTop.value = false;
-      }
+      goTop.value = e.scrollTop > 300;
     });
     return (_ctx, _cache) => {
       return common_vendor.e({
         a: common_assets._imports_2,
-        b: common_vendor.unref(searchContent),
-        c: common_vendor.o(($event) => common_vendor.isRef(searchContent) ? searchContent.value = $event.detail.value : searchContent = $event.detail.value),
+        b: searchContent.value,
+        c: common_vendor.o(($event) => searchContent.value = $event.detail.value),
         d: common_vendor.o(goSearch),
-        e: common_vendor.unref(searchError)
-      }, common_vendor.unref(searchError) ? {
-        f: common_vendor.t(common_vendor.unref(searchError))
+        e: searchError.value
+      }, searchError.value ? {
+        f: common_vendor.t(searchError.value)
       } : {}, {
-        g: common_vendor.unref(isShowChoose)
-      }, common_vendor.unref(isShowChoose) ? common_vendor.e({
-        h: allInfoByUserName.value[0][0]
-      }, allInfoByUserName.value[0][0] ? {
-        i: !common_vendor.unref(choose) ? 1 : "",
-        j: common_vendor.o(($event) => (common_vendor.isRef(choose) ? choose.value = false : choose = false, allInfo.value = allInfoByUserName.value))
+        g: isShowChoose.value
+      }, isShowChoose.value ? common_vendor.e({
+        h: isShowUserName.value
+      }, isShowUserName.value ? {
+        i: !choose.value ? 1 : "",
+        j: common_vendor.o(($event) => chooseToUser())
       } : {}, {
-        k: allInfoByTitle.value[0][0]
-      }, allInfoByTitle.value[0][0] ? {
-        l: common_vendor.unref(choose) ? 1 : "",
-        m: common_vendor.o(($event) => (common_vendor.isRef(choose) ? choose.value = true : choose = true, allInfo.value = allInfoByTitle.value))
+        k: isShowTitle.value
+      }, isShowTitle.value ? {
+        l: choose.value ? 1 : "",
+        m: common_vendor.o(($event) => chooseToRelease())
       } : {}) : {}, {
-        n: common_vendor.f(2, (i, index, i0) => {
+        n: showWaterfall.value
+      }, showWaterfall.value ? {
+        o: common_vendor.w(({
+          leftList
+        }, s0, i0) => {
           return {
-            a: common_vendor.f(allInfo.value[i - 1], (j, k1, i1) => {
+            a: common_vendor.f(leftList, (item, k1, i1) => {
               return {
-                a: j.pictures[0],
-                b: common_vendor.t(j.title),
-                c: j.avatar,
-                d: common_vendor.t(j.userName),
-                e: j.isLiked ? "red" : "#666",
-                f: common_vendor.o(($event) => toggleLike(j), j.name),
-                g: j.name,
-                h: common_vendor.o(($event) => goDetail(j), j.name)
+                a: item.pictures[0],
+                b: common_vendor.t(item.title),
+                c: item.avatar,
+                d: common_vendor.t(item.userName),
+                e: item.isLiked ? "red" : "#666",
+                f: common_vendor.o(($event) => toggleLike(item), item.id),
+                g: item.id,
+                h: common_vendor.o(($event) => goDetail(item), item.id)
               };
             }),
-            b: index
+            b: i0,
+            c: s0
           };
+        }, {
+          name: "left",
+          path: "o",
+          vueId: "1cf27b2a-0"
         }),
-        o: common_vendor.unref(isLoading)
-      }, common_vendor.unref(isLoading) ? {} : {}, {
-        p: common_vendor.unref(goTop)
-      }, common_vendor.unref(goTop) ? {
-        q: common_vendor.o(goTopFunc),
-        r: common_assets._imports_1
+        p: common_vendor.w(({
+          rightList
+        }, s0, i0) => {
+          return {
+            a: common_vendor.f(rightList, (item, k1, i1) => {
+              return {
+                a: item.pictures[0],
+                b: common_vendor.t(item.title),
+                c: item.avatar,
+                d: common_vendor.t(item.userName),
+                e: item.isLiked ? "red" : "#666",
+                f: common_vendor.o(($event) => toggleLike(item), item.id),
+                g: item.id,
+                h: common_vendor.o(($event) => goDetail(item), item.id)
+              };
+            }),
+            b: i0,
+            c: s0
+          };
+        }, {
+          name: "right",
+          path: "p",
+          vueId: "1cf27b2a-0"
+        }),
+        q: common_vendor.o(($event) => flowList.value = $event),
+        r: common_vendor.p({
+          gap: 8,
+          modelValue: flowList.value
+        })
+      } : {}, {
+        s: isLoading.value
+      }, isLoading.value ? {} : {}, {
+        t: goTop.value
+      }, goTop.value ? {
+        v: common_vendor.o(goTopFunc),
+        w: common_assets._imports_1
       } : {});
     };
   }

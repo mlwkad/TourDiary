@@ -65,6 +65,12 @@
 			"style": {
 				"navigationBarTitleText": "游记"
 			}
+		},
+		{
+			"path": "pages/feedback/feedback",
+			"style": {
+				"navigationBarTitleText": "意见反馈"
+			}
 		}
 	],
 	"easycom": {

@@ -23,30 +23,29 @@
 				<view class="option-item" @click="navigateTo('collection')">
 					<image class="option-icon" src="/static/public/like.png"></image>
 					<text class="option-text">我的收藏</text>
-					<image class="arrow-icon" src="/static/public/back.png"></image>
+					<text class="option-count">{{ collectionCount }}</text>
 				</view>
 				<view class="option-item" @click="navigateTo('notes')">
 					<image class="option-icon" style="transform: translateX(-4rpx);width: 50rpx;height: 55rpx;"
 						src="/static/public/note.png"></image>
-					<text class="option-text">我的笔记</text>
-					<image class="arrow-icon" src="/static/public/back.png"></image>
+					<text class="option-text">我的笔记 </text><text class="option-count">{{ noteCount }}</text>
 				</view>
 				<view class="option-item" @click="navigateTo('follow')">
 					<image class="option-icon" style="width: 40rpx;height: 40rpx;" src="/static/public/followed.png">
 					</image>
-					<text class="option-text">我的关注</text>
-					<image class="arrow-icon" src="/static/public/back.png"></image>
+					<text class="option-text" style="margin-left: 10rpx;"> 我的关注 </text><text class="option-count">{{
+						followCount }}</text>
 				</view>
 			</view>
 			<view class="option-group">
-				<view class="option-item" @click="navigateTo('settings')">
+				<!-- <view class="option-item" @click="navigateTo('settings')">
 					<image class="option-icon" src="/static/public/search.png"></image>
 					<text class="option-text">设置</text>
 					<image class="arrow-icon" src="/static/public/back.png"></image>
-				</view>
+				</view> -->
 				<view class="option-item" @click="navigateTo('feedback')">
-					<image class="option-icon" src="/static/public/search.png"></image>
-					<text class="option-text">意见反馈</text>
+					<image class="option-icon" style="width: 40rpx;height: 40rpx;" src="/static/public/feedback.png"></image>
+					<text class="option-text" style="margin-left: 10rpx;">意见反馈</text>
 					<image class="arrow-icon" src="/static/public/back.png"></image>
 				</view>
 			</view>
@@ -82,7 +81,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
-import { updateUserInfo, uploadFiles } from '../../api/api'
+import { updateUserInfo, uploadFiles, getUserInfo } from '../../api/api'
 
 let isShow = ref<boolean>(false)
 
@@ -94,8 +93,12 @@ const userInfo = reactive({
 	userId: ''
 })
 
+const noteCount = ref<number>(0)
+const followCount = ref<number>(0)
+const collectionCount = ref<number>(0)
+
 // 检查登录状态
-const checkLoginStatus = () => {
+const checkLoginStatus = async () => {
 	const token = uni.getStorageSync('token')
 	if (token) {
 		isLoggedIn.value = true
@@ -103,6 +106,10 @@ const checkLoginStatus = () => {
 		if (savedUserInfo) {
 			Object.assign(userInfo, JSON.parse(savedUserInfo))
 		}
+		const res = await getUserInfo(userInfo.userId)
+		noteCount.value = JSON.parse(res.release).length
+		followCount.value = JSON.parse(res.follow).length
+		collectionCount.value = JSON.parse(res.liked).length
 	}
 }
 
@@ -204,7 +211,8 @@ const navigateTo = (page: string) => {
 		uni.navigateTo({
 			url: `/pages/${page}/${page}`
 		})
-	} else {
+	}
+	else {
 		uni.navigateTo({
 			url: `/pages/${page}/list`
 		})
@@ -352,6 +360,10 @@ onShow(() => {
 
 	.options-section {
 		padding: 0 20rpx;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		padding-bottom: 10rpx;
 
 		.option-group {
 			background-color: rgba(255, 255, 255, 0.9);
@@ -536,5 +548,19 @@ onShow(() => {
 			box-shadow: 0 2rpx 8rpx rgba(52, 148, 230, 0.2);
 		}
 	}
+}
+
+.option-count {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: linear-gradient(to right, #3494E6, #EC6EAD);
+	border-radius: 50%;
+	width: 50rpx;
+	height: 50rpx;
+	color: #fff;
+	font-size: 26rpx;
+	margin-left: 8rpx;
+	font-weight: 600;
 }
 </style>

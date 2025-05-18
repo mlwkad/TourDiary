@@ -13,6 +13,7 @@ if (!Math) {
   "./pages/notes/note-edit.js";
   "./pages/follow/list.js";
   "./pages/follow/works.js";
+  "./pages/feedback/feedback.js";
 }
 const _sfc_main = {
   __name: "App",

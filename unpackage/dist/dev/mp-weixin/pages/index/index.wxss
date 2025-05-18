@@ -128,86 +128,79 @@
   transform: scale(0.95);
 }
 .home-container .home-waterfall.data-v-1cf27b2a {
-  margin: 0 auto;
-  width: 95%;
-  display: flex;
-  height: 100%;
-  gap: 25rpx;
-}
-.home-container .home-waterfall-box.data-v-1cf27b2a {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 25rpx;
-}
-.home-container .home-waterfall-box .home-waterfall-content.data-v-1cf27b2a {
   width: 100%;
-  height: -webkit-fit-content;
-  height: fit-content;
+  padding: 0;
+  margin: 0;
+  gap: 0;
+}
+.home-container .home-waterfall-content.data-v-1cf27b2a {
+  width: calc(100% - 24rpx);
+  margin: 20rpx 12rpx;
+  background: #fff;
   border-radius: 20rpx;
+  box-shadow: 0 4rpx 18rpx rgba(146, 146, 146, 0.84);
   padding-bottom: 12rpx;
-  background-color: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 0 15rpx 0 rgba(0, 0, 0, 0.15);
   overflow: hidden;
-  transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  -webkit-backdrop-filter: blur(5rpx);
-          backdrop-filter: blur(5rpx);
+  transition: box-shadow 0.2s;
+  border: 1px solid rgba(236, 110, 173, 0);
 }
-.home-container .home-waterfall-box .home-waterfall-content.data-v-1cf27b2a:active {
-  transform: translateY(-5rpx);
-  box-shadow: 0 10rpx 20rpx rgba(0, 0, 0, 0.1);
+.home-container .home-waterfall-content.data-v-1cf27b2a:active {
+  box-shadow: 0 8rpx 24rpx rgba(52, 148, 230, 0.18);
 }
-.home-container .home-waterfall-box .home-waterfall-content .waterfall-img.data-v-1cf27b2a {
+.home-container .waterfall-img.data-v-1cf27b2a {
   width: 100%;
-  max-height: 350rpx;
   border-radius: 20rpx 20rpx 0 0;
+  display: block;
+  object-fit: cover;
+  max-height: 350rpx;
 }
-.home-container .home-waterfall-box .home-waterfall-content .waterfall-title.data-v-1cf27b2a {
+.home-container .waterfall-title.data-v-1cf27b2a {
   font-weight: 600;
-  white-space: wrap;
-  color: #333;
-  padding: 15rpx 20rpx;
   font-size: 28rpx;
-  background: linear-gradient(90deg, #000000, #000000);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: #333;
+  padding: 15rpx 20rpx 5rpx 20rpx;
+  white-space: pre-line;
+  line-height: 1.3;
 }
-.home-container .home-waterfall-box .home-waterfall-content .person-info.data-v-1cf27b2a {
+.home-container .person-info.data-v-1cf27b2a {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
   gap: 15rpx;
-  padding: 0 20rpx 15rpx;
+  padding: 0 20rpx 10rpx 20rpx;
+  margin-top: 2rpx;
 }
-.home-container .home-waterfall-box .home-waterfall-content .person-info .waterfall-avatar.data-v-1cf27b2a {
+.home-container .waterfall-avatar.data-v-1cf27b2a {
   border-radius: 50%;
-  width: 50rpx;
-  height: 50rpx;
+  width: 48rpx;
+  height: 48rpx;
   border: 2rpx solid #fff;
-  box-shadow: 0 3rpx 10rpx rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2rpx 8rpx rgba(52, 148, 230, 0.1);
+  object-fit: cover;
 }
-.home-container .home-waterfall-box .home-waterfall-content .person-info .waterfall-name.data-v-1cf27b2a {
+.home-container .waterfall-name.data-v-1cf27b2a {
   color: #666;
   font-weight: 500;
   font-size: 24rpx;
+  max-width: 120rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.home-container .home-waterfall-box .home-waterfall-content .person-info .like-btn.data-v-1cf27b2a {
+.home-container .like-btn.data-v-1cf27b2a {
   display: flex;
   align-items: center;
   justify-content: center;
   margin-left: auto;
   padding: 8rpx 15rpx;
   border-radius: 20rpx;
-  background: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  background: rgba(236, 110, 173, 0.08);
+  box-shadow: 0 2rpx 6rpx rgba(236, 110, 173, 0.08);
+  transition: all 0.2s;
 }
-.home-container .home-waterfall-box .home-waterfall-content .person-info .like-btn.data-v-1cf27b2a:active {
+.home-container .like-btn.data-v-1cf27b2a:active {
   transform: scale(0.9);
 }
-.home-container .home-waterfall-box .home-waterfall-content .person-info .like-icon.data-v-1cf27b2a {
+.home-container .like-icon.data-v-1cf27b2a {
   font-size: 32rpx;
   font-weight: bold;
 }

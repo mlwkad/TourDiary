@@ -12,7 +12,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       avatarUrl: "",
       userId: ""
     });
-    const checkLoginStatus = () => {
+    const noteCount = common_vendor.ref(0);
+    const followCount = common_vendor.ref(0);
+    const collectionCount = common_vendor.ref(0);
+    const checkLoginStatus = async () => {
       const token = common_vendor.index.getStorageSync("token");
       if (token) {
         isLoggedIn.value = true;
@@ -20,6 +23,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         if (savedUserInfo) {
           Object.assign(userInfo, JSON.parse(savedUserInfo));
         }
+        const res = await api_api.getUserInfo(userInfo.userId);
+        noteCount.value = JSON.parse(res.release).length;
+        followCount.value = JSON.parse(res.follow).length;
+        collectionCount.value = JSON.parse(res.liked).length;
       }
     };
     const handleLogin = () => {
@@ -70,7 +77,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             const result = await api_api.uploadFiles(res.tempFilePaths, "image");
             userInfo.avatarUrl = result.pictures[0];
           } catch (e) {
-            common_vendor.index.__f__("log", "at pages/My/My.vue:161", e);
+            common_vendor.index.__f__("log", "at pages/My/My.vue:168", e);
           }
         }
       });
@@ -89,7 +96,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           icon: "success"
         });
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/My/My.vue:181", e);
+        common_vendor.index.__f__("log", "at pages/My/My.vue:188", e);
         common_vendor.index.showToast({
           title: "修改失败",
           icon: "none"
@@ -140,34 +147,31 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }, {
         i: isLoggedIn.value ? 1 : "",
         j: common_assets._imports_2$2,
-        k: common_assets._imports_3$1,
+        k: common_vendor.t(collectionCount.value),
         l: common_vendor.o(($event) => navigateTo("collection")),
-        m: common_assets._imports_4$1,
-        n: common_assets._imports_3$1,
+        m: common_assets._imports_3$1,
+        n: common_vendor.t(noteCount.value),
         o: common_vendor.o(($event) => navigateTo("notes")),
-        p: common_assets._imports_5,
-        q: common_assets._imports_3$1,
+        p: common_assets._imports_4$1,
+        q: common_vendor.t(followCount.value),
         r: common_vendor.o(($event) => navigateTo("follow")),
-        s: common_assets._imports_2,
-        t: common_assets._imports_3$1,
-        v: common_vendor.o(($event) => navigateTo("settings")),
-        w: common_assets._imports_2,
-        x: common_assets._imports_3$1,
-        y: common_vendor.o(($event) => navigateTo("feedback")),
-        z: isLoggedIn.value
+        s: common_assets._imports_5,
+        t: common_assets._imports_6,
+        v: common_vendor.o(($event) => navigateTo("feedback")),
+        w: isLoggedIn.value
       }, isLoggedIn.value ? {
-        A: common_vendor.o(handleLogout)
+        x: common_vendor.o(handleLogout)
       } : {}, {
-        B: common_vendor.unref(isShow)
+        y: common_vendor.unref(isShow)
       }, common_vendor.unref(isShow) ? {
-        C: common_assets._imports_4,
-        D: common_vendor.o(($event) => common_vendor.isRef(isShow) ? isShow.value = false : isShow = false),
-        E: userInfo.avatarUrl,
-        F: common_vendor.o(chooseavatar),
-        G: userInfo.nickName,
-        H: userInfo.nickName,
-        I: common_vendor.o(($event) => userInfo.nickName = $event.detail.value),
-        J: common_vendor.o(changeUserInfo)
+        z: common_assets._imports_4,
+        A: common_vendor.o(($event) => common_vendor.isRef(isShow) ? isShow.value = false : isShow = false),
+        B: userInfo.avatarUrl,
+        C: common_vendor.o(chooseavatar),
+        D: userInfo.nickName,
+        E: userInfo.nickName,
+        F: common_vendor.o(($event) => userInfo.nickName = $event.detail.value),
+        G: common_vendor.o(changeUserInfo)
       } : {});
     };
   }

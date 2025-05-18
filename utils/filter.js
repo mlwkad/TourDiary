@@ -1,8 +1,14 @@
 // * 过滤校验
 // * 1.数据合理性
 // * 2.后端 参数化查询
+import sqlstring from 'sqlstring'
 
 const sensitive = /(赌博|色情|暴力|政治|违法)/gi
+
+export function filterSql(text) {
+    if (!text) return ''
+    return sqlstring.escape(text).replace(/[<>'"]/g, '').trim()
+}
 
 export function validateUsername(username) {
     if (!username || !username.trim()) return { isValid: false, message: '用户名不能为空', filteredText: '' }

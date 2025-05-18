@@ -1283,6 +1283,9 @@ function isReadonly(value) {
 function isShallow(value) {
   return !!(value && value["__v_isShallow"]);
 }
+function isProxy(value) {
+  return isReactive(value) || isReadonly(value);
+}
 function toRaw(observed) {
   const raw = observed && observed["__v_raw"];
   return raw ? toRaw(raw) : observed;
@@ -2074,8 +2077,46 @@ function setCurrentRenderingInstance(instance) {
   instance && instance.type.__scopeId || null;
   return prev;
 }
-function watchEffect(effect2, options) {
-  return doWatch(effect2, null, options);
+const COMPONENTS = "components";
+function resolveComponent(name, maybeSelfReference) {
+  return resolveAsset(COMPONENTS, name, true, maybeSelfReference) || name;
+}
+function resolveAsset(type, name, warnMissing = true, maybeSelfReference = false) {
+  const instance = currentRenderingInstance || currentInstance;
+  if (instance) {
+    const Component2 = instance.type;
+    if (type === COMPONENTS) {
+      const selfName = getComponentName(
+        Component2,
+        false
+      );
+      if (selfName && (selfName === name || selfName === camelize(name) || selfName === capitalize(camelize(name)))) {
+        return Component2;
+      }
+    }
+    const res = (
+      // local registration
+      // check instance[type] first which is resolved for options API
+      resolve(instance[type] || Component2[type], name) || // global registration
+      resolve(instance.appContext[type], name)
+    );
+    if (!res && maybeSelfReference) {
+      return Component2;
+    }
+    if (warnMissing && !res) {
+      const extra = type === COMPONENTS ? `
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.` : ``;
+      warn$1(`Failed to resolve ${type.slice(0, -1)}: ${name}${extra}`);
+    }
+    return res;
+  } else {
+    warn$1(
+      `resolve${capitalize(type.slice(0, -1))} can only be used in render() or setup().`
+    );
+  }
+}
+function resolve(registry, name) {
+  return registry && (registry[name] || registry[camelize(name)] || registry[capitalize(camelize(name))]);
 }
 const INITIAL_WATCHER_VALUE = {};
 function watch(source, cb, options) {
@@ -3696,6 +3737,12 @@ const Static = Symbol.for("v-stc");
 function isVNode(value) {
   return value ? value.__v_isVNode === true : false;
 }
+const InternalObjectKey = `__vInternal`;
+function guardReactiveProps(props) {
+  if (!props)
+    return null;
+  return isProxy(props) || InternalObjectKey in props ? extend({}, props) : props;
+}
 const emptyAppContext = createAppContext();
 let uid = 0;
 function createComponentInstance(vnode, parent, suspense) {
@@ -4934,6 +4981,11 @@ function initApp(app) {
   }
 }
 const propsCaches = /* @__PURE__ */ Object.create(null);
+function renderProps(props) {
+  const { uid: uid2, __counter } = getCurrentInstance();
+  const propsId = (propsCaches[uid2] || (propsCaches[uid2] = [])).push(guardReactiveProps(props)) - 1;
+  return uid2 + "," + propsId + "," + __counter;
+}
 function pruneComponentPropsCache(uid2) {
   delete propsCaches[uid2];
 }
@@ -5100,10 +5152,77 @@ function vFor(source, renderItem) {
   }
   return ret;
 }
+function renderSlot(name, props = {}, key) {
+  const instance = getCurrentInstance();
+  const { parent, isMounted, ctx: { $scope } } = instance;
+  const vueIds = ($scope.properties || $scope.props).uI;
+  if (!vueIds) {
+    return;
+  }
+  if (!parent && !isMounted) {
+    onMounted(() => {
+      renderSlot(name, props, key);
+    }, instance);
+    return;
+  }
+  const invoker = findScopedSlotInvoker(vueIds, instance);
+  if (invoker) {
+    invoker(name, props, key);
+  }
+}
+function findScopedSlotInvoker(vueId, instance) {
+  let parent = instance.parent;
+  while (parent) {
+    const invokers = parent.$ssi;
+    if (invokers && invokers[vueId]) {
+      return invokers[vueId];
+    }
+    parent = parent.parent;
+  }
+}
+function withScopedSlot(fn, { name, path, vueId }) {
+  const instance = getCurrentInstance();
+  fn.path = path;
+  const scopedSlots = instance.$ssi || (instance.$ssi = {});
+  const invoker = scopedSlots[vueId] || (scopedSlots[vueId] = createScopedSlotInvoker(instance));
+  if (!invoker.slots[name]) {
+    invoker.slots[name] = {
+      fn
+    };
+  } else {
+    invoker.slots[name].fn = fn;
+  }
+  return getValueByDataPath(instance.ctx.$scope.data, path);
+}
+function createScopedSlotInvoker(instance) {
+  const invoker = (slotName, args, index2) => {
+    const slot = invoker.slots[slotName];
+    if (!slot) {
+      return;
+    }
+    const hasIndex = typeof index2 !== "undefined";
+    index2 = index2 || 0;
+    const prevInstance = setCurrentRenderingInstance(instance);
+    const data = slot.fn(args, slotName + (hasIndex ? "-" + index2 : ""), index2);
+    const path = slot.fn.path;
+    setCurrentRenderingInstance(prevInstance);
+    (instance.$scopedSlotsData || (instance.$scopedSlotsData = [])).push({
+      path,
+      index: index2,
+      data
+    });
+    instance.$updateScopedSlots();
+  };
+  invoker.slots = {};
+  return invoker;
+}
 const o = (value, key) => vOn(value, key);
 const f = (source, renderItem) => vFor(source, renderItem);
+const r = (name, props, key) => renderSlot(name, props, key);
+const w = (fn, options) => withScopedSlot(fn, options);
 const e = (target, ...sources) => extend(target, ...sources);
 const t = (val) => toDisplayString(val);
+const p = (props) => renderProps(props);
 function createApp$1(rootComponent, rootProps = null) {
   rootComponent && (rootComponent.mpType = "app");
   return createVueApp(rootComponent, rootProps).use(plugin);
@@ -5425,8 +5544,8 @@ function promisify$1(name, fn) {
     if (hasCallback(args)) {
       return wrapperReturnValue(name, invokeApi(name, fn, args, rest));
     }
-    return wrapperReturnValue(name, handlePromise(new Promise((resolve, reject) => {
-      invokeApi(name, fn, extend(args, { success: resolve, fail: reject }), rest);
+    return wrapperReturnValue(name, handlePromise(new Promise((resolve2, reject) => {
+      invokeApi(name, fn, extend(args, { success: resolve2, fail: reject }), rest);
     })));
   };
 }
@@ -5747,7 +5866,7 @@ function invokeGetPushCidCallbacks(cid2, errMsg) {
   getPushCidCallbacks.length = 0;
 }
 const API_GET_PUSH_CLIENT_ID = "getPushClientId";
-const getPushClientId = defineAsyncApi(API_GET_PUSH_CLIENT_ID, (_, { resolve, reject }) => {
+const getPushClientId = defineAsyncApi(API_GET_PUSH_CLIENT_ID, (_, { resolve: resolve2, reject }) => {
   Promise.resolve().then(() => {
     if (typeof enabled === "undefined") {
       enabled = false;
@@ -5756,7 +5875,7 @@ const getPushClientId = defineAsyncApi(API_GET_PUSH_CLIENT_ID, (_, { resolve, re
     }
     getPushCidCallbacks.push((cid2, errMsg) => {
       if (cid2) {
-        resolve({ cid: cid2 });
+        resolve2({ cid: cid2 });
       } else {
         reject(errMsg);
       }
@@ -5825,9 +5944,9 @@ function promisify(name, api) {
     if (isFunction(options.success) || isFunction(options.fail) || isFunction(options.complete)) {
       return wrapperReturnValue(name, invokeApi(name, api, options, rest));
     }
-    return wrapperReturnValue(name, handlePromise(new Promise((resolve, reject) => {
+    return wrapperReturnValue(name, handlePromise(new Promise((resolve2, reject) => {
       invokeApi(name, api, extend({}, options, {
-        success: resolve,
+        success: resolve2,
         fail: reject
       }), rest);
     })));
@@ -6434,13 +6553,13 @@ function initRuntimeSocket(hosts, port, id) {
 }
 const SOCKET_TIMEOUT = 500;
 function tryConnectSocket(host2, port, id) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve2, reject) => {
     const socket = index.connectSocket({
       url: `ws://${host2}:${port}/${id}`,
       multiple: true,
       // 支付宝小程序 是否开启多实例
       fail() {
-        resolve(null);
+        resolve2(null);
       }
     });
     const timer = setTimeout(() => {
@@ -6448,19 +6567,19 @@ function tryConnectSocket(host2, port, id) {
         code: 1006,
         reason: "connect timeout"
       });
-      resolve(null);
+      resolve2(null);
     }, SOCKET_TIMEOUT);
     socket.onOpen((e2) => {
       clearTimeout(timer);
-      resolve(socket);
+      resolve2(socket);
     });
     socket.onClose((e2) => {
       clearTimeout(timer);
-      resolve(null);
+      resolve2(null);
     });
     socket.onError((e2) => {
       clearTimeout(timer);
-      resolve(null);
+      resolve2(null);
     });
   });
 }
@@ -6923,9 +7042,9 @@ function isConsoleWritable() {
   return isWritable;
 }
 function initRuntimeSocketService() {
-  const hosts = "10.163.133.75,127.0.0.1";
+  const hosts = "192.168.28.242,127.0.0.1";
   const port = "8090";
-  const id = "mp-weixin_2u7uyc";
+  const id = "mp-weixin_8sF8IH";
   const lazy = typeof swan !== "undefined";
   let restoreError = lazy ? () => {
   } : initOnError();
@@ -7878,6 +7997,204 @@ const onShow = /* @__PURE__ */ createHook(ON_SHOW);
 const onLoad = /* @__PURE__ */ createHook(ON_LOAD);
 const onPageScroll = /* @__PURE__ */ createHook(ON_PAGE_SCROLL);
 const onReachBottom = /* @__PURE__ */ createHook(ON_REACH_BOTTOM);
+function getDefaultExportFromCjs(x) {
+  return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, "default") ? x["default"] : x;
+}
+var SqlString = {};
+(function(exports2) {
+  var SqlString2 = exports2;
+  var ID_GLOBAL_REGEXP = /`/g;
+  var QUAL_GLOBAL_REGEXP = /\./g;
+  var CHARS_GLOBAL_REGEXP = /[\0\b\t\n\r\x1a\"\'\\]/g;
+  var CHARS_ESCAPE_MAP = {
+    "\0": "\\0",
+    "\b": "\\b",
+    "	": "\\t",
+    "\n": "\\n",
+    "\r": "\\r",
+    "": "\\Z",
+    '"': '\\"',
+    "'": "\\'",
+    "\\": "\\\\"
+  };
+  SqlString2.escapeId = function escapeId(val, forbidQualified) {
+    if (Array.isArray(val)) {
+      var sql = "";
+      for (var i = 0; i < val.length; i++) {
+        sql += (i === 0 ? "" : ", ") + SqlString2.escapeId(val[i], forbidQualified);
+      }
+      return sql;
+    } else if (forbidQualified) {
+      return "`" + String(val).replace(ID_GLOBAL_REGEXP, "``") + "`";
+    } else {
+      return "`" + String(val).replace(ID_GLOBAL_REGEXP, "``").replace(QUAL_GLOBAL_REGEXP, "`.`") + "`";
+    }
+  };
+  SqlString2.escape = function escape(val, stringifyObjects, timeZone) {
+    if (val === void 0 || val === null) {
+      return "NULL";
+    }
+    switch (typeof val) {
+      case "boolean":
+        return val ? "true" : "false";
+      case "number":
+        return val + "";
+      case "object":
+        if (Object.prototype.toString.call(val) === "[object Date]") {
+          return SqlString2.dateToString(val, timeZone || "local");
+        } else if (Array.isArray(val)) {
+          return SqlString2.arrayToList(val, timeZone);
+        } else if (Buffer.isBuffer(val)) {
+          return SqlString2.bufferToString(val);
+        } else if (typeof val.toSqlString === "function") {
+          return String(val.toSqlString());
+        } else if (stringifyObjects) {
+          return escapeString(val.toString());
+        } else {
+          return SqlString2.objectToValues(val, timeZone);
+        }
+      default:
+        return escapeString(val);
+    }
+  };
+  SqlString2.arrayToList = function arrayToList(array, timeZone) {
+    var sql = "";
+    for (var i = 0; i < array.length; i++) {
+      var val = array[i];
+      if (Array.isArray(val)) {
+        sql += (i === 0 ? "" : ", ") + "(" + SqlString2.arrayToList(val, timeZone) + ")";
+      } else {
+        sql += (i === 0 ? "" : ", ") + SqlString2.escape(val, true, timeZone);
+      }
+    }
+    return sql;
+  };
+  SqlString2.format = function format(sql, values, stringifyObjects, timeZone) {
+    if (values == null) {
+      return sql;
+    }
+    if (!Array.isArray(values)) {
+      values = [values];
+    }
+    var chunkIndex = 0;
+    var placeholdersRegex = /\?+/g;
+    var result = "";
+    var valuesIndex = 0;
+    var match;
+    while (valuesIndex < values.length && (match = placeholdersRegex.exec(sql))) {
+      var len = match[0].length;
+      if (len > 2) {
+        continue;
+      }
+      var value = len === 2 ? SqlString2.escapeId(values[valuesIndex]) : SqlString2.escape(values[valuesIndex], stringifyObjects, timeZone);
+      result += sql.slice(chunkIndex, match.index) + value;
+      chunkIndex = placeholdersRegex.lastIndex;
+      valuesIndex++;
+    }
+    if (chunkIndex === 0) {
+      return sql;
+    }
+    if (chunkIndex < sql.length) {
+      return result + sql.slice(chunkIndex);
+    }
+    return result;
+  };
+  SqlString2.dateToString = function dateToString(date, timeZone) {
+    var dt = new Date(date);
+    if (isNaN(dt.getTime())) {
+      return "NULL";
+    }
+    var year;
+    var month;
+    var day;
+    var hour;
+    var minute;
+    var second;
+    var millisecond;
+    if (timeZone === "local") {
+      year = dt.getFullYear();
+      month = dt.getMonth() + 1;
+      day = dt.getDate();
+      hour = dt.getHours();
+      minute = dt.getMinutes();
+      second = dt.getSeconds();
+      millisecond = dt.getMilliseconds();
+    } else {
+      var tz = convertTimezone(timeZone);
+      if (tz !== false && tz !== 0) {
+        dt.setTime(dt.getTime() + tz * 6e4);
+      }
+      year = dt.getUTCFullYear();
+      month = dt.getUTCMonth() + 1;
+      day = dt.getUTCDate();
+      hour = dt.getUTCHours();
+      minute = dt.getUTCMinutes();
+      second = dt.getUTCSeconds();
+      millisecond = dt.getUTCMilliseconds();
+    }
+    var str = zeroPad(year, 4) + "-" + zeroPad(month, 2) + "-" + zeroPad(day, 2) + " " + zeroPad(hour, 2) + ":" + zeroPad(minute, 2) + ":" + zeroPad(second, 2) + "." + zeroPad(millisecond, 3);
+    return escapeString(str);
+  };
+  SqlString2.bufferToString = function bufferToString(buffer2) {
+    return "X" + escapeString(buffer2.toString("hex"));
+  };
+  SqlString2.objectToValues = function objectToValues(object, timeZone) {
+    var sql = "";
+    for (var key in object) {
+      var val = object[key];
+      if (typeof val === "function") {
+        continue;
+      }
+      sql += (sql.length === 0 ? "" : ", ") + SqlString2.escapeId(key) + " = " + SqlString2.escape(val, true, timeZone);
+    }
+    return sql;
+  };
+  SqlString2.raw = function raw(sql) {
+    if (typeof sql !== "string") {
+      throw new TypeError("argument sql must be a string");
+    }
+    return {
+      toSqlString: function toSqlString() {
+        return sql;
+      }
+    };
+  };
+  function escapeString(val) {
+    var chunkIndex = CHARS_GLOBAL_REGEXP.lastIndex = 0;
+    var escapedVal = "";
+    var match;
+    while (match = CHARS_GLOBAL_REGEXP.exec(val)) {
+      escapedVal += val.slice(chunkIndex, match.index) + CHARS_ESCAPE_MAP[match[0]];
+      chunkIndex = CHARS_GLOBAL_REGEXP.lastIndex;
+    }
+    if (chunkIndex === 0) {
+      return "'" + val + "'";
+    }
+    if (chunkIndex < val.length) {
+      return "'" + escapedVal + val.slice(chunkIndex) + "'";
+    }
+    return "'" + escapedVal + "'";
+  }
+  function zeroPad(number, length) {
+    number = number.toString();
+    while (number.length < length) {
+      number = "0" + number;
+    }
+    return number;
+  }
+  function convertTimezone(tz) {
+    if (tz === "Z") {
+      return 0;
+    }
+    var m = tz.match(/([\+\-\s])(\d\d):?(\d\d)?/);
+    if (m) {
+      return (m[1] === "-" ? -1 : 1) * (parseInt(m[2], 10) + (m[3] ? parseInt(m[3], 10) : 0) / 60) * 60;
+    }
+    return false;
+  }
+})(SqlString);
+var sqlstring = SqlString;
+const sqlstring$1 = /* @__PURE__ */ getDefaultExportFromCjs(sqlstring);
 exports._export_sfc = _export_sfc;
 exports.createSSRApp = createSSRApp;
 exports.defineComponent = defineComponent;
@@ -7887,12 +8204,18 @@ exports.index = index;
 exports.isRef = isRef;
 exports.o = o;
 exports.onLoad = onLoad;
+exports.onMounted = onMounted;
 exports.onPageScroll = onPageScroll;
 exports.onReachBottom = onReachBottom;
 exports.onShow = onShow;
+exports.p = p;
+exports.r = r;
 exports.reactive = reactive;
 exports.ref = ref;
+exports.resolveComponent = resolveComponent;
+exports.sqlstring = sqlstring$1;
 exports.t = t;
 exports.unref = unref;
-exports.watchEffect = watchEffect;
+exports.w = w;
+exports.watch = watch;
 //# sourceMappingURL=../../.sourcemap/mp-weixin/common/vendor.js.map

@@ -138,6 +138,10 @@
 }
 .my-container .options-section.data-v-8f9a99c0 {
   padding: 0 20rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-bottom: 10rpx;
 }
 .my-container .options-section .option-group.data-v-8f9a99c0 {
   background-color: rgba(255, 255, 255, 0.9);
@@ -301,4 +305,17 @@
 .changeInfo-ensure.data-v-8f9a99c0:active {
   transform: scale(0.98);
   box-shadow: 0 2rpx 8rpx rgba(52, 148, 230, 0.2);
+}
+.option-count.data-v-8f9a99c0 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to right, #3494E6, #EC6EAD);
+  border-radius: 50%;
+  width: 50rpx;
+  height: 50rpx;
+  color: #fff;
+  font-size: 26rpx;
+  margin-left: 8rpx;
+  font-weight: 600;
 }
