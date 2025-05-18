@@ -1,6 +1,5 @@
 <template>
     <view class="detail-container">
-        <!-- 轮播图展示pictures和videos -->
         <swiper class="detail-swiper" v-if="(info.pictures.length > 0) && (info.videos.length === 0)" indicator-dots
             :indicator-active-color="'#3494E6'" :indicator-color="'rgba(255,255,255,0.5)'" :interval="3000"
             :duration="500" circular>
@@ -22,7 +21,6 @@
             </swiper-item>
         </swiper>
         <view class="detail-top">
-            <!-- 标题部分 -->
             <view class="detail-title">
                 <text class="animated-text">{{ info.title }}</text>
                 <view class="action-buttons">
@@ -30,14 +28,9 @@
                         <text class="like-text">收藏</text>
                         <text class="like-icon" :style="{ color: isLiked ? 'red' : 'white' }">♥</text>
                     </view>
-                    <!-- <view class="detail-share" @click="shareContent">
-                        <text class="share-text">分享</text>
-                        <text class="share-icon">↗</text>
-                    </view> -->
                 </view>
             </view>
         </view>
-        <!-- 发布者信息部分 -->
         <view class="publisher-container">
             <view class="publisher-info">
                 <image class="user-avatar" :src="info.avatar" mode="aspectFill" @click="goUserPages"></image>
@@ -57,7 +50,6 @@
                 </view>
             </view>
         </view>
-        <!-- 内容详情部分 -->
         <view class="detail-content">
             <view class="section-heading">旅行详情</view>
             <view class="detail-item content-box">
@@ -91,12 +83,6 @@
                 </view>
             </view>
         </view>
-
-        <!-- 底部操作按钮 -->
-        <!-- <view class="detail-actions">
-            <button class="action-btn">联系发布者</button>
-            <button class="action-btn">收藏</button>
-        </view> -->
     </view>
     <view class="detail-float" v-if="isShowWantLocation">
         <view class="detail-float-item">
@@ -274,28 +260,25 @@ const goUserPages = () => {
     })
 }
 
-// 暴露微信小程序所需的分享方法,因为设置了setup
+// 因为设置了setup
 defineExpose({
-    // 分享给好友
-    onShareAppMessage() {  // 生命周期,右上角分享时自动触发
+    onShareAppMessage() {
         return {
             title: '旅游日记分享',
             path: `/pages/detail/detail?info=${encodeURIComponent(JSON.stringify(info.value))}`,
-            imageUrl: info.value.pictures[0] || '/static/public/555.jpg'
-        };
+            imageUrl: info.value.pictures[0] || ''
+        }
     },
-    // 分享到朋友圈
     onShareTimeline() {
         return {
             title: '旅游日记分享',
             // 默认自带本页路径,只需写查询参数
             query: `info=${encodeURIComponent(JSON.stringify(info.value))}`,
-            imageUrl: info.value.pictures[0] || '/static/public/555.jpg'
-        };
+            imageUrl: info.value.pictures[0] || ''
+        }
     }
-});
+})
 
-// 关注发布者功能
 const followPublisher = () => {
     const userId = JSON.parse(uni.getStorageSync('userInfo')).userId
     if (!isFollow.value) {
@@ -350,7 +333,6 @@ const followPublisher = () => {
 }
 
 const previewImage = (images: string[], current: number) => {
-    // 直接将每个图片转换为字符串
     const stringUrls = images.map(img => String(img))
     uni.previewImage({
         urls: stringUrls,  // 地址列表
@@ -361,7 +343,6 @@ const previewImage = (images: string[], current: number) => {
     })
 }
 
-// 全屏播放提示
 const fullScreen = (event) => {
     const isFullScreen = event.detail.fullScreen || event.detail.fullscreen
     const direction = event.detail.direction
@@ -380,7 +361,6 @@ const fullScreen = (event) => {
     }
 }
 
-// 视频播放错误处理
 const videoError = (e) => {
     console.error('视频播放错误:', e.detail)
     uni.showToast({

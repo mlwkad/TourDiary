@@ -1,3 +1,9 @@
+// * 基于websocket
+// * 1.流式接收消息
+// * 2.模拟打字机效果,打字速度会越来越快
+// * 3.ws连接 超时处理
+// * 4.连接复用
+
 // WebSocket
 let socketTask = null
 let isConnecting = false
@@ -7,13 +13,10 @@ let connectionTimeout = null
 // 创建或获取WebSocket连接
 const getWebSocketConnection = () => {
     return new Promise((resolve, reject) => {
-
-        // 如果已有连接，直接返回
         if (socketTask) {
             resolve(socketTask)
             return
         }
-        // 正在连接 轮训检查
         if (isConnecting) {
             const checkConnection = setInterval(() => {
                 if (socketTask) {
@@ -21,12 +24,11 @@ const getWebSocketConnection = () => {
                     resolve(socketTask)
                 }
             }, 100)
-            // 添加超时处理
             setTimeout(() => {
                 if (!socketTask) {
                     clearInterval(checkConnection)
                     isConnecting = false
-                    reject(new Error('连接超时'))  // catch里打印err.message
+                    reject(new Error('连接超时'))
                 }
             }, 5000)
             return
@@ -45,41 +47,33 @@ const getWebSocketConnection = () => {
                     reject(error)
                 }
             })
-            // 设置连接超时
+            // 超时
             connectionTimeout = setTimeout(() => {
                 if (!socketTask) {
                     isConnecting = false
                     reject(new Error('连接超时'))
                 }
             }, 5000)
-            // 监听WebSocket连接打开
             socketTask.onOpen(() => {
                 if (connectionTimeout) clearTimeout(connectionTimeout)
                 isConnecting = false
-                // 成功打开,返回socketTask实例
                 resolve(socketTask)
-                // resolve()或者reject()不会终止Promise内部代码的继续执行
-                // 只是将Promise的状态设置为resolve或者reject
-                // 此时可以使用.then()或者.catch()访问到resolve或者reject的值
             })
-            // 监听WebSocket消息
             socketTask.onMessage((res) => {
                 try {
                     const data = JSON.parse(res.data)
                     if (messageCallback) {
                         switch (data.type) {
                             case 'chat':
-                                messageCallback({  // 触发回调函数
+                                messageCallback({  // 触发回调
                                     type: 'update',
-                                    content: data.content,
-                                    onlineInfo: data.onlineInfo
+                                    content: data.content
                                 })
                                 break
                             case 'done':
                                 messageCallback({
                                     type: 'complete',
-                                    content: data.content,
-                                    totalTokens: data.totalTokens
+                                    content: data.content
                                 })
                                 break
                             case 'error':
@@ -99,7 +93,6 @@ const getWebSocketConnection = () => {
                     console.log('解析WebSocket消息失败:', e)
                 }
             })
-            // 监听WebSocket错误
             socketTask.onError((err) => {
                 console.log('socketTask发生错误:', err)
                 if (connectionTimeout) {
@@ -109,7 +102,6 @@ const getWebSocketConnection = () => {
                 isConnecting = false
                 reject(err)
             })
-            // 监听WebSocket关闭
             socketTask.onClose(() => {
                 console.log('WebSocket连接已关闭')
                 if (connectionTimeout) {
@@ -126,14 +118,12 @@ const getWebSocketConnection = () => {
     })
 }
 
-// 导出的主函数
 export const streamChat = (message, onUpdate) => {
-    // 保存回调函数
+    // 保存回调
     messageCallback = onUpdate
-    // 获取连接并发送消息
     getWebSocketConnection()
         .then((task) => {
-            task.send({  // 发送消息
+            task.send({
                 data: JSON.stringify({
                     type: 'chat',
                     message: message
@@ -151,11 +141,10 @@ export const streamChat = (message, onUpdate) => {
             onUpdate && onUpdate({
                 type: 'error',
                 error: 'WebSocket连接失败: ' + error.message
-            });
-        });
-};
+            })
+        })
+}
 
-// 关闭WebSocket连接
 export const closeWebSocket = () => {
     if (connectionTimeout) {
         clearTimeout(connectionTimeout)

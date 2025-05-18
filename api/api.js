@@ -2,26 +2,26 @@ import http from "./http.js";
 
 let baseUrl = ''
 
-// 判断环境
 if (process.env.NODE_ENV === 'development') {
     baseUrl = 'https://vkxvigkepssq.sealosbja.site'
 } else {
     baseUrl = 'https://ovmmqfovxbil.sealosbja.site'
 }
 
-// 首页
-export const getBanner = () => {
-    return http('/api/getBanner')
-}
+// * 请求节流
 
-// 换取sessionKey
-export const getSessionKey = (url, data) => {
-    return http('/api/getSessionKey', data)
-}
-
-// 获取真实数据
-export const getWXUserInfo = (url, data, method) => {
-    return http('/api/getUserInfo', data, method)
+const map = new Map()
+const throttle = (key, delay = 1000) => {
+    const date = new Date().getTime()
+    if (map.has(key) && (date - map.get(key)) < delay) {
+        uni.showToast({
+            title: '请求过于频繁',
+            icon: 'none'
+        })
+        return false
+    }
+    map.set(key, date)
+    return true
 }
 
 // 用户注册
@@ -76,6 +76,7 @@ export const searchReleases = (data) => {
 
 // 获取发布内容详情
 export const getReleaseDetail = (releaseID) => {
+    if (!throttle(`getReleaseDetail`, 100)) return
     return http(`/api/release/${releaseID}`)
 }
 
@@ -91,11 +92,13 @@ export const updateRelease = (releaseID, data) => {
 
 // 删除发布内容
 export const deleteRelease = (releaseID, userID) => {
+    if (!throttle(`deleteRelease`, 300)) return
     return http(`/api/release/${releaseID}`, { userID }, 'DELETE')
 }
 
 // 更新状态
 export const updateState = (releaseID, data) => {
+    if (!throttle(`updateState`, 300)) return
     return http(`/api/release/${releaseID}/state`, data, "PUT")
 }
 
@@ -106,41 +109,24 @@ export const getFollowingList = (userID) => {
 
 // 关注
 export const follow = (userID, data) => {
+    if (!throttle(`follow`, 300)) return
     return http(`/api/user/${userID}/follow`, data, 'POST')
 }
 
 // 取消关注
 export const unfollow = (userID, followUserID) => {
+    if (!throttle(`unfollow`, 300)) return
     return http(`/api/user/${userID}/follow/${followUserID}`, {}, 'DELETE')
 }
 
-// 上传单个文件的辅助函数
-const uploadSingleFile = (filePath, url) => {
-    return new Promise((resolve, reject) => {
-        uni.uploadFile({
-            url,
-            filePath,
-            name: 'file',
-            success: (res) => {
-                if (res.statusCode === 200) {
-                    const data = JSON.parse(res.data)
-                    resolve(data.success ? data.data : null)
-                } else {
-                    reject(`服务器错误(${res.statusCode})`)
-                }
-            },
-            fail: (e) => reject(e)
-        })
-    })
-}
+// * 云端存储(使用sealos存储桶,结合密钥信息,后端自定义路径,上传成功后即可获得一个可访问的公网url)
+// * 1.节省服务器
+// * 2.前端直接访问url,无需请求服务器
 
 // 上传文件
 export const uploadFiles = async (filePaths, type = '') => {  // image/video/cover
     const paths = Array.isArray(filePaths) ? filePaths : [filePaths]
-    // 如果是空数组，直接返回
-    if (paths.length === 0 || !paths[0]) {
-        return { pictures: [], videos: [], covers: [] }
-    }
+    if (paths.length === 0 || !paths[0]) return { pictures: [], videos: [], covers: [] }
     let url = baseUrl + '/api/upload'
     if (type) { url += `?type=${type}` }
     try {
@@ -161,4 +147,24 @@ export const uploadFiles = async (filePaths, type = '') => {  // image/video/cov
     } finally {
         uni.hideLoading()
     }
+}
+
+// 文件上传 辅助函数
+const uploadSingleFile = (filePath, url) => {
+    return new Promise((resolve, reject) => {
+        uni.uploadFile({
+            url,
+            filePath,
+            name: 'file',
+            success: (res) => {
+                if (res.statusCode === 200) {
+                    const data = JSON.parse(res.data)
+                    resolve(data.success ? data.data : null)
+                } else {
+                    reject(`服务器错误(${res.statusCode})`)
+                }
+            },
+            fail: (e) => reject(e)
+        })
+    })
 }
