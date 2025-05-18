@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
-import { getSessionKey, getWXUserInfo, checkLogin, uploadFiles } from '../../api/api';
+import { checkLogin } from '../../api/api';
 
 const username = ref<string>('')
 const password = ref<string>('')
@@ -126,7 +126,9 @@ const handleLogin = () => {
             userInfo.avatarUrl = res.avatar
             await uni.setStorageSync('token', res.userID)
             await uni.setStorageSync('userInfo', JSON.stringify(userInfo))
-            uni.navigateBack()
+            uni.reLaunch({
+                url: '/pages/index/index'
+            })
         }).catch(err => {
             console.log(err)
             uni.hideLoading()
@@ -142,65 +144,6 @@ const handleLogin = () => {
             title: '登录失败，请稍后重试',
             icon: 'none'
         })
-    }
-}
-
-// 用户鉴权
-const wechatLogin = async () => {
-    try {
-        const modalRes = await new Promise(resolve => {
-            uni.showModal({
-                title: '温馨提示',
-                content: '需要您授权获取个人信息',
-                success: resolve
-            })
-        })
-
-        if (!modalRes.confirm) return
-
-        const userProfileRes = await new Promise((resolve, reject) => {
-            uni.getUserProfile({
-                desc: '需要获取您的微信昵称和头像',
-                success: resolve,
-                fail: reject
-            })
-        }).catch(err => {
-            console.log('获取用户信息失败', err)
-            uni.showToast({ title: '获取用户信息失败', icon: 'none' })
-            throw new Error('用户拒绝授权')
-        })
-
-        const { encryptedData, iv } = userProfileRes
-
-        const loginRes = await new Promise(resolve => {
-            uni.login({ success: resolve })
-        })
-
-        try {
-            const sessionKeyRes = await getSessionKey('', { code: loginRes })
-            const userInfoRes = await getWXUserInfo('', {
-                encryptedData,
-                iv,
-                sessionKey: sessionKeyRes.sessionKey
-            }, 'POST')
-
-            const userInfo = {
-                nickName: userInfoRes.nickName,
-                avatarUrl: userInfoRes.avatarUrl,
-                userId: ''
-            }
-
-            uni.setStorageSync('token', 'wx-token')
-            uni.setStorageSync('userInfo', JSON.stringify(userInfo))
-
-            uni.showToast({ title: '登录成功', icon: 'success' })
-            setTimeout(() => uni.navigateBack(), 1000)
-        } catch (error) {
-            console.error('微信登录失败', error)
-            uni.showToast({ title: '登录失败，请稍后重试', icon: 'none' })
-        }
-    } catch (error) {
-        console.error('微信登录过程异常', error)
     }
 }
 

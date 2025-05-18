@@ -61,7 +61,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         if (update.type === "update") {
           XunFeiRes.value += update.content;
         } else if (update.type === "error") {
-          common_vendor.index.__f__("log", "at pages/detail/detail.vue:200", update.error);
+          common_vendor.index.__f__("log", "at pages/detail/detail.vue:186", update.error);
         } else if (update.type === "done" || "end") {
           isDone.value = true;
         }
@@ -119,7 +119,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         const userInfoRes = await api_api.getUserInfo(userId);
         isLiked.value = JSON.parse(userInfoRes.liked).includes(info.value.releaseID);
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/detail/detail.vue:262", e);
+        common_vendor.index.__f__("log", "at pages/detail/detail.vue:248", e);
         common_vendor.index.showToast({
           title: "操作失败",
           icon: "none"
@@ -132,21 +132,19 @@ const _sfc_defineComponent = common_vendor.defineComponent({
       });
     };
     __expose({
-      // 分享给好友
       onShareAppMessage() {
         return {
           title: "旅游日记分享",
           path: `/pages/detail/detail?info=${encodeURIComponent(JSON.stringify(info.value))}`,
-          imageUrl: info.value.pictures[0] || "/static/public/555.jpg"
+          imageUrl: info.value.pictures[0] || ""
         };
       },
-      // 分享到朋友圈
       onShareTimeline() {
         return {
           title: "旅游日记分享",
           // 默认自带本页路径,只需写查询参数
           query: `info=${encodeURIComponent(JSON.stringify(info.value))}`,
-          imageUrl: info.value.pictures[0] || "/static/public/555.jpg"
+          imageUrl: info.value.pictures[0] || ""
         };
       }
     });
@@ -167,7 +165,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
                 const userInfoRes = await api_api.getUserInfo(userId);
                 isFollow.value = userInfoRes.follow.includes(info.value.userID);
               } catch (e) {
-                common_vendor.index.__f__("log", "at pages/detail/detail.vue:316", e);
+                common_vendor.index.__f__("log", "at pages/detail/detail.vue:299", e);
                 common_vendor.index.showToast({
                   title: e,
                   icon: "none"
@@ -191,7 +189,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
                 const userInfoRes = await api_api.getUserInfo(userId);
                 isFollow.value = userInfoRes.follow.includes(info.value.userID);
               } catch (e) {
-                common_vendor.index.__f__("log", "at pages/detail/detail.vue:340", e);
+                common_vendor.index.__f__("log", "at pages/detail/detail.vue:323", e);
                 common_vendor.index.showToast({
                   title: "操作失败",
                   icon: "none"
@@ -210,7 +208,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
         current: stringUrls[current],
         // 显示第几张
         fail: (e) => {
-          common_vendor.index.__f__("error", "at pages/detail/detail.vue:359", "预览失败:", e);
+          common_vendor.index.__f__("error", "at pages/detail/detail.vue:341", "预览失败:", e);
         }
       });
     };
@@ -232,7 +230,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
       }
     };
     const videoError = (e) => {
-      common_vendor.index.__f__("error", "at pages/detail/detail.vue:385", "视频播放错误:", e.detail);
+      common_vendor.index.__f__("error", "at pages/detail/detail.vue:365", "视频播放错误:", e.detail);
       common_vendor.index.showToast({
         title: "视频播放失败",
         icon: "none"
@@ -253,7 +251,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
           });
         }
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/detail/detail.vue:408", e);
+        common_vendor.index.__f__("log", "at pages/detail/detail.vue:388", e);
       }
     });
     common_vendor.onShow(() => {
@@ -266,7 +264,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
           });
         }
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/detail/detail.vue:423", e);
+        common_vendor.index.__f__("log", "at pages/detail/detail.vue:403", e);
       }
     });
     return (_ctx, _cache) => {

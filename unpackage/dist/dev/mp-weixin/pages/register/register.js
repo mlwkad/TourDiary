@@ -51,9 +51,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       return isValid;
     };
     const handleRegister = async () => {
-      if (!validateForm()) {
+      if (!validateForm())
         return;
-      }
       common_vendor.index.showLoading({
         title: "注册中..."
       });
@@ -81,10 +80,12 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           icon: "success"
         });
         setTimeout(() => {
-          common_vendor.index.navigateBack();
+          common_vendor.index.reLaunch({
+            url: "/pages/index/index"
+          });
         }, 1e3);
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/register/register.vue:140", e);
+        common_vendor.index.__f__("log", "at pages/register/register.vue:139", e);
         common_vendor.index.hideLoading();
         common_vendor.index.showToast({
           title: "注册失败，请稍后重试",
@@ -105,7 +106,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       });
     };
     const goToLogin = () => {
-      common_vendor.index.navigateBack();
+      common_vendor.index.navigateTo({
+        url: "/pages/login/login"
+      });
     };
     common_vendor.onShow(() => {
       avatarUrl.value = "/static/public/defaultAvatar.png";

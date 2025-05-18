@@ -5,6 +5,19 @@ let baseUrl = "";
 {
   baseUrl = "https://vkxvigkepssq.sealosbja.site";
 }
+const map = /* @__PURE__ */ new Map();
+const throttle = (key, delay = 1e3) => {
+  const date = (/* @__PURE__ */ new Date()).getTime();
+  if (map.has(key) && date - map.get(key) < delay) {
+    common_vendor.index.showToast({
+      title: "请求过于频繁",
+      icon: "none"
+    });
+    return false;
+  }
+  map.set(key, date);
+  return true;
+};
 const signUp = (data) => {
   return api_http.http("/api/signUp", data, "POST");
 };
@@ -36,6 +49,8 @@ const searchReleases = (data) => {
   return api_http.http("/api/releases/search", data, "POST");
 };
 const getReleaseDetail = (releaseID) => {
+  if (!throttle(`getReleaseDetail`, 100))
+    return;
   return api_http.http(`/api/release/${releaseID}`);
 };
 const createRelease = (data) => {
@@ -45,43 +60,32 @@ const updateRelease = (releaseID, data) => {
   return api_http.http(`/api/release/${releaseID}`, data, "PUT");
 };
 const deleteRelease = (releaseID, userID) => {
+  if (!throttle(`deleteRelease`, 300))
+    return;
   return api_http.http(`/api/release/${releaseID}`, { userID }, "DELETE");
 };
 const updateState = (releaseID, data) => {
+  if (!throttle(`updateState`, 300))
+    return;
   return api_http.http(`/api/release/${releaseID}/state`, data, "PUT");
 };
 const getFollowingList = (userID) => {
   return api_http.http(`/api/user/${userID}/following`);
 };
 const follow = (userID, data) => {
+  if (!throttle(`follow`, 300))
+    return;
   return api_http.http(`/api/user/${userID}/follow`, data, "POST");
 };
 const unfollow = (userID, followUserID) => {
+  if (!throttle(`unfollow`, 300))
+    return;
   return api_http.http(`/api/user/${userID}/follow/${followUserID}`, {}, "DELETE");
-};
-const uploadSingleFile = (filePath, url) => {
-  return new Promise((resolve, reject) => {
-    common_vendor.index.uploadFile({
-      url,
-      filePath,
-      name: "file",
-      success: (res) => {
-        if (res.statusCode === 200) {
-          const data = JSON.parse(res.data);
-          resolve(data.success ? data.data : null);
-        } else {
-          reject(`服务器错误(${res.statusCode})`);
-        }
-      },
-      fail: (e) => reject(e)
-    });
-  });
 };
 const uploadFiles = async (filePaths, type = "") => {
   const paths = Array.isArray(filePaths) ? filePaths : [filePaths];
-  if (paths.length === 0 || !paths[0]) {
+  if (paths.length === 0 || !paths[0])
     return { pictures: [], videos: [], covers: [] };
-  }
   let url = baseUrl + "/api/upload";
   if (type) {
     url += `?type=${type}`;
@@ -102,11 +106,29 @@ const uploadFiles = async (filePaths, type = "") => {
     }
     return result;
   } catch (e) {
-    common_vendor.index.__f__("log", "at api/api.js:159", e);
+    common_vendor.index.__f__("log", "at api/api.js:145", e);
     return { pictures: [], videos: [], covers: [] };
   } finally {
     common_vendor.index.hideLoading();
   }
+};
+const uploadSingleFile = (filePath, url) => {
+  return new Promise((resolve, reject) => {
+    common_vendor.index.uploadFile({
+      url,
+      filePath,
+      name: "file",
+      success: (res) => {
+        if (res.statusCode === 200) {
+          const data = JSON.parse(res.data);
+          resolve(data.success ? data.data : null);
+        } else {
+          reject(`服务器错误(${res.statusCode})`);
+        }
+      },
+      fail: (e) => reject(e)
+    });
+  });
 };
 exports.addLiked = addLiked;
 exports.checkLogin = checkLogin;

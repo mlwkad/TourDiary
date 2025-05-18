@@ -38,19 +38,18 @@
 					<image class="arrow-icon" src="/static/public/back.png"></image>
 				</view>
 			</view>
-			<!-- <view class="option-group">
+			<view class="option-group">
 				<view class="option-item" @click="navigateTo('settings')">
 					<image class="option-icon" src="/static/public/search.png"></image>
 					<text class="option-text">设置</text>
 					<image class="arrow-icon" src="/static/public/back.png"></image>
 				</view>
-
 				<view class="option-item" @click="navigateTo('feedback')">
 					<image class="option-icon" src="/static/public/search.png"></image>
 					<text class="option-text">意见反馈</text>
 					<image class="arrow-icon" src="/static/public/back.png"></image>
 				</view>
-			</view> -->
+			</view>
 			<view v-if="isLoggedIn" class="logout-btn" @click="handleLogout">
 				退出登录
 			</view>

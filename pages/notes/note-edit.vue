@@ -155,7 +155,7 @@ const validateForm = () => {
         note.title = titleVal.filteredText
     }
     // 内容验证
-    const contentVal = validateContent(note.content);
+    const contentVal = validateContent(note.content)
     if (!contentVal.isValid) {
         errors.content = contentVal.message
         isValid = false
@@ -164,7 +164,7 @@ const validateForm = () => {
     }
     // 位置验证
     if (note.location) {
-        const locationVal = validateLocation(note.location);
+        const locationVal = validateLocation(note.location)
         if (!locationVal.isValid) {
             errors.location = locationVal.message
             isValid = false
@@ -197,18 +197,14 @@ const validateForm = () => {
 
 // 保存笔记
 const saveNote = async () => {
-    // 使用验证函数验证表单
-    if (!validateForm()) {
-        return // 如果验证失败，直接返回
-    }
+    if (!validateForm()) return
     uni.showLoading({
         title: '正在处理...'
     })
     try {
         if (note.pictures.length > 0) {
-            // 过滤掉已经上传的图片(以https://objectstorageapi开头的URL)
-            const newPictures = note.pictures.filter(pic => !String(pic).startsWith('https://objectstorageapi'))
-            const existingPictures = note.pictures.filter(pic => String(pic).startsWith('https://objectstorageapi'))
+            const newPictures = note.pictures.filter((pic: string) => !String(pic).startsWith('https://objectstorageapi'))
+            const existingPictures = note.pictures.filter((pic: string) => String(pic).startsWith('https://objectstorageapi'))
             if (newPictures.length > 0) {
                 const pictureRes = await uploadFiles(newPictures, 'image')
                 note.pictures = [...existingPictures, ...pictureRes.pictures]

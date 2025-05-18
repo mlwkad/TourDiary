@@ -93,9 +93,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       return isValid;
     };
     const saveNote = async () => {
-      if (!validateForm()) {
+      if (!validateForm())
         return;
-      }
       common_vendor.index.showLoading({
         title: "正在处理..."
       });
@@ -140,7 +139,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           common_vendor.index.navigateBack();
         }, 1e3);
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/notes/note-edit.vue:250", e);
+        common_vendor.index.__f__("log", "at pages/notes/note-edit.vue:246", e);
         common_vendor.index.hideLoading();
         common_vendor.index.showToast({
           title: "保存失败",
@@ -155,7 +154,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           errors.location = "";
         },
         fail: (err) => {
-          common_vendor.index.__f__("error", "at pages/notes/note-edit.vue:269", "选择位置失败", err);
+          common_vendor.index.__f__("error", "at pages/notes/note-edit.vue:265", "选择位置失败", err);
         }
       });
     };

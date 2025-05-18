@@ -1,9 +1,8 @@
 <template>
     <view class="notes-container">
-        <!-- 内容区域 -->
         <!-- refresher-enabled @refresherrefresh="onRefresh" :refresher-triggered="isRefreshing" -->
-        <scroll-view scroll-y class="content-area">
-            <!-- 笔记列表 -->
+        <scroll-view class="content-area" scroll-y refresher-enabled @refresherrefresh="onRefresh"
+            :refresher-triggered="isRefreshing">
             <template v-if="notes.length > 0">
                 <view class="notes-list">
                     <view class="note-item" v-for="(note, index) in notes" :key="index"
@@ -41,15 +40,11 @@
                             <image v-for="(img, imgIndex) in note.pictures" :key="imgIndex" :src="img" mode="aspectFill"
                                 @click.stop="previewImage(note.pictures, imgIndex)" lazy-load="true"></image>
                         </view>
-
-                        <!-- 提示点击查看详情 -->
                         <view class="view-more">
                             <text>点击查看详情</text>
                         </view>
                     </view>
                 </view>
-
-                <!-- 底部提示 -->
                 <view class="list-footer">
                     <text>已经到底啦~</text>
                 </view>
@@ -63,8 +58,6 @@
                 </view>
             </template>
         </scroll-view>
-
-        <!-- 悬浮添加按钮 -->
         <view class="add-button-wrapper" @click="createNote">
             <image class="add-button" src="/static/public/add.png"></image>
             <view class="add-label">添加笔记</view>
@@ -85,8 +78,8 @@ import { onLoad, onShow } from '@dcloudio/uni-app'
 import { getUserReleases, getReleaseDetail, deleteRelease, updateState } from '../../api/api';
 
 // 笔记数据
-const notes = ref<any[]>([]);
-const isRefreshing = ref(false);
+const notes = ref<any[]>([])
+const isRefreshing = ref(false)
 const userID = JSON.parse(uni.getStorageSync('userInfo')).userId
 const showAllReason = ref<boolean>(false)
 const allReason = ref<string>('')
@@ -170,14 +163,14 @@ const deleteNote = (info: any, index: number) => {
             }
         }
     })
-};
+}
 
 // 创建新笔记
 const createNote = () => {
     uni.reLaunch({
         url: '/pages/Release/Release'
-    });
-};
+    })
+}
 
 // 改变状态
 const changeState = async (note) => {
@@ -208,8 +201,15 @@ const previewImage = (images: string[], current: number) => {
     uni.previewImage({
         urls: stringUrls,  // [url1,url2] 图片地址数组  
         current: images[current]  // 当前显示的图片索引
-    });
-};
+    })
+}
+
+const onRefresh = async () => {
+    isRefreshing.value = true
+    const res = await getUserReleases(userID)
+    notes.value = res
+    isRefreshing.value = false
+}
 
 onLoad(async () => {
     const res = await getUserReleases(userID)

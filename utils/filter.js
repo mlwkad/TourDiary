@@ -1,13 +1,6 @@
 // * 过滤校验
-// * 1.防SQL注入
-// * 2.敏感词检测
-// * 3.后端 参数化查询
-
-export function filterSql(text) {
-    if (!text) return ''
-    const sqlPattern = /('|"|;|--|\/\*|\*\/|@@|@|char|nchar|varchar|nvarchar|alter|begin|cast|create|cursor|declare|delete|drop|end|exec|execute|fetch|insert|kill|open|select|sys|sysobjects|syscolumns|table|update)/gi
-    return text.replace(sqlPattern, '').replace(/[<>]/g, '').trim()
-}
+// * 1.数据合理性
+// * 2.后端 参数化查询
 
 const sensitive = /(赌博|色情|暴力|政治|违法)/gi
 

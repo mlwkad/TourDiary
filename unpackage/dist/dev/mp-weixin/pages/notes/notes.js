@@ -6,7 +6,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "notes",
   setup(__props) {
     const notes = common_vendor.ref([]);
-    common_vendor.ref(false);
+    const isRefreshing = common_vendor.ref(false);
     const userID = JSON.parse(common_vendor.index.getStorageSync("userInfo")).userId;
     const showAllReason = common_vendor.ref(false);
     const allReason = common_vendor.ref("");
@@ -48,7 +48,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           url: `/pages/detail/detail?info=${encodeURIComponent(JSON.stringify(info))}`
         });
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/notes/notes.vue:133", e);
+        common_vendor.index.__f__("log", "at pages/notes/notes.vue:126", e);
         common_vendor.index.showToast({
           title: "获取详情失败",
           icon: "none"
@@ -75,7 +75,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
               const res2 = await api_api.getUserReleases(userID);
               notes.value = res2;
             } catch (e) {
-              common_vendor.index.__f__("log", "at pages/notes/notes.vue:164", e);
+              common_vendor.index.__f__("log", "at pages/notes/notes.vue:157", e);
               common_vendor.index.showToast({
                 title: "删除失败",
                 icon: "none"
@@ -103,7 +103,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         const res = await api_api.getUserReleases(userID);
         notes.value = res;
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/notes/notes.vue:197", e);
+        common_vendor.index.__f__("log", "at pages/notes/notes.vue:190", e);
         common_vendor.index.showToast({
           title: "更新状态失败",
           icon: "none"
@@ -118,6 +118,12 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         current: images[current]
         // 当前显示的图片索引
       });
+    };
+    const onRefresh = async () => {
+      isRefreshing.value = true;
+      const res = await api_api.getUserReleases(userID);
+      notes.value = res;
+      isRefreshing.value = false;
     };
     common_vendor.onLoad(async () => {
       const res = await api_api.getUserReleases(userID);
@@ -175,15 +181,17 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         c: common_assets._imports_2,
         d: common_vendor.o(createNote)
       }, {
-        e: common_assets._imports_2$3,
-        f: common_vendor.o(createNote),
-        g: showAllReason.value
+        e: common_vendor.o(onRefresh),
+        f: isRefreshing.value,
+        g: common_assets._imports_2$3,
+        h: common_vendor.o(createNote),
+        i: showAllReason.value
       }, showAllReason.value ? {
-        h: common_vendor.t(allReason.value),
-        i: common_vendor.o(($event) => showAllReason.value = false),
-        j: common_vendor.o(() => {
+        j: common_vendor.t(allReason.value),
+        k: common_vendor.o(($event) => showAllReason.value = false),
+        l: common_vendor.o(() => {
         }),
-        k: common_vendor.o(($event) => showAllReason.value = false)
+        m: common_vendor.o(($event) => showAllReason.value = false)
       } : {});
     };
   }

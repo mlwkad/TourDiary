@@ -34,7 +34,7 @@ const getWebSocketConnection = () => {
         success: () => {
         },
         fail: (error) => {
-          common_vendor.index.__f__("log", "at api/ws.js:43", "WebSocket连接失败:", error);
+          common_vendor.index.__f__("log", "at api/ws.js:45", "WebSocket连接失败:", error);
           isConnecting = false;
           reject(error);
         }
@@ -58,17 +58,15 @@ const getWebSocketConnection = () => {
             switch (data.type) {
               case "chat":
                 messageCallback({
-                  // 触发回调函数
+                  // 触发回调
                   type: "update",
-                  content: data.content,
-                  onlineInfo: data.onlineInfo
+                  content: data.content
                 });
                 break;
               case "done":
                 messageCallback({
                   type: "complete",
-                  content: data.content,
-                  totalTokens: data.totalTokens
+                  content: data.content
                 });
                 break;
               case "error":
@@ -85,11 +83,11 @@ const getWebSocketConnection = () => {
             }
           }
         } catch (e) {
-          common_vendor.index.__f__("log", "at api/ws.js:99", "解析WebSocket消息失败:", e);
+          common_vendor.index.__f__("log", "at api/ws.js:93", "解析WebSocket消息失败:", e);
         }
       });
       socketTask.onError((err) => {
-        common_vendor.index.__f__("log", "at api/ws.js:104", "socketTask发生错误:", err);
+        common_vendor.index.__f__("log", "at api/ws.js:97", "socketTask发生错误:", err);
         if (connectionTimeout) {
           clearTimeout(connectionTimeout);
         }
@@ -98,7 +96,7 @@ const getWebSocketConnection = () => {
         reject(err);
       });
       socketTask.onClose(() => {
-        common_vendor.index.__f__("log", "at api/ws.js:114", "WebSocket连接已关闭");
+        common_vendor.index.__f__("log", "at api/ws.js:106", "WebSocket连接已关闭");
         if (connectionTimeout) {
           clearTimeout(connectionTimeout);
         }
@@ -106,7 +104,7 @@ const getWebSocketConnection = () => {
         isConnecting = false;
       });
     } catch (error) {
-      common_vendor.index.__f__("log", "at api/ws.js:122", "创建WebSocket连接时发生错误:", error);
+      common_vendor.index.__f__("log", "at api/ws.js:114", "创建WebSocket连接时发生错误:", error);
       isConnecting = false;
       reject(error);
     }
@@ -116,7 +114,6 @@ const streamChat = (message, onUpdate) => {
   messageCallback = onUpdate;
   getWebSocketConnection().then((task) => {
     task.send({
-      // 发送消息
       data: JSON.stringify({
         type: "chat",
         message

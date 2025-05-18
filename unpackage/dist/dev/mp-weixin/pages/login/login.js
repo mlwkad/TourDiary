@@ -85,9 +85,11 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           userInfo.avatarUrl = res.avatar;
           await common_vendor.index.setStorageSync("token", res.userID);
           await common_vendor.index.setStorageSync("userInfo", JSON.stringify(userInfo));
-          common_vendor.index.navigateBack();
+          common_vendor.index.reLaunch({
+            url: "/pages/index/index"
+          });
         }).catch((err) => {
-          common_vendor.index.__f__("log", "at pages/login/login.vue:131", err);
+          common_vendor.index.__f__("log", "at pages/login/login.vue:133", err);
           common_vendor.index.hideLoading();
           common_vendor.index.showToast({
             title: "登录失败，请检查用户名和密码",
@@ -95,7 +97,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           });
         });
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/login/login.vue:139", e);
+        common_vendor.index.__f__("log", "at pages/login/login.vue:141", e);
         common_vendor.index.hideLoading();
         common_vendor.index.showToast({
           title: "登录失败，请稍后重试",

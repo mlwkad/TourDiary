@@ -103,10 +103,7 @@ const validateForm = () => {
 
 // 注册处理
 const handleRegister = async () => {
-    // 验证表单
-    if (!validateForm()) {
-        return
-    }
+    if (!validateForm()) return
     uni.showLoading({
         title: '注册中...'
     })
@@ -134,7 +131,9 @@ const handleRegister = async () => {
             icon: 'success'
         })
         setTimeout(() => {
-            uni.navigateBack()
+            uni.reLaunch({
+                url: '/pages/index/index'
+            })
         }, 1000)
     } catch (e) {
         console.log(e)
@@ -159,7 +158,9 @@ const changeAvatar = () => {
 
 // 跳转到登录页
 const goToLogin = () => {
-    uni.navigateBack()
+    uni.navigateTo({
+        url: '/pages/login/login'
+    })
 }
 
 onShow(() => {

@@ -70,7 +70,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             const result = await api_api.uploadFiles(res.tempFilePaths, "image");
             userInfo.avatarUrl = result.pictures[0];
           } catch (e) {
-            common_vendor.index.__f__("log", "at pages/My/My.vue:162", e);
+            common_vendor.index.__f__("log", "at pages/My/My.vue:161", e);
           }
         }
       });
@@ -89,7 +89,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           icon: "success"
         });
       } catch (e) {
-        common_vendor.index.__f__("log", "at pages/My/My.vue:182", e);
+        common_vendor.index.__f__("log", "at pages/My/My.vue:181", e);
         common_vendor.index.showToast({
           title: "修改失败",
           icon: "none"
@@ -148,20 +148,26 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         p: common_assets._imports_5,
         q: common_assets._imports_3$1,
         r: common_vendor.o(($event) => navigateTo("follow")),
-        s: isLoggedIn.value
+        s: common_assets._imports_2,
+        t: common_assets._imports_3$1,
+        v: common_vendor.o(($event) => navigateTo("settings")),
+        w: common_assets._imports_2,
+        x: common_assets._imports_3$1,
+        y: common_vendor.o(($event) => navigateTo("feedback")),
+        z: isLoggedIn.value
       }, isLoggedIn.value ? {
-        t: common_vendor.o(handleLogout)
+        A: common_vendor.o(handleLogout)
       } : {}, {
-        v: common_vendor.unref(isShow)
+        B: common_vendor.unref(isShow)
       }, common_vendor.unref(isShow) ? {
-        w: common_assets._imports_4,
-        x: common_vendor.o(($event) => common_vendor.isRef(isShow) ? isShow.value = false : isShow = false),
-        y: userInfo.avatarUrl,
-        z: common_vendor.o(chooseavatar),
-        A: userInfo.nickName,
-        B: userInfo.nickName,
-        C: common_vendor.o(($event) => userInfo.nickName = $event.detail.value),
-        D: common_vendor.o(changeUserInfo)
+        C: common_assets._imports_4,
+        D: common_vendor.o(($event) => common_vendor.isRef(isShow) ? isShow.value = false : isShow = false),
+        E: userInfo.avatarUrl,
+        F: common_vendor.o(chooseavatar),
+        G: userInfo.nickName,
+        H: userInfo.nickName,
+        I: common_vendor.o(($event) => userInfo.nickName = $event.detail.value),
+        J: common_vendor.o(changeUserInfo)
       } : {});
     };
   }
